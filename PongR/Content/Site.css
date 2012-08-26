@@ -90,20 +90,82 @@ input, button
 }
 
 
-/* PongR page specific style */
+/******* PongR page specific style *********/
+
+/* Header style */
 #header
 {
     width: 100%;
     height:15%;
+    /*border: 1px solid black;*/  
+}
+
+.half 
+{
+    width: 50%;
+    height: 100%;
+    float: left;       
+}
+
+.player-info
+{
+    margin-top: 2%;
+    width: 52%;
+    height: 50%;
     border: 1px solid black;
 }
+
+#player1-info
+{
+    margin-left: 12%;
+}
+
+#player2-info
+{
+    float:right;
+    margin-right: 12%;
+}
+
+.player-info ul li 
+{
+    padding: 2% 2% 2% 2%;
+    font-size: 30px;    
+}
+
+.player-score
+{
+    float:right;
+    border-left: 1px solid black;
+}
+
+/* Field  style */
 
 #fieldContainer
 {
     width: 100%;
     height: 85%;
-    border: 1px solid black;  
+    /*border: 1px solid black;*/  
 }
+
+.field
+{
+    width: 40%;
+    height: 95%;
+    float: left;
+    border: 1px solid black;    
+}
+
+#player1-field
+{
+    margin-left: 10%;   
+    border-right: 1px dotted black;
+}
+
+#player2-field
+{
+    border-left: 1px dotted black;
+}
+
 
 #footer 
 {
