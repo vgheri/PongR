@@ -182,7 +182,42 @@ input, button
     border-left: 1px dotted black;
 }
 
+.player-goal 
+{
+    width: 5%;
+    height: 100%; 
+    display:inline;   
+}
 
+#player1-goal
+{
+    float: left;
+}
+
+#player2-goal
+{
+    float: right;
+}
+
+.player-area
+{
+    width: 7%;
+    height: 100%;
+}
+
+#player1-area
+{
+    display:inline;
+    float:left;
+}
+
+#player2-area
+{
+    display:inline;
+    float:right;
+}
+
+/******* Footer **********/
 #footer 
 {
     width: 100%;
