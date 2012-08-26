@@ -100,11 +100,27 @@ input, button
     /*border: 1px solid black;*/  
 }
 
-.half 
+.player-info-container 
 {
-    width: 50%;
+    width: 48%;
     height: 100%;
     float: left;       
+}
+
+#vs 
+{
+    display: inline;
+    float: left;
+    width: 4%;
+    height: 100%;  
+    
+}
+
+#vs div
+{
+    margin-top: 10%;  
+    padding: 20% 20% 20% 20%;
+    font-size: 30px;
 }
 
 .player-info
