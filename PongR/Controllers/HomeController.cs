@@ -43,7 +43,7 @@ namespace PongR.Controllers
                 if (_userRepository.ConnectedUsers.Where(u => u.Username.Equals(username)).ToList().Count > 0)
                 {
                     username = _userRepository.GetRandomizedUsername(username);
-                }                
+                }                     
                 return View("PongR", "_Layout", username);
             }
         }
