@@ -7,30 +7,35 @@
 var pongR = (function (myPongR, $) {
 
     // ViewModels
-    myPongR.point = function (x, y) {
+    myPongR.Point = function (x, y) {
         var self = this;
         self.x = x;
         self.y = y;
     };
 
-    myPongR.player = function (username, connectionId) {
+    myPongR.User = function (username, connectionId) {
         var self = this;
         self.username = username;
         self.connectionId = connectionId;
+    }
+
+    myPongR.Player = function (user) {
+        var self = this;
+        self.user = user;        
         self.barDirection = ""; // Can be up or down
         self.barMarginTop = 600; // %
         self.vertexes = []; // TODO getInitialPosition()
         self.score = 0;
     };
 
-    myPongR.ball = function (x, y, direction) {
+    myPongR.Ball = function (x, y, direction) {
         var self = this;
         self.x = x;
         self.y = y;
         self.direction = direction; // can be left or right
     };
 
-    myPongR.app = function (player1, player2, ball) {
+    myPongR.App = function (player1, player2, ball) {
         var self = this;
         self.player1 = player1;
         self.player2 = player2;
