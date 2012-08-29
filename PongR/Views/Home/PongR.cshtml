@@ -65,28 +65,34 @@ on the server. Each hub on the server will become a property on the client side 
     
     var pongRHub;
 
-    // Function invoked when the user has to wait for an opponent
-    pongHub.waits = function() {
-        // TODO: Use a lightbox to display a waiting message
-    }
-
-    pongHub.start = function() {
-        // TODO: Populate all the view models and do the binding with knockout.
-        // Set the timeouts to compute game state and for notifying bars position
-        // Start to animate the ball
-    }
-
-
     $(document).ready(function () {
         // Proxy creation
         pongRHub = $.connection.pongRHub;
         pongRHub.username = @Html.Raw(Json.Encode(Model));
 
+        pongRHub.opponentLeft = function() {
+            alert("Opponent left. Going back to wait list");
+            // TODO: Wait
+        }
+
+        // Function invoked when the user has to wait for an opponent
+        pongRHub.wait = function() {
+            // TODO: Use a lightbox to display a waiting message
+            alert("Wait. Do nothing.");
+        }
+
+        pongRHub.startMatch = function(opts) {
+            // TODO: Populate all the view models and do the binding with knockout.
+            // Set the timeouts to compute game state and for notifying bars position
+            // Start to animate the ball
+            var temp = opts;
+        }
+
         // Step 1: Start the connection        
         // Step 3: Join the system
         $.connection.hub.start()
                     .done(function () {
-                        chatHub.joined();
+                        pongRHub.joined();
                     });
                     
     });

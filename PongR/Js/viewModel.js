@@ -21,7 +21,7 @@ var pongR = (function (myPongR, $) {
 
     myPongR.Player = function (user) {
         var self = this;
-        self.user = user;        
+        self.user = user;
         self.barDirection = ""; // Can be up or down
         self.barMarginTop = 600; // %
         self.vertexes = []; // TODO getInitialPosition()
@@ -35,8 +35,9 @@ var pongR = (function (myPongR, $) {
         self.direction = direction; // can be left or right
     };
 
-    myPongR.App = function (player1, player2, ball) {
+    myPongR.App = function (id, player1, player2, ball) {
         var self = this;
+        self.playRoomId = id;
         self.player1 = player1;
         self.player2 = player2;
         self.ball = ball;

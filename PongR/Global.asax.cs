@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using PongR.Models;
 
 namespace PongR
 {
@@ -32,6 +33,10 @@ namespace PongR
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
+
+            // TODO: remove this. For testing only. Clear repositories
+            InMemoryUserRepository.GetInstance().ConnectedUsers.ToList().Clear();
+            InMemoryRoomRepository.GetInstance().Rooms.ToList().Clear();
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);

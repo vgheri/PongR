@@ -7,8 +7,8 @@ namespace PongR.Models
 {
     public class PlayRoom
     {
-        private string Id { get; set; }
-        private User Player1 { get; set; }
-        private User Player2 { get; set; }        
+        public string Id { get; set; }
+        public User Player1 { get; set; }
+        public User Player2 { get; set; }        
     }
 }
