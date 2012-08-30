@@ -6,6 +6,7 @@
 
 var pongR = (function (myPongR, $) {
 
+    /*
     function getBallX(radius) {
         var x = $(".ball")[0].style.left;
         return x - radius;
@@ -35,6 +36,7 @@ var pongR = (function (myPongR, $) {
         y = $("#fieldContainer").style.top;
         return new myPongR.Point(x, y);
     }
+    */
 
     function getElementTopLeftVertex(element) {
         var x, y;
@@ -93,6 +95,8 @@ var pongR = (function (myPongR, $) {
         self.player2 = new myPongR.Player(player2, 2);
         self.ball = new myPongR.Ball(ballDirection);
         self.fieldTopLeftVertex = getElementTopLeftVertex(element);
+        self.fieldWidth = $("#fieldContainer").offsetWidth;
+        self.fieldHeight = $("#fieldContainer").offsetHeight;
     };
 
     return myPongR;
