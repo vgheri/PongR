@@ -15,8 +15,8 @@
     <div class="player-info-container">
         <div id="player1-info" class="player-info">
             <ul>
-                <li id="player1-name">Test name</li>
-                <li id="player1-score" class="player-score">0</li>
+                <li id="player1-name" data-bind="text: player1.user.username"></li>
+                <li id="player1-score" class="player-score" data-bind="text: player1.score"></li>
             </ul>            
         </div>
     </div>
@@ -24,8 +24,8 @@
     <div class="player-info-container">
         <div id="player2-info" class="player-info">
             <ul>
-                <li id="player2-name">Test name 2</li>
-                <li id="player2-score" class="player-score">1</li>
+                <li id="player2-name" data-bind="text: player2.user.username"></li>
+                <li id="player2-score" class="player-score" data-bind="text: player2.score"></li>
             </ul>
         </div>
     </div>
@@ -33,7 +33,7 @@
 
 <!-- Contains the play field -->
 
-<div id="fieldContainer">
+<div id="fieldContainer">    
     <div id="player1-field" class="field">
         <div id="player1-goal" class="player-goal"></div>
         <div id="player1-area" class="player-area">
@@ -45,7 +45,7 @@
         <div id="player2-area" class="player-area">
             <div id="player2-bar" class="player-bar initial-position"></div>           
         </div>  
-    </div>
+    </div>    
 </div>
 
 <div class="ball"></div>
@@ -68,6 +68,7 @@ on the server. Each hub on the server will become a property on the client side 
 <script type="text/javascript">
     
     var pongRHub;
+    var app;
     //var me; // indicates which of the two player I am
 
     $(document).ready(function () {
@@ -90,8 +91,8 @@ on the server. Each hub on the server will become a property on the client side 
             // TODO: Populate all the view models and do the binding with knockout.
             // Set the timeouts to compute game state and for notifying bars position
             // Start to animate the ball           
-            var app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
-            //ko.applyBindings(app);
+            app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
+            ko.applyBindings(app);
         }
 
         // Step 1: Start the connection        

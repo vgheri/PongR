@@ -40,8 +40,8 @@ var pongR = (function (myPongR, $) {
 
     function getElementTopLeftVertex(element) {
         var x, y;
-        x = element.style.left;
-        y = element.style.top;
+        x = element.offsetLeft;
+        y = element.offsetTop;
         return new myPongR.Point(x, y);
     }
 
@@ -54,7 +54,7 @@ var pongR = (function (myPongR, $) {
 
     myPongR.User = function (username, connectionId) {
         var self = this;
-        self.username = username;
+        self.username = ko.observable(username);
         self.connectionId = connectionId;
     };
 
@@ -62,10 +62,10 @@ var pongR = (function (myPongR, $) {
         var self = this;
         var element = null;
         if (playerNumber === 1) {
-            element = $("#player1-bar");
+            element = $("#player1-bar")[0];
         }
         else {
-            element = $("#player2-bar");
+            element = $("#player2-bar")[0];
         }
         self.user = new myPongR.User(user.Username, user.Id);
         self.playerNumber = playerNumber;
@@ -74,29 +74,29 @@ var pongR = (function (myPongR, $) {
         self.topLeftVertex = getElementTopLeftVertex(element);
         self.barWidth = $(".player-bar")[0].offsetWidth;
         self.barHeight = $(".player-bar")[0].offsetHeight;
-        self.score = 0;
+        self.score = ko.observable(0);
     };
 
     myPongR.Ball = function (direction) {
         var self = this;
-        self.radius = ($(".ball")[0].offsetWidth) / 2;
         var element = $(".ball")[0];
+        self.radius = element.offsetWidth / 2;        
         var tempPoint = getElementTopLeftVertex(element);
-        var center = new myPongR.Point(tempPoint.x - radius, tempPoint.y - radius);
+        var center = new myPongR.Point(tempPoint.x - self.radius, tempPoint.y - self.radius);
         self.Coordinates = center;
         self.direction = direction; // can be left or right
     };
 
     myPongR.App = function (id, player1, player2, ballDirection) {
         var self = this;
-        var element = $("#fieldContainer");
+        var element = $("#player1-field")[0];
         self.playRoomId = id;
         self.player1 = new myPongR.Player(player1, 1);
         self.player2 = new myPongR.Player(player2, 2);
         self.ball = new myPongR.Ball(ballDirection);
         self.fieldTopLeftVertex = getElementTopLeftVertex(element);
-        self.fieldWidth = $("#fieldContainer").offsetWidth;
-        self.fieldHeight = $("#fieldContainer").offsetHeight;
+        self.fieldWidth = element.offsetWidth * 2;
+        self.fieldHeight = element.offsetHeight;
     };
 
     return myPongR;
