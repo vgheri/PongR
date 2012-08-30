@@ -3,7 +3,11 @@
 }
 
 @if (false) { 
-        <script src="../../Scripts/jquery-1.8.0-vsdoc.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery-1.8.0-vsdoc.js" type="text/javascript"></script>
+    <script src="../../Js/pongR.js" type="text/javascript"></script>
+    <script src="../../Js/viewModel.js" type="text/javascript"></script>
+    <script src="../../Js/logic.js" type="text/javascript"></script>
+    <script src="../../Scripts/knockout-2.1.0.js" type="text/javascript"></script>
 }
 <!-- Contains players' name and the score -->
 
@@ -64,6 +68,7 @@ on the server. Each hub on the server will become a property on the client side 
 <script type="text/javascript">
     
     var pongRHub;
+    //var me; // indicates which of the two player I am
 
     $(document).ready(function () {
         // Proxy creation
@@ -84,8 +89,9 @@ on the server. Each hub on the server will become a property on the client side 
         pongRHub.startMatch = function(opts) {
             // TODO: Populate all the view models and do the binding with knockout.
             // Set the timeouts to compute game state and for notifying bars position
-            // Start to animate the ball
-            var temp = opts;
+            // Start to animate the ball           
+            var app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
+            //ko.applyBindings(app);
         }
 
         // Step 1: Start the connection        
