@@ -37,13 +37,13 @@
     <div id="player1-field" class="field">
         <div id="player1-goal" class="player-goal"></div>
         <div id="player1-area" class="player-area">
-            <div id="player1-bar" class="player-bar initial-position"></div>           
+            <div id="player1-bar" class="player-bar initial-position"></div>  // TODO: data bind the marginTop style with ko      
         </div>             
     </div>        
     <div id="player2-field" class="field">
         <div id="player2-goal" class="player-goal"></div>
         <div id="player2-area" class="player-area">
-            <div id="player2-bar" class="player-bar initial-position"></div>           
+            <div id="player2-bar" class="player-bar initial-position"></div>  // TODO: data bind the marginTop style with ko 
         </div>  
     </div>    
 </div>
@@ -69,7 +69,10 @@ on the server. Each hub on the server will become a property on the client side 
     
     var pongRHub;
     var app;
-    //var me; // indicates which of the two player I am
+    var me; // indicates which of the two player I am
+
+    var checkStateChangeTimeout = 300; // ms
+    var notifyPositionTimeout = 500; // ms   
 
     $(document).ready(function () {
         // Proxy creation
@@ -85,14 +88,41 @@ on the server. Each hub on the server will become a property on the client side 
         pongRHub.wait = function() {
             // TODO: Use a lightbox to display a waiting message
             alert("Wait. Do nothing.");
-        }
+        }       
+        
+        // SignalR notifies this client of the opponent new position
+        pongRHub.updatePosition = function(player) {
+            var playerToUpdate;
+            if (player.playerNumber === 1) {
+                playerToUpdate = app.Player1;
+            }
+            else {
+                playerToUpdate = app.Player2;
+            }
+            playerToUpdate.barDirection = player.barDirection;
+            playerToUpdate.barMarginTop = player.barMarginTop;
+        } 
 
         pongRHub.startMatch = function(opts) {
             // TODO: Populate all the view models and do the binding with knockout.
             // Set the timeouts to compute game state and for notifying bars position
+            // Set event handlers for keystrokes keyUp and KeyDown
             // Start to animate the ball           
+            /*
             app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
             ko.applyBindings(app);
+            */            
+            pongR.setupMatch(opts);
+            if (opts.Player1.Username === pongRHub.username) {
+                me = app.Player1;
+            }
+            else {
+                me = app.Player2;
+            }
+            document.addEventListener("keydown", pongR.animateMyBar, false);
+            window.setTimeout(pongR.computeState, checkStateChangeTimeout);
+            window.setTimeout(pongRHub.notifyPosition(me), notifyPositionTimeout);
+
         }
 
         // Step 1: Start the connection        
