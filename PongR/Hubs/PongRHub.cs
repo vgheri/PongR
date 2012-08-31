@@ -6,6 +6,9 @@ using PongR.Models;
 using SignalR.Hubs;
 using System.Threading.Tasks;
 using System.Dynamic;
+using Newtonsoft.Json;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace PongR.Hubs
 {
@@ -84,7 +87,8 @@ namespace PongR.Hubs
                     Id = Guid.NewGuid().ToString(),
                     Player1 = opponent,
                     Player2 = user
-                };                
+                };
+                _roomRepository.Add(playRoom);
                 Task t1 = Groups.Add(opponent.Id, playRoom.Id);
                 Task t2 = Groups.Add(user.Id, playRoom.Id);
 
@@ -106,6 +110,19 @@ namespace PongR.Hubs
                 return Clients[playRoom.Id].startMatch(matchOptions);                               
             }
         }        
+
+        public Task NotifyPosition(string playRoomId, string player)
+        {
+            User playerToNotify = null;            
+            dynamic opponent = JObject.Parse(player);
+            var playRoom = _roomRepository.Rooms.Where(r => r.Id.Equals(playRoomId)).FirstOrDefault();
+            if (playRoom != null)
+            {
+                playerToNotify = opponent.playerNumber == 1 ? playRoom.Player2 : playRoom.Player1;
+                return Clients[playerToNotify.Id].updatePosition(opponent);
+            }
+            return null;
+        }
         #endregion
     }
 }

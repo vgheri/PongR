@@ -33,7 +33,7 @@ namespace PongR.Models
 
         public void Add(PlayRoom room)
         {
-            if (_rooms.Contains(room))
+            if (!_rooms.Contains(room))
             {
                 _rooms.Add(room);
             }
@@ -41,7 +41,10 @@ namespace PongR.Models
 
         public void Remove(PlayRoom room)
         {
-            _rooms.Add(room);            
+            if (_rooms.Contains(room))
+            {
+                _rooms.Remove(room);
+            }
         }
 
         #endregion

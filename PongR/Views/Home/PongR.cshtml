@@ -73,8 +73,11 @@ on the server. Each hub on the server will become a property on the client side 
     var app;
     var me; // indicates which of the two player I am
 
-    var checkStateChangeTimeout = 300; // ms
+    var checkStateChangeTimeout = 100; // ms
+    var checkStateinterval;
     var notifyPositionTimeout = 500; // ms   
+    var notifyPositionInterval;
+    
 
     $(document).ready(function () {
         // Proxy creation
@@ -84,6 +87,8 @@ on the server. Each hub on the server will become a property on the client side 
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");
             // TODO: Wait
+            window.clearInterval(checkStateinterval);
+            window.clearInterval(notifyPositionInterval);
         }
 
         // Function invoked when the user has to wait for an opponent
@@ -96,14 +101,18 @@ on the server. Each hub on the server will become a property on the client side 
         pongRHub.updatePosition = function(player) {
             var playerToUpdate;
             if (player.playerNumber === 1) {
-                playerToUpdate = app.Player1;
+                playerToUpdate = app.player1;
             }
             else {
-                playerToUpdate = app.Player2;
+                playerToUpdate = app.player2;
             }
             playerToUpdate.barDirection = player.barDirection;
-            playerToUpdate.barMarginTop = player.barMarginTop;
+            playerToUpdate.barMarginTop(player.barMarginTop);
         } 
+
+        function notifyPosition() {
+            pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
+        }
 
         pongRHub.startMatch = function(opts) {
             // TODO: Populate all the view models and do the binding with knockout.
@@ -114,9 +123,8 @@ on the server. Each hub on the server will become a property on the client side 
             pongR.setupMatch(opts);                       
                         
             document.addEventListener("keydown", pongR.animateMyBar, false);
-            window.setTimeout(pongR.computeState, checkStateChangeTimeout);
-            window.setTimeout(pongRHub.notifyPosition(me), notifyPositionTimeout);
-
+            checkStateinterval = window.setInterval(pongR.computeState, checkStateChangeTimeout);
+            notifyPositionInterval = window.setInterval(notifyPosition, notifyPositionTimeout);
         }
 
         // Step 1: Start the connection        
