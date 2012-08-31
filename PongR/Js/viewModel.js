@@ -8,33 +8,33 @@ var pongR = (function (myPongR, $) {
 
     /*
     function getBallX(radius) {
-        var x = $(".ball")[0].style.left;
-        return x - radius;
+    var x = $(".ball")[0].style.left;
+    return x - radius;
     }
 
     function getBallY(radius) {
-        var y = $(".ball")[0].style.top;
-        return y - radius;
+    var y = $(".ball")[0].style.top;
+    return y - radius;
     }
 
     function getGetBarVertex(playerNumber) {
-        var x, y;
-        if (playerNumber === 1) {
-            x = $("#player1-bar").style.left;
-            y = $("#player1-bar").style.top;
-        }
-        else {
-            x = $("#player2-bar").style.left;
-            y = $("#player2-bar").style.top;
-        }
-        return new myPongR.Point(x, y);
+    var x, y;
+    if (playerNumber === 1) {
+    x = $("#player1-bar").style.left;
+    y = $("#player1-bar").style.top;
+    }
+    else {
+    x = $("#player2-bar").style.left;
+    y = $("#player2-bar").style.top;
+    }
+    return new myPongR.Point(x, y);
     }
 
     function getFieldTopLeftVertex() {
-        var x, y;
-        x = $("#fieldContainer").style.left;
-        y = $("#fieldContainer").style.top;
-        return new myPongR.Point(x, y);
+    var x, y;
+    x = $("#fieldContainer").style.left;
+    y = $("#fieldContainer").style.top;
+    return new myPongR.Point(x, y);
     }
     */
 
@@ -80,7 +80,7 @@ var pongR = (function (myPongR, $) {
     myPongR.Ball = function (direction) {
         var self = this;
         var element = $(".ball")[0];
-        self.radius = element.offsetWidth / 2;        
+        self.radius = element.offsetWidth / 2;
         var tempPoint = getElementTopLeftVertex(element);
         var center = new myPongR.Point(tempPoint.x - self.radius, tempPoint.y - self.radius);
         self.Coordinates = center;
@@ -97,6 +97,10 @@ var pongR = (function (myPongR, $) {
         self.fieldTopLeftVertex = getElementTopLeftVertex(element);
         self.fieldWidth = element.offsetWidth * 2;
         self.fieldHeight = element.offsetHeight;
+
+        self.getMarginTop = function (player) {
+            return player.barMarginTop().toString() + "%";
+        };
     };
 
     return myPongR;

@@ -37,13 +37,15 @@
     <div id="player1-field" class="field">
         <div id="player1-goal" class="player-goal"></div>
         <div id="player1-area" class="player-area">
-            <div id="player1-bar" class="player-bar initial-position"></div>  // TODO: data bind the marginTop style with ko      
+            <div id="player1-bar" class="player-bar initial-position"
+                data-bind="style: { marginTop: getMarginTop(player1) }"></div>  
         </div>             
     </div>        
     <div id="player2-field" class="field">
         <div id="player2-goal" class="player-goal"></div>
         <div id="player2-area" class="player-area">
-            <div id="player2-bar" class="player-bar initial-position"></div>  // TODO: data bind the marginTop style with ko 
+            <div id="player2-bar" class="player-bar initial-position"
+                data-bind="style: { marginTop: getMarginTop(player2) }"></div> 
         </div>  
     </div>    
 </div>
@@ -108,17 +110,9 @@ on the server. Each hub on the server will become a property on the client side 
             // Set the timeouts to compute game state and for notifying bars position
             // Set event handlers for keystrokes keyUp and KeyDown
             // Start to animate the ball           
-            /*
-            app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
-            ko.applyBindings(app);
-            */            
-            pongR.setupMatch(opts);
-            if (opts.Player1.Username === pongRHub.username) {
-                me = app.Player1;
-            }
-            else {
-                me = app.Player2;
-            }
+            
+            pongR.setupMatch(opts);                       
+                        
             document.addEventListener("keydown", pongR.animateMyBar, false);
             window.setTimeout(pongR.computeState, checkStateChangeTimeout);
             window.setTimeout(pongRHub.notifyPosition(me), notifyPositionTimeout);
