@@ -36,6 +36,7 @@ namespace PongR
 
             // TODO: remove this. For testing only. Clear repositories
             InMemoryUserRepository.GetInstance().ConnectedUsers.ToList().Clear();
+            InMemoryUserRepository.GetInstance().WaitingList.ToList().Clear();
             InMemoryRoomRepository.GetInstance().Rooms.ToList().Clear();
 
             RegisterGlobalFilters(GlobalFilters.Filters);

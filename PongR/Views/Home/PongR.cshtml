@@ -38,14 +38,14 @@
         <div id="player1-goal" class="player-goal"></div>
         <div id="player1-area" class="player-area">
             <div id="player1-bar" class="player-bar initial-position"
-                data-bind="style: { marginTop: getMarginTop(player1) }"></div>  
+                data-bind="style: { top: getMarginTop(player1) }"></div>  
         </div>             
     </div>        
     <div id="player2-field" class="field">
         <div id="player2-goal" class="player-goal"></div>
         <div id="player2-area" class="player-area">
             <div id="player2-bar" class="player-bar initial-position"
-                data-bind="style: { marginTop: getMarginTop(player2) }"></div> 
+                data-bind="style: { top: getMarginTop(player2) }"></div> 
         </div>  
     </div>    
 </div>
@@ -89,6 +89,7 @@ on the server. Each hub on the server will become a property on the client side 
             // TODO: Wait
             window.clearInterval(checkStateinterval);
             window.clearInterval(notifyPositionInterval);
+            document.removeEventListener("keydown", pongR.animateMyBar, false);
         }
 
         // Function invoked when the user has to wait for an opponent
