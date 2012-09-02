@@ -6,38 +6,6 @@
 
 var pongR = (function (myPongR, $) {
 
-    /*
-    function getBallX(radius) {
-    var x = $(".ball")[0].style.left;
-    return x - radius;
-    }
-
-    function getBallY(radius) {
-    var y = $(".ball")[0].style.top;
-    return y - radius;
-    }
-
-    function getGetBarVertex(playerNumber) {
-    var x, y;
-    if (playerNumber === 1) {
-    x = $("#player1-bar").style.left;
-    y = $("#player1-bar").style.top;
-    }
-    else {
-    x = $("#player2-bar").style.left;
-    y = $("#player2-bar").style.top;
-    }
-    return new myPongR.Point(x, y);
-    }
-
-    function getFieldTopLeftVertex() {
-    var x, y;
-    x = $("#fieldContainer").style.left;
-    y = $("#fieldContainer").style.top;
-    return new myPongR.Point(x, y);
-    }
-    */
-
     function getElementTopLeftVertex(element) {
         var x, y;
         x = element.offsetLeft;
@@ -69,7 +37,7 @@ var pongR = (function (myPongR, $) {
         }
         self.user = new myPongR.User(user.Username, user.Id);
         self.playerNumber = playerNumber;
-        self.barDirection = ""; // Can be up or down
+        self.barDirection = ""; // Can be empty (bar doesn't move), up or down
         self.barMarginTop = ko.observable(37); // %
         self.topLeftVertex = getElementTopLeftVertex(element);
         self.barWidth = $(".player-bar")[0].offsetWidth;
@@ -83,8 +51,10 @@ var pongR = (function (myPongR, $) {
         self.radius = element.offsetWidth / 2;
         var tempPoint = getElementTopLeftVertex(element);
         var center = new myPongR.Point(tempPoint.x - self.radius, tempPoint.y - self.radius);
-        self.Coordinates = center;
-        self.direction = direction; // can be left or right
+        self.coordinates = center;
+        self.direction = direction; // can be left or right        
+        self.angle = (direction === "right" ? 0 : 180);
+        self.fixedStep = 5; // 5px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
     };
 
     myPongR.App = function (id, player1, player2, ballDirection) {

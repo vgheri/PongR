@@ -73,9 +73,9 @@ on the server. Each hub on the server will become a property on the client side 
     var app;
     var me; // indicates which of the two player I am
 
-    var checkStateChangeTimeout = 100; // ms
-    var checkStateinterval;
-    var notifyPositionTimeout = 500; // ms   
+    var fps = 17; // 60 frame per second means 16.6 ms. Therefore 17 is about 58 fps. 
+    var processStateinterval;
+    var notifyPositionTimeout = 300; // ms   
     var notifyPositionInterval;
     
 
@@ -109,6 +109,7 @@ on the server. Each hub on the server will become a property on the client side 
             }
             playerToUpdate.barDirection = player.barDirection;
             playerToUpdate.barMarginTop(player.barMarginTop);
+            playerToUpdate.topLeftVertex = player.topLeftVertex;
         } 
 
         function notifyPosition() {
@@ -124,7 +125,7 @@ on the server. Each hub on the server will become a property on the client side 
             pongR.setupMatch(opts);                       
                         
             document.addEventListener("keydown", pongR.animateMyBar, false);
-            checkStateinterval = window.setInterval(pongR.computeState, checkStateChangeTimeout);
+            processStateinterval = window.setInterval(pongR.processState, fps);
             notifyPositionInterval = window.setInterval(notifyPosition, notifyPositionTimeout);
         }
 
