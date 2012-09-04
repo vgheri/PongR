@@ -140,8 +140,7 @@ var pongR = (function (myPongR, $, ko) {
         //    2a: update ball state (set next angle, next direction etc...)
         // 3: check for goal condition
         //    3a: update score
-        //    3b: bring the players' bar and the ball to initial position
-
+        //    3b: bring the players' bar and the ball to initial position                   
         // Step 0
         if (myOldMarginTop === me.barMarginTop()) {
             me.barDirection = "";
@@ -150,7 +149,9 @@ var pongR = (function (myPongR, $, ko) {
         // Step 1
         updateBallPosition();
         checkForCollisionsAndUpdateBallState();
-        pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
+
+        //TODO Refactor all the SignalR related code into a separate js file
+        pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));        
     };
 
     myPongR.animateMyBar = function (e) {

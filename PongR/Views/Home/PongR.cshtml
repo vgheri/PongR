@@ -73,11 +73,10 @@ on the server. Each hub on the server will become a property on the client side 
     var app;
     var me; // indicates which of the two player I am
 
-    //var fps = 17; // 60 frame per second means 16.6 ms. Therefore 17 is about 58 fps. 
-    var fps = 50; //ok
-    var processStateinterval;
-    var notifyPositionTimeout = 100; // ms   
-    //var notifyPositionInterval;
+    //var fps = 60 // frames per second
+    var fps = 40; 
+    var processStateTimeoutFrequency = 1000 / fps;
+    var processStateTimeout;        
     var ball = document.querySelector('#ball');
 
     $(document).ready(function () {
@@ -88,8 +87,7 @@ on the server. Each hub on the server will become a property on the client side 
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");
             // TODO: Wait
-            window.clearInterval(processStateinterval);
-            //window.clearInterval(notifyPositionInterval);
+            window.clearInterval(processStateTimeout);            
             document.removeEventListener("keydown", pongR.animateMyBar, false);
         }
 
@@ -113,21 +111,22 @@ on the server. Each hub on the server will become a property on the client side 
             playerToUpdate.topLeftVertex = player.topLeftVertex;
         } 
 
+        /*
         function notifyPosition() {
             pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
         }
+        */
 
         pongRHub.startMatch = function(opts) {
             // TODO: Populate all the view models and do the binding with knockout.
-            // Set the timeouts to compute game state and for notifying bars position
+            // Set the timeout to compute game state and for notifying bars position
             // Set event handlers for keystrokes keyUp and KeyDown
             // Start to animate the ball           
             
             pongR.setupMatch(opts);                       
                         
             document.addEventListener("keydown", pongR.animateMyBar, false);
-            processStateinterval = window.setInterval(pongR.processState, fps);
-            //notifyPositionInterval = window.setInterval(notifyPosition, notifyPositionTimeout);
+            processStateTimeout = window.setInterval(pongR.processState, processStateTimeoutFrequency);            
         }
 
         // Step 1: Start the connection        
