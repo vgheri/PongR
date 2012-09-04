@@ -150,6 +150,7 @@ var pongR = (function (myPongR, $, ko) {
         // Step 1
         updateBallPosition();
         checkForCollisionsAndUpdateBallState();
+        pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
     };
 
     myPongR.animateMyBar = function (e) {

@@ -77,7 +77,7 @@ on the server. Each hub on the server will become a property on the client side 
     var fps = 50; //ok
     var processStateinterval;
     var notifyPositionTimeout = 100; // ms   
-    var notifyPositionInterval;
+    //var notifyPositionInterval;
     var ball = document.querySelector('#ball');
 
     $(document).ready(function () {
@@ -89,7 +89,7 @@ on the server. Each hub on the server will become a property on the client side 
             alert("Opponent left. Going back to wait list");
             // TODO: Wait
             window.clearInterval(processStateinterval);
-            window.clearInterval(notifyPositionInterval);
+            //window.clearInterval(notifyPositionInterval);
             document.removeEventListener("keydown", pongR.animateMyBar, false);
         }
 
@@ -127,7 +127,7 @@ on the server. Each hub on the server will become a property on the client side 
                         
             document.addEventListener("keydown", pongR.animateMyBar, false);
             processStateinterval = window.setInterval(pongR.processState, fps);
-            notifyPositionInterval = window.setInterval(notifyPosition, notifyPositionTimeout);
+            //notifyPositionInterval = window.setInterval(notifyPosition, notifyPositionTimeout);
         }
 
         // Step 1: Start the connection        
