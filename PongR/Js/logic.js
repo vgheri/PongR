@@ -89,7 +89,7 @@ var pongR = (function (myPongR, $, ko) {
                 && (app.player1.topLeftVertex.y + app.player1.barHeight >= app.ball.coordinates.y - app.ball.radius)) {
                 barCollision = true;
                 newBallDirection = "right";
-                newAngle = calculateNewAngleAfterPlayerHit(app.player1, newBallDirection);                
+                newAngle = calculateNewAngleAfterPlayerHit(app.player1, newBallDirection);
             }
         }
         else if (app.player2.topLeftVertex.x <= app.ball.coordinates.x + app.ball.radius) {
@@ -108,16 +108,19 @@ var pongR = (function (myPongR, $, ko) {
     }
 
     function checkForCollisionsAndUpdateBallState() {
+        var goal = false;
         // check for collision
         // if collision with players' bar or field, update ball state (set next angle, next direction etc...)
-        var barCollision = checkCollisionWithPlayer();
+        var collision = checkCollisionWithPlayer();        
         // No collision with player's bar, let's check if we have a collision with the field delimiters or if we have a goal condition
-        if (!barCollision) {
-
+        if (!collision) {
+            collision = checkCollisionWithFieldDelimiters(); // TODO Implement method
+            if (!collision) {
+                goal = checkGoal(); // TODO Implement method
+            }
         }
     };
-
-    // TODO: add functions that will perform hit-checks with the walls or the bars, goal-check and ball movements
+        
     myPongR.setupMatch = function (opts) {
         app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
 
@@ -151,7 +154,7 @@ var pongR = (function (myPongR, $, ko) {
         checkForCollisionsAndUpdateBallState();
 
         //TODO Refactor all the SignalR related code into a separate js file
-        pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));        
+        pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
     };
 
     myPongR.animateMyBar = function (e) {
