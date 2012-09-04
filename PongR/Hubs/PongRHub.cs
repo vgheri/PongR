@@ -35,10 +35,11 @@ namespace PongR.Hubs
             // 3: If the user was playing, notify the opponent that the user disconnected
             // 4: Re-queue the opponent in the waiting list
             // 5: Remove the room from the list
-            User user = _userRepository.ConnectedUsers.Where(u => u.Id.Equals(Context.ConnectionId)).FirstOrDefault();
+            User user = _userRepository.ConnectedUsers.Where(u => u.Id.Equals(Context.ConnectionId)).FirstOrDefault();            
             if (user != null)
             {
                 _userRepository.RemoveUser(user);
+                _userRepository.RemoveFromWaitingList(user);
                 PlayRoom room = _roomRepository.Rooms.Where(r => (r.Player1.Id.Equals(user.Id) || r.Player2.Id.Equals(user.Id))).FirstOrDefault();
                 // if the user was in the middle of a match
                 if (room != null)

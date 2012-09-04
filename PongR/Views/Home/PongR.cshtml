@@ -73,9 +73,10 @@ on the server. Each hub on the server will become a property on the client side 
     var app;
     var me; // indicates which of the two player I am
 
-    var fps = 17; // 60 frame per second means 16.6 ms. Therefore 17 is about 58 fps. 
+    //var fps = 17; // 60 frame per second means 16.6 ms. Therefore 17 is about 58 fps. 
+    var fps = 30;
     var processStateinterval;
-    var notifyPositionTimeout = 300; // ms   
+    var notifyPositionTimeout = 100; // ms   
     var notifyPositionInterval;
     
 
@@ -87,7 +88,7 @@ on the server. Each hub on the server will become a property on the client side 
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");
             // TODO: Wait
-            window.clearInterval(checkStateinterval);
+            window.clearInterval(processStateinterval);
             window.clearInterval(notifyPositionInterval);
             document.removeEventListener("keydown", pongR.animateMyBar, false);
         }
