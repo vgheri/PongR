@@ -83,35 +83,17 @@ var pongR = (function (myPongR, $, ko) {
     function checkCollisionWithPlayer() {
         var barCollision = false;
         var newBallDirection;
-        var newAngle;
-        /*
-        if (app.player1.topLeftVertex.x + app.player1.barWidth === app.ball.coordinates.x + app.ball.radius
-            && (app.player1.topLeftVertex.y <= app.ball.coordinates.y + app.ball.radius)
-            && (app.player1.topLeftVertex.y + app.player1.barHeight >= app.ball.coordinates.y + app.ball.radius)) {
+        var newAngle;        
+        if ((app.player1.topLeftVertex.x + app.player1.barWidth >= app.ball.coordinates.x - app.ball.radius)           
+        && (app.player1.topLeftVertex.y <= app.ball.coordinates.y + app.ball.radius)
+        && (app.player1.topLeftVertex.y + app.player1.barHeight >= app.ball.coordinates.y - app.ball.radius)) {
             barCollision = true;
             newBallDirection = "right";
             newAngle = calculateNewAngleAfterPlayerHit(app.player1, newBallDirection);
         }
-        else if ((app.player2.topLeftVertex.x === app.ball.coordinates.x + app.ball.radius)
-            && (app.player2.topLeftVertex.y <= app.ball.coordinates.y + app.ball.radius)
-            && (app.player2.topLeftVertex.y + app.player2.barHeight >= app.ball.coordinates.y + app.ball.radius)) {
-            barCollision = true;
-            newBallDirection = "left";
-            newAngle = calculateNewAngleAfterPlayerHit(app.player2, newBallDirection);
-        }
-        */
-        if ((app.player1.topLeftVertex.x + app.player1.barWidth >= app.ball.coordinates.x - app.ball.radius)
-            && (app.player1.topLeftVertex.x <= app.ball.coordinates.x - app.ball.radius)            
-            && (app.player1.topLeftVertex.y <= app.ball.coordinates.y + app.ball.radius)
-            && (app.player1.topLeftVertex.y + app.player1.barHeight >= app.ball.coordinates.y - app.ball.radius)) {
-            barCollision = true;
-            newBallDirection = "right";
-            newAngle = calculateNewAngleAfterPlayerHit(app.player1, newBallDirection);
-        }
-        else if ((app.player2.topLeftVertex.x  <= app.ball.coordinates.x + app.ball.radius)
-            && (app.player2.topLeftVertex.x + app.player1.barWidth >= app.ball.coordinates.x + app.ball.radius)
-            && (app.player2.topLeftVertex.y <= app.ball.coordinates.y + app.ball.radius)
-            && (app.player2.topLeftVertex.y + app.player2.barHeight >= app.ball.coordinates.y - app.ball.radius)) {
+        else if ((app.player2.topLeftVertex.x  <= app.ball.coordinates.x + app.ball.radius)            
+        && (app.player2.topLeftVertex.y <= app.ball.coordinates.y + app.ball.radius)
+        && (app.player2.topLeftVertex.y + app.player2.barHeight >= app.ball.coordinates.y - app.ball.radius)) {
             barCollision = true;
             newBallDirection = "left";
             newAngle = calculateNewAngleAfterPlayerHit(app.player2, newBallDirection);
