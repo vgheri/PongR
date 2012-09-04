@@ -47,7 +47,7 @@ var pongR = (function (myPongR, $) {
 
     myPongR.Ball = function (direction) {
         var self = this;
-        var element = $(".ball")[0];
+        var element = $("#ball")[0];
         self.radius = element.offsetWidth / 2;
         var tempPoint = getElementTopLeftVertex(element);
         var center = new myPongR.Point(tempPoint.x - self.radius, tempPoint.y - self.radius);

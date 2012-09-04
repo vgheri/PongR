@@ -50,7 +50,7 @@
     </div>    
 </div>
 
-<div class="ball"></div>
+<div id="ball" class="ball"></div>
 <!-- Footer 
 <div id="footer">
 
@@ -74,11 +74,11 @@ on the server. Each hub on the server will become a property on the client side 
     var me; // indicates which of the two player I am
 
     //var fps = 17; // 60 frame per second means 16.6 ms. Therefore 17 is about 58 fps. 
-    var fps = 100; //ok
+    var fps = 50; //ok
     var processStateinterval;
     var notifyPositionTimeout = 100; // ms   
     var notifyPositionInterval;
-    
+    var ball = document.querySelector('#ball');
 
     $(document).ready(function () {
         // Proxy creation
