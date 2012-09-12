@@ -134,12 +134,13 @@ var pongR = (function (myPongR, $, ko) {
     // TODO Rename the method to reflect the updates to the ball as well
     function checkCollisionWithFieldDelimiters() {
         var fieldCollision = false;
-        var newAngle;   
-        // Hit if  field top left corner ≤ Ball.x ≤ field top right corner
-        if (app.ball.coordinates.x >= app.fieldTopLeftVertex.x && app.ball.coordinates.x <= app.fieldTopLeftVertex.x + app.fieldWidth) {
-            // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
-            if ((app.ball.coordinates.y >= app.fieldTopLeftVertex.y - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + 5) ||
-                (app.ball.coordinates.y >= app.fieldTopLeftVertex.y + app.fieldHeight - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + app.fieldHeight + 5)) {
+        var newAngle;
+        // Hit check. I check first for y axis because it's less frequent that the condition will be true, so most of the time 
+        // we check only 1 if statement instead of 2 
+        // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
+        if ((app.ball.coordinates.y >= app.fieldTopLeftVertex.y - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + 5) ||
+                (app.ball.coordinates.y >= app.fieldTopLeftVertex.y + app.fieldHeight - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + app.fieldHeight + 5)) {            
+             if (app.ball.coordinates.x >= app.fieldTopLeftVertex.x && app.ball.coordinates.x <= app.fieldTopLeftVertex.x + app.fieldWidth) {
                 
                 fieldCollision = true;
                 newAngle = calculateNewAngleAfterFieldHit(app.ball.angle, app.ball.direction);
