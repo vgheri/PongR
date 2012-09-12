@@ -78,8 +78,32 @@ var pongR = (function (myPongR, $, ko) {
             throw ("Unknown new angle value");
         }
         return angle;
-    }
+    };
 
+    // Calculates new angle after a ball collision with a player
+    function calculateNewAngleAfterFieldHit(oldAngle, ballDirection) {
+        var newAngle;
+        if (ballDirection === "right" && oldAngle === 45) {
+            newAngle = 315;
+        }
+        else if (ballDirection === "right" && oldAngle === 315) {
+            newAngle = 45;
+        }
+        else if (ballDirection === "left" && oldAngle === 135) {
+            newAngle = 225;
+        }
+        else if (ballDirection === "left" && oldAngle === 225) {
+            newAngle = 135;
+        }        
+        else {
+            alert("Unknown new angle value");
+            console.log("Unknown new angle value upon hit on field delimiters. Ball direction: " + ballDirection + ". Ball old angle: " + oldAngle);
+            throw ("Unknown new angle value");
+        }
+        return newAngle;
+    };
+
+    // TODO Rename the method to reflect the updates to the ball as well
     function checkCollisionWithPlayer() {
         var barCollision = false;
         var newBallDirection;
@@ -105,22 +129,42 @@ var pongR = (function (myPongR, $, ko) {
             app.ball.direction = newBallDirection;
         }
         return barCollision;
+    };
+
+    // TODO Rename the method to reflect the updates to the ball as well
+    function checkCollisionWithFieldDelimiters() {
+        var fieldCollision = false;
+        var newAngle;   
+        // Hit if  field top left corner ≤ Ball.x ≤ field top right corner
+        if (app.ball.coordinates.x >= app.fieldTopLeftVertex.x && app.ball.coordinates.x <= app.fieldTopLeftVertex.x + app.fieldWidth) {
+            // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
+            if ((app.ball.coordinates.y >= app.fieldTopLeftVertex.y - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + 5) ||
+                (app.ball.coordinates.y >= app.fieldTopLeftVertex.y + app.fieldHeight - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + app.fieldHeight + 5)) {
+                
+                fieldCollision = true;
+                newAngle = calculateNewAngleAfterFieldHit(app.ball.angle, app.ball.direction);
+            }
+        }        
+        if (fieldCollision) {
+            app.ball.angle = newAngle;         
+        }
+        return fieldCollision;
     }
 
     function checkForCollisionsAndUpdateBallState() {
         var goal = false;
         // check for collision
         // if collision with players' bar or field, update ball state (set next angle, next direction etc...)
-        var collision = checkCollisionWithPlayer();        
+        var collision = checkCollisionWithPlayer();
         // No collision with player's bar, let's check if we have a collision with the field delimiters or if we have a goal condition
         if (!collision) {
             collision = checkCollisionWithFieldDelimiters(); // TODO Implement method
             if (!collision) {
-                goal = checkGoal(); // TODO Implement method
+                //goal = checkGoal(); // TODO Implement method
             }
         }
     };
-        
+
     myPongR.setupMatch = function (opts) {
         app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
 

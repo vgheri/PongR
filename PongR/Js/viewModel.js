@@ -67,7 +67,6 @@ var pongR = (function (myPongR, $) {
         self.fieldTopLeftVertex = getElementTopLeftVertex(element);
         self.fieldWidth = element.offsetWidth * 2;
         self.fieldHeight = element.offsetHeight;
-
         self.getMarginTop = function (player) {
             return player.barMarginTop().toString() + "%";
         };
