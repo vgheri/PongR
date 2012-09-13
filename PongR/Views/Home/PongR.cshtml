@@ -51,6 +51,9 @@
 </div>
 
 <div id="ball" class="ball"></div>
+<div id="messageContainer"></div>
+
+
 <!-- Footer 
 <div id="footer">
 
@@ -79,6 +82,22 @@ on the server. Each hub on the server will become a property on the client side 
     var processStateTimeout;        
     var ball = document.querySelector('#ball');
 
+    function clearAnimationTimeout(timeout) {
+        window.clearInterval(timeout); 
+    };
+
+    function removeKeyboardEventListener() {
+        document.removeEventListener("keydown", pongR.animateMyBar, false);
+    };
+
+    function setAnimationTimeout(animationFunction, frequency) {
+        return  window.setInterval(animationFunction, frequency);   
+    };
+
+    function setKeyboardEventListener() {
+        document.addEventListener("keydown", pongR.animateMyBar, false);
+    };
+
     $(document).ready(function () {
         // Proxy creation
         pongRHub = $.connection.pongRHub;
@@ -86,16 +105,16 @@ on the server. Each hub on the server will become a property on the client side 
 
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");
-            // TODO: Wait
-            window.clearInterval(processStateTimeout);            
-            document.removeEventListener("keydown", pongR.animateMyBar, false);
-        }
+            // TODO: Implement a method that resets the game
+            clearAnimationTimeout(processStateTimeout);            
+            removeKeyboardEventListener();
+        };
 
         // Function invoked when the user has to wait for an opponent
         pongRHub.wait = function() {
             // TODO: Use a lightbox to display a waiting message
             alert("Wait. Do nothing.");
-        }       
+        };       
         
         // SignalR notifies this client of the opponent new position
         pongRHub.updatePosition = function(player) {
@@ -109,7 +128,7 @@ on the server. Each hub on the server will become a property on the client side 
             playerToUpdate.barDirection = player.barDirection;
             playerToUpdate.barMarginTop(player.barMarginTop);
             playerToUpdate.topLeftVertex = player.topLeftVertex;
-        } 
+        };
 
         /*
         function notifyPosition() {
@@ -123,11 +142,11 @@ on the server. Each hub on the server will become a property on the client side 
             // Set event handlers for keystrokes keyUp and KeyDown
             // Start to animate the ball           
             
-            pongR.setupMatch(opts);                       
+            pongR.setupMatch(opts);                                               
                         
-            document.addEventListener("keydown", pongR.animateMyBar, false);
-            processStateTimeout = window.setInterval(pongR.processState, processStateTimeoutFrequency);            
-        }
+            setKeyboardEventListener();
+            processStateTimeout = setAnimationTimeout(pongR.processState, processStateTimeoutFrequency);            
+        };
 
         // Step 1: Start the connection        
         // Step 3: Join the system

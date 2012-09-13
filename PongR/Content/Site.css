@@ -260,3 +260,17 @@ input, button
     height: 10%;
     border: 1px solid black;
 }
+
+/******** Various styles *******/
+#messageContainer {
+	position: absolute;
+	left: 33%;
+	top: 40%;
+	z-index: 5;
+	width: 33%;
+	height: 15%;
+	display: block;
+	font-size: x-large;
+	color: Red;
+	visibility: hidden;	
+}

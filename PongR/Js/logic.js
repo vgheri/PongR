@@ -94,7 +94,7 @@ var pongR = (function (myPongR, $, ko) {
         }
         else if (ballDirection === "left" && oldAngle === 225) {
             newAngle = 135;
-        }        
+        }
         else {
             alert("Unknown new angle value");
             console.log("Unknown new angle value upon hit on field delimiters. Ball direction: " + ballDirection + ". Ball old angle: " + oldAngle);
@@ -139,18 +139,52 @@ var pongR = (function (myPongR, $, ko) {
         // we check only 1 if statement instead of 2 
         // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
         if ((app.ball.coordinates.y >= app.fieldTopLeftVertex.y - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + 5) ||
-                (app.ball.coordinates.y >= app.fieldTopLeftVertex.y + app.fieldHeight - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + app.fieldHeight + 5)) {            
-             if (app.ball.coordinates.x >= app.fieldTopLeftVertex.x && app.ball.coordinates.x <= app.fieldTopLeftVertex.x + app.fieldWidth) {
-                
+                (app.ball.coordinates.y >= app.fieldTopLeftVertex.y + app.fieldHeight - 5 && app.ball.coordinates.y <= app.fieldTopLeftVertex.y + app.fieldHeight + 5)) {
+            if (app.ball.coordinates.x >= app.fieldTopLeftVertex.x && app.ball.coordinates.x <= app.fieldTopLeftVertex.x + app.fieldWidth) {
+
                 fieldCollision = true;
                 newAngle = calculateNewAngleAfterFieldHit(app.ball.angle, app.ball.direction);
             }
-        }        
+        }
         if (fieldCollision) {
-            app.ball.angle = newAngle;         
+            app.ball.angle = newAngle;
         }
         return fieldCollision;
+    };
+
+    function checkGoal() {
+        var goal = false;
+        if (app.ball.coordinates.x <= app.fieldTopLeftVertex.x || app.ball.coordinates.x >= app.fieldTopLeftVertex.x + app.fieldWidth) {
+            goal = true;
+        }
+        return goal;
+    };
+
+    function displayGoalMessage(playerName) {
+        $("#messageContainer").text("Goal for " + playerName + "!");
+        $("#messageContainer").css("visibility", "visible");
+    };
+
+    function getNameOfPlayerWhoScored() {
+        var playerGoal = "1"; // Player who scored
+        if (app.ball.coordinates.x <= app.fieldTopLeftVertex.x) {
+            playerGoal = "2";
+        }
+        return app.player1.playerNumber.toString() === playerGoal ? app.player1.user.username() : app.player2.user.username();
     }
+
+    // 0: Clean timer and keyboard event handler
+    // 1: display a message and update score
+    // 2: reset players and ball position
+    // 3: restart the match
+    function restartGameAfterGoal() {
+        var playerName = getNameOfPlayerWhoScored();
+        // step 0
+        clearAnimationTimeout(processStateTimeout);
+        removeKeyboardEventListener();
+        // step 1 
+        displayGoalMessage(playerName);
+    };
 
     function checkForCollisionsAndUpdateBallState() {
         var goal = false;
@@ -159,9 +193,15 @@ var pongR = (function (myPongR, $, ko) {
         var collision = checkCollisionWithPlayer();
         // No collision with player's bar, let's check if we have a collision with the field delimiters or if we have a goal condition
         if (!collision) {
-            collision = checkCollisionWithFieldDelimiters(); // TODO Implement method
+            collision = checkCollisionWithFieldDelimiters();
             if (!collision) {
-                //goal = checkGoal(); // TODO Implement method
+                if (checkGoal()) {
+                    // 0: Clean timer and keyboard event handler
+                    // 1: display a message and update score
+                    // 2: reset players and ball position
+                    // 3: restart the match
+                    restartGameAfterGoal();
+                }
             }
         }
     };
