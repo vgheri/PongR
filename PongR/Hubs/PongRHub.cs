@@ -124,6 +124,21 @@ namespace PongR.Hubs
             }
             return null;
         }
+
+        public Task OnGoal(string appStatus)
+        {
+            Random random = new Random();            
+            if (!string.IsNullOrEmpty(appStatus))
+            {
+                dynamic app = JObject.Parse(appStatus);
+                dynamic matchOptions = new ExpandoObject();                
+                matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
+                return Clients.continueMatchAfterGoal(matchOptions);
+            }
+
+            return null;
+            
+        }
         #endregion
     }
 }

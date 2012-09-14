@@ -102,12 +102,12 @@ on the server. Each hub on the server will become a property on the client side 
         // Proxy creation
         pongRHub = $.connection.pongRHub;
         pongRHub.username = @Html.Raw(Json.Encode(Model));
-
+        
         pongRHub.opponentLeft = function() {
-            alert("Opponent left. Going back to wait list");
-            // TODO: Implement a method that resets the game
+            alert("Opponent left. Going back to wait list");            
             clearAnimationTimeout(processStateTimeout);            
             removeKeyboardEventListener();
+            // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
         };
 
         // Function invoked when the user has to wait for an opponent
@@ -130,23 +130,22 @@ on the server. Each hub on the server will become a property on the client side 
             playerToUpdate.topLeftVertex = player.topLeftVertex;
         };
 
-        /*
-        function notifyPosition() {
-            pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
-        }
-        */
-
         pongRHub.startMatch = function(opts) {
             // TODO: Populate all the view models and do the binding with knockout.
             // Set the timeout to compute game state and for notifying bars position
             // Set event handlers for keystrokes keyUp and KeyDown
-            // Start to animate the ball           
-            
+            // Start to animate the ball
             pongR.setupMatch(opts);                                               
                         
             setKeyboardEventListener();
             processStateTimeout = setAnimationTimeout(pongR.processState, processStateTimeoutFrequency);            
         };
+
+        pongRHub.continueMatchAfterGoal = function(opts) {
+            app.ball.direction = opts.BallDirection;
+            setKeyboardEventListener();
+            processStateTimeout = setAnimationTimeout(pongR.processState, processStateTimeoutFrequency);
+        }
 
         // Step 1: Start the connection        
         // Step 3: Join the system

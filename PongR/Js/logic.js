@@ -8,6 +8,7 @@ var pongR = (function (myPongR, $, ko) {
 
     var myOldMarginTop;
 
+    // PRIVATE - Get the top left vertex of a DOM element
     function getElementTopLeftVertex(element) {
         var x, y;
         x = element.offsetLeft;
@@ -15,6 +16,7 @@ var pongR = (function (myPongR, $, ko) {
         return new myPongR.Point(x, y);
     };
 
+    // PRIVATE - Updates the position of the ball based on its direction and its angle
     function updateBallPosition() {
         switch (app.ball.angle) {
             case 0:
@@ -51,7 +53,7 @@ var pongR = (function (myPongR, $, ko) {
         ball.style.top = centreY.toString() + 'px';
     };
 
-    // Calculates new angle after a ball collision with a player
+    // PRIVATE - Calculates new angle after a ball collision with a player
     function calculateNewAngleAfterPlayerHit(player, newBallDirection) {
         var angle;
         if (newBallDirection === "right" && player.barDirection === "") {
@@ -80,7 +82,7 @@ var pongR = (function (myPongR, $, ko) {
         return angle;
     };
 
-    // Calculates new angle after a ball collision with a player
+    // PRIVATE - Calculates new angle after a ball collision with a player
     function calculateNewAngleAfterFieldHit(oldAngle, ballDirection) {
         var newAngle;
         if (ballDirection === "right" && oldAngle === 45) {
@@ -103,7 +105,7 @@ var pongR = (function (myPongR, $, ko) {
         return newAngle;
     };
 
-    // TODO Rename the method to reflect the updates to the ball as well
+    // TODO - PRIVATE - Rename the method to reflect the updates to the ball as well
     function checkCollisionWithPlayer() {
         var barCollision = false;
         var newBallDirection;
@@ -131,7 +133,7 @@ var pongR = (function (myPongR, $, ko) {
         return barCollision;
     };
 
-    // TODO Rename the method to reflect the updates to the ball as well
+    // TODO - PRIVATE - Rename the method to reflect the updates to the ball as well
     function checkCollisionWithFieldDelimiters() {
         var fieldCollision = false;
         var newAngle;
@@ -152,6 +154,7 @@ var pongR = (function (myPongR, $, ko) {
         return fieldCollision;
     };
 
+    // PRIVATE - Checks if one of the players scored
     function checkGoal() {
         var goal = false;
         if (app.ball.coordinates.x <= app.fieldTopLeftVertex.x || app.ball.coordinates.x >= app.fieldTopLeftVertex.x + app.fieldWidth) {
@@ -160,11 +163,20 @@ var pongR = (function (myPongR, $, ko) {
         return goal;
     };
 
+    //PRIVATE - 
     function displayGoalMessage(playerName) {
         $("#messageContainer").text("Goal for " + playerName + "!");
         $("#messageContainer").css("visibility", "visible");
+        window.setTimeout(hideGoalMessage, 1000);
     };
 
+    //PRIVATE -
+    function hideGoalMessage(playerName) {
+        $("#messageContainer").text("");
+        $("#messageContainer").css("visibility", "hidden");
+    };
+
+    //PRIVATE -
     function getNameOfPlayerWhoScored() {
         var playerGoal = "1"; // Player who scored
         if (app.ball.coordinates.x <= app.fieldTopLeftVertex.x) {
@@ -173,10 +185,40 @@ var pongR = (function (myPongR, $, ko) {
         return app.player1.playerNumber.toString() === playerGoal ? app.player1.user.username() : app.player2.user.username();
     }
 
+    // PRIVATE - Reset players and ball position to initial state 
+    function resetAllPositionsToInitialState() {
+        app.player1.barMarginTop(37);
+        app.player2.barMarginTop(37);
+        ball.style.left = "49%";
+        ball.style.top = "54%";
+        var element = $("#ball")[0];
+        var tempPoint = getElementTopLeftVertex(element);
+        app.ball.coordinates.x = tempPoint.x - app.ball.radius;
+        app.ball.coordinates.y = tempPoint.y - app.ball.radius;
+    }
+
+    // PRIVATE - Updates the score in the internal state of the app. Any change will be automatically reflected in the UI thanks to Knockout
+    function updateScore(playerNameWhoScored) {
+        var oldScore;
+        if (app.player1.user.username() === playerNameWhoScored) {
+            oldScore = app.player1.score();
+            app.player1.score(oldScore + 1);
+        }
+        else {
+            oldScore = app.player2.score();
+            app.player2.score(oldScore + 1);
+        }
+    }
+
+    // Notifies the server that the score is changed
+    function notifyServerOnGoal() {
+        pongRHub.onGoal(ko.toJSON(app));
+    };
+
     // 0: Clean timer and keyboard event handler
     // 1: display a message and update score
-    // 2: reset players and ball position
-    // 3: restart the match
+    // 2: reset players and ball position    
+    // 3: the player who scored send a message to the server to notify the new score. The server replies with the new ball direction to both players
     function restartGameAfterGoal() {
         var playerName = getNameOfPlayerWhoScored();
         // step 0
@@ -184,8 +226,14 @@ var pongR = (function (myPongR, $, ko) {
         removeKeyboardEventListener();
         // step 1 
         displayGoalMessage(playerName);
+        updateScore(playerName);
+        // step 2
+        resetAllPositionsToInitialState();
+        // step 3
+        notifyServerOnGoal();
     };
 
+    // PRIVATE - At each step of the game, checks for any collision or goal event, and updates the app internal state
     function checkForCollisionsAndUpdateBallState() {
         var goal = false;
         // check for collision
@@ -196,16 +244,13 @@ var pongR = (function (myPongR, $, ko) {
             collision = checkCollisionWithFieldDelimiters();
             if (!collision) {
                 if (checkGoal()) {
-                    // 0: Clean timer and keyboard event handler
-                    // 1: display a message and update score
-                    // 2: reset players and ball position
-                    // 3: restart the match
                     restartGameAfterGoal();
                 }
             }
         }
     };
 
+    // Initial setup of the match state and start of the game interval
     myPongR.setupMatch = function (opts) {
         app = new pongR.App(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
 
@@ -220,7 +265,7 @@ var pongR = (function (myPongR, $, ko) {
         ko.applyBindings(app);
     };
 
-    // Process a step of the game
+    // Processes a step of the game
     myPongR.processState = function () {
         // 0: check if the bar has moved since last step, otherwise set its direction to "";
         // 1: update ball position
@@ -242,6 +287,7 @@ var pongR = (function (myPongR, $, ko) {
         pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
     };
 
+    // Moves the player's bar accordingly to the keystroke pressed (up or down) and updates the javascript state
     myPongR.animateMyBar = function (e) {
         var keyCode = e.keyCode;
         myOldMarginTop = ko.utils.unwrapObservable(me.barMarginTop);
