@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PongR.Models;
 using SignalR.Hubs;
-using System.Threading.Tasks;
-using System.Dynamic;
-using Newtonsoft.Json;
-using System.IO;
-using Newtonsoft.Json.Linq;
 
 namespace PongR.Hubs
 {
@@ -95,19 +96,22 @@ namespace PongR.Hubs
 
                 t1.Wait();
                 t2.Wait();
+                
                 // Rough solution. We have to be sure the clients have received the group add messages over the wire
                 // TODO: ask maybe on Jabbr or on StackOverflow and think about a better solution
-                for (int i = 0; i < 1000000; i++)
+                Thread.Sleep(3000);
+                /*
+                for (int i = 0; i < 10000000; i++)
                 {
                     int z = i * 4;
                 }
-
+                */
                 dynamic matchOptions = new ExpandoObject();
                 matchOptions.PlayRoomId = playRoom.Id;
                 matchOptions.Player1 = playRoom.Player1;
                 matchOptions.Player2 = playRoom.Player2;
                 matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
-                var list = Clients[playRoom.Id];
+                //var list = Clients[playRoom.Id];
                 return Clients[playRoom.Id].startMatch(matchOptions);                               
             }
         }        
@@ -133,12 +137,13 @@ namespace PongR.Hubs
                 dynamic app = JObject.Parse(appStatus);
                 dynamic matchOptions = new ExpandoObject();                
                 matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
-                return Clients.continueMatchAfterGoal(matchOptions);
+                var groupId = (string)app.playRoomId;
+                return Clients[groupId].continueMatchAfterGoal(matchOptions);
             }
 
-            return null;
-            
+            return null;            
         }
+
         #endregion
     }
 }
