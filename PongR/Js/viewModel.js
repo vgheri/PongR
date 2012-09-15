@@ -39,6 +39,9 @@ var pongR = (function (myPongR, $) {
         self.playerNumber = playerNumber;
         self.barDirection = ""; // Can be empty (bar doesn't move), up or down
         self.barMarginTop = ko.observable(37); // %
+        self.barMarginTop.subscribe(function (newValue) {
+            self.topLeftVertex = getElementTopLeftVertex(element);
+        });
         self.topLeftVertex = getElementTopLeftVertex(element);
         self.barWidth = $(".player-bar")[0].offsetWidth;
         self.barHeight = $(".player-bar")[0].offsetHeight;

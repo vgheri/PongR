@@ -131,6 +131,7 @@ namespace PongR.Hubs
 
         public Task OnGoal(string appStatus)
         {
+            
             Random random = new Random();            
             if (!string.IsNullOrEmpty(appStatus))
             {
@@ -140,7 +141,7 @@ namespace PongR.Hubs
                 var groupId = (string)app.playRoomId;
                 return Clients[groupId].continueMatchAfterGoal(matchOptions);
             }
-
+            
             return null;            
         }
 

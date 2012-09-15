@@ -189,12 +189,17 @@ var pongR = (function (myPongR, $, ko) {
     function resetAllPositionsToInitialState() {
         app.player1.barMarginTop(37);
         app.player2.barMarginTop(37);
+        $("#player1-bar").css("top", "37%");
+        $("#player2-bar").css("top", "37%");
         ball.style.left = "49%";
         ball.style.top = "54%";
         var element = $("#ball")[0];
         var tempPoint = getElementTopLeftVertex(element);
         app.ball.coordinates.x = tempPoint.x - app.ball.radius;
         app.ball.coordinates.y = tempPoint.y - app.ball.radius;
+        app.player1.topLeftVertex = getElementTopLeftVertex($("#player1-bar")[0]);
+        app.player2.topLeftVertex = getElementTopLeftVertex($("#player2-bar")[0]);
+        myOldMarginTop = ko.utils.unwrapObservable(me.barMarginTop);
     }
 
     // PRIVATE - Updates the score in the internal state of the app. Any change will be automatically reflected in the UI thanks to Knockout
