@@ -66,6 +66,7 @@ https://github.com/SignalR/SignalR/wiki/SignalR-JS-Client-Hubs
 If you navigate to signalr/hubs in your browser, you'll see a script that is dynamically generated based on the hubs declared
 on the server. Each hub on the server will become a property on the client side $.connection, e.g. $.connection.myHub.
  -->
+<script type="text/javascript" src="@Url.Content("~/Js/RequestAnimationFrameShim.js")"></script>
 <script type="text/javascript" src="@Url.Content("/signalr/hubs")"></script>  
 <script type="text/javascript" src="@Url.Content("~/Js/pongR.js")"></script>
 <script type="text/javascript" src="@Url.Content("~/Js/viewModel.js")"></script>
@@ -82,17 +83,17 @@ on the server. Each hub on the server will become a property on the client side 
     var processStateTimeout;        
     var ball = document.querySelector('#ball');
 
-    function clearAnimationTimeout(timeout) {
-        window.clearInterval(timeout); 
+    function startAnimation(animationFunction) {
+        return window.requestAnimationFrame(animationFunction);   
+    };
+
+    function clearAnimation(requestId) {
+        window.cancelAnimationFrame(requestId); 
     };
 
     function removeKeyboardEventListener() {
         document.removeEventListener("keydown", pongR.animateMyBar, false);
-    };
-
-    function setAnimationTimeout(animationFunction, frequency) {
-        return  window.setInterval(animationFunction, frequency);   
-    };
+    };    
 
     function setKeyboardEventListener() {
         document.addEventListener("keydown", pongR.animateMyBar, false);
@@ -105,7 +106,7 @@ on the server. Each hub on the server will become a property on the client side 
         
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");            
-            clearAnimationTimeout(processStateTimeout);            
+            clearAnimation(processStateTimeout);            
             removeKeyboardEventListener();
             // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
         };
@@ -138,7 +139,7 @@ on the server. Each hub on the server will become a property on the client side 
             pongR.setupMatch(opts);                                               
                         
             setKeyboardEventListener();
-            processStateTimeout = setAnimationTimeout(pongR.processState, processStateTimeoutFrequency);            
+            processStateTimeout = startAnimation(pongR.processState);            
         };
 
         pongRHub.continueMatchAfterGoal = function(opts) {
@@ -150,7 +151,7 @@ on the server. Each hub on the server will become a property on the client side 
                 app.ball.angle = 0;
             }
             setKeyboardEventListener();
-            processStateTimeout = setAnimationTimeout(pongR.processState, processStateTimeoutFrequency);
+            processStateTimeout = startAnimation(pongR.processState);
         };
 
         // Step 1: Start the connection        

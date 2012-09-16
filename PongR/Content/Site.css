@@ -225,12 +225,7 @@ input, button
     height: 25%;
     /*margin-top: 600%;  */
     top: 37%;
-    background-color: Green;   
-    -webkit-transition: 0.1s;    
-     -moz-transition: 0.1s;
-      -ms-transition: 0.1s;
-       -o-transition: 0.1s;
-          transition: 0.1s; 
+    background-color: Green;       
 }
 
 

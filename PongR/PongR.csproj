@@ -148,6 +148,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Js\logic.js" />
     <Content Include="Js\pongR.js" />
+    <Content Include="Js\RequestAnimationFrameShim.js" />
     <Content Include="Js\viewModel.js" />
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="Scripts\jquery-1.8.0-vsdoc.js" />
