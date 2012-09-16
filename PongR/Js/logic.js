@@ -272,6 +272,9 @@ var pongR = (function (myPongR, $, ko) {
 
     // Processes a step of the game
     myPongR.processState = function () {
+        // To test performance
+        //var start = new Date().getTime();
+
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
         processStateTimeout = window.requestAnimationFrame(pongR.processState);
@@ -291,6 +294,13 @@ var pongR = (function (myPongR, $, ko) {
         updateBallPosition();
         checkForCollisionsAndUpdateBallState();
 
+        var end = new Date().getTime();
+        /* for test
+        if (removeMe < 1000) {
+            var duration = end - start;
+            console.log("processState duration: " + duration + " ms");
+        }
+        removeMe++;*/
         //TODO Refactor all the SignalR related code into a separate js file
         pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
     };

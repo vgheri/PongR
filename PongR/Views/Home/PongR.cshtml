@@ -72,14 +72,12 @@ on the server. Each hub on the server will become a property on the client side 
 <script type="text/javascript" src="@Url.Content("~/Js/viewModel.js")"></script>
 <script type="text/javascript" src="@Url.Content("~/Js/logic.js")"></script>
 <script type="text/javascript">
-    
+    // To test performance
+    // var removeMe = 0;
     var pongRHub;
     var app;
     var me; // indicates which of the two player I am
-
-    //var fps = 60 // frames per second
-    var fps = 40; 
-    var processStateTimeoutFrequency = 1000 / fps;
+    
     var processStateTimeout;        
     var ball = document.querySelector('#ball');
 
