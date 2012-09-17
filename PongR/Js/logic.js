@@ -1,7 +1,7 @@
 ﻿/*
 * Author: Valerio Gheri
 * Date: 28/08/2012
-* Description: PongR game logic
+* Description: PongR game logic definition with the Module Augmentation pattern
 */
 
 var pongR = (function (myPongR, $, ko) {
