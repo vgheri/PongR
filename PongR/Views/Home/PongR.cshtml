@@ -133,7 +133,7 @@ on the server. Each hub on the server will become a property on the client side 
         };
         
         pongRHub.continueMatchAfterGoal = function(opts) {
-            pongR.resetObjectsPositionTOInitialState();
+            pongR.resetObjectsPositionToInitialState();
             app.ball.direction = opts.BallDirection;
             if (opts.BallDirection === "left") {
                 app.ball.angle = 180;

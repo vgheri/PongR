@@ -363,7 +363,7 @@ var pongR = (function (myPongR, $, ko) {
         me.topLeftVertex = getElementTopLeftVertex(element);
     };
 
-    myPongR.resetObjectsPositionTOInitialState = function () {
+    myPongR.resetObjectsPositionToInitialState = function () {
         resetAllPositionsToInitialState();
     };
 
