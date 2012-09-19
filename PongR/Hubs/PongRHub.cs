@@ -19,7 +19,7 @@ namespace PongR.Hubs
         private InMemoryRoomRepository _roomRepository;
 
         public PongRHub()
-        {
+        {            
             _userRepository = InMemoryUserRepository.GetInstance();
             _roomRepository = InMemoryRoomRepository.GetInstance();
         }
@@ -106,6 +106,7 @@ namespace PongR.Hubs
                     int z = i * 4;
                 }
                 */
+
                 dynamic matchOptions = new ExpandoObject();
                 matchOptions.PlayRoomId = playRoom.Id;
                 matchOptions.Player1 = playRoom.Player1;
@@ -130,8 +131,7 @@ namespace PongR.Hubs
         }
 
         public Task OnGoal(string appStatus)
-        {
-            
+        {            
             Random random = new Random();            
             if (!string.IsNullOrEmpty(appStatus))
             {

@@ -8,6 +8,26 @@ var pongR = (function (myPongR, $, ko) {
 
     var myOldMarginTop;
 
+
+    /*
+       Animation support functions and keyboard event handlers
+    */
+    myPongR.startAnimation = function (animationFunction) {
+        return window.requestAnimationFrame(animationFunction);
+    };
+
+    myPongR.clearAnimation = function (requestId) {
+        window.cancelAnimationFrame(requestId);
+    };
+
+    myPongR.removeKeyboardEventListener = function () {
+        document.removeEventListener("keydown", pongR.animateMyBar, false);
+    };
+
+    myPongR.setKeyboardEventListener = function () {
+        document.addEventListener("keydown", pongR.animateMyBar, false);
+    };
+
     // PRIVATE - Get the top left vertex of a DOM element
     function getElementTopLeftVertex(element) {
         var x, y;
@@ -227,8 +247,8 @@ var pongR = (function (myPongR, $, ko) {
     function restartGameAfterGoal() {
         var playerName = getNameOfPlayerWhoScored();
         // step 0
-        clearAnimation(processStateTimeout);
-        removeKeyboardEventListener();
+        pongR.clearAnimation(processStateTimeout);
+        pongR.removeKeyboardEventListener();
         // step 1 
         displayGoalMessage(playerName);
         updateScore(playerName);
@@ -277,7 +297,7 @@ var pongR = (function (myPongR, $, ko) {
 
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
-        processStateTimeout = window.requestAnimationFrame(pongR.processState);
+        processStateTimeout = pongR.startAnimation(pongR.processState);
         // 0: check if the bar has moved since last step, otherwise set its direction to "";
         // 1: update ball position
         // 2: check for collision
@@ -302,7 +322,8 @@ var pongR = (function (myPongR, $, ko) {
         }
         removeMe++;*/
         //TODO Refactor all the SignalR related code into a separate js file
-        pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
+        //I have to remove this statement from here because othwerise I will flood the server! 
+        //pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
     };
 
     // Moves the player's bar accordingly to the keystroke pressed (up or down) and updates the javascript state

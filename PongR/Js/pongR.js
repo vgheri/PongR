@@ -9,7 +9,8 @@ var pongR = (function ($) {
     var myPongR = {};
 
     myPongR.BAR_SCROLL_UNIT = 5;
-    
+
+        
 
     return myPongR;
 } (jQuery));

@@ -81,31 +81,15 @@ on the server. Each hub on the server will become a property on the client side 
     var processStateTimeout;        
     var ball = document.querySelector('#ball');
 
-    function startAnimation(animationFunction) {
-        return window.requestAnimationFrame(animationFunction);   
-    };
-
-    function clearAnimation(requestId) {
-        window.cancelAnimationFrame(requestId); 
-    };
-
-    function removeKeyboardEventListener() {
-        document.removeEventListener("keydown", pongR.animateMyBar, false);
-    };    
-
-    function setKeyboardEventListener() {
-        document.addEventListener("keydown", pongR.animateMyBar, false);
-    };
-
     $(document).ready(function () {
         // Proxy creation
         pongRHub = $.connection.pongRHub;
         pongRHub.username = @Html.Raw(Json.Encode(Model));
-        
+                
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");            
-            clearAnimation(processStateTimeout);            
-            removeKeyboardEventListener();
+            pongR.clearAnimation(processStateTimeout);            
+            pongR.removeKeyboardEventListener();
             // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
         };
 
@@ -136,10 +120,10 @@ on the server. Each hub on the server will become a property on the client side 
             // Start to animate the ball
             pongR.setupMatch(opts);                                               
                         
-            setKeyboardEventListener();
-            processStateTimeout = startAnimation(pongR.processState);            
+            pongR.setKeyboardEventListener();
+            processStateTimeout = pongR.startAnimation(pongR.processState);                                                            
         };
-
+        
         pongRHub.continueMatchAfterGoal = function(opts) {
             app.ball.direction = opts.BallDirection;
             if (opts.BallDirection === "left") {
@@ -148,8 +132,8 @@ on the server. Each hub on the server will become a property on the client side 
             else {
                 app.ball.angle = 0;
             }
-            setKeyboardEventListener();
-            processStateTimeout = startAnimation(pongR.processState);
+            pongR.setKeyboardEventListener();
+            processStateTimeout = pongR.startAnimation(pongR.processState);
         };
 
         // Step 1: Start the connection        
