@@ -130,7 +130,7 @@ namespace PongR.Hubs
             return null;
         }
 
-        public Task OnGoal(string appStatus)
+        public Task OnGoal(string appStatus, string playerNameWhoScored)
         {            
             Random random = new Random();            
             if (!string.IsNullOrEmpty(appStatus))
@@ -138,6 +138,7 @@ namespace PongR.Hubs
                 dynamic app = JObject.Parse(appStatus);
                 dynamic matchOptions = new ExpandoObject();                
                 matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
+                matchOptions.PlayerNameWhoScored = playerNameWhoScored;
                 var groupId = (string)app.playRoomId;
                 return Clients[groupId].continueMatchAfterGoal(matchOptions);
             }

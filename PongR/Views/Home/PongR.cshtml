@@ -132,7 +132,14 @@ on the server. Each hub on the server will become a property on the client side 
             serverNotificationIntervalId = pongR.startPositionNotificationInterval();                                                          
         };
         
+        // Steps: 
+        // 1: display a message and update score
+        // 2: reset players and ball position    
+        // 3: set new ball direction/angle
+        // 4: reset notification interval
         pongRHub.continueMatchAfterGoal = function(opts) {
+            pongR.displayGoalMessage(opts.PlayerNameWhoScored);
+            pongR.updateScore(opts.PlayerNameWhoScored);
             pongR.resetObjectsPositionToInitialState();
             app.ball.direction = opts.BallDirection;
             if (opts.BallDirection === "left") {

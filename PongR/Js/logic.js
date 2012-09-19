@@ -191,13 +191,6 @@ var pongR = (function (myPongR, $, ko) {
         return goal;
     };
 
-    //PRIVATE - 
-    function displayGoalMessage(playerName) {
-        $("#messageContainer").text("Goal for " + playerName + "!");
-        $("#messageContainer").css("visibility", "visible");
-        window.setTimeout(hideGoalMessage, 1000);
-    };
-
     //PRIVATE -
     function hideGoalMessage(playerName) {
         $("#messageContainer").text("");
@@ -244,14 +237,12 @@ var pongR = (function (myPongR, $, ko) {
     }
 
     // Notifies the server that the score is changed
-    function notifyServerOnGoal() {
-        pongRHub.onGoal(ko.toJSON(app));
+    function notifyServerOnGoal(playerName) {
+        pongRHub.onGoal(ko.toJSON(app), playerName);
     };
 
-    // 0: Clean timer and keyboard event handler
-    // 1: display a message and update score
-    // 2: reset players and ball position    
-    // 3: the player who scored send a message to the server to notify the new score. The server replies with the new ball direction to both players
+    // 1: Clean timer and keyboard event handler    
+    // 2: the player who scored send a message to the server to notify the new score. The server replies with the new ball direction to both players
     function restartGameAfterGoal() {
         var playerName = getNameOfPlayerWhoScored();
         // step 0
@@ -259,12 +250,14 @@ var pongR = (function (myPongR, $, ko) {
         //myPongR.removeKeyboardEventListener();
         myPongR.clearPositionNotificationInterval(serverNotificationIntervalId);
         // step 1 
-        displayGoalMessage(playerName);
-        updateScore(playerName);
+        //displayGoalMessage(playerName);
+        //updateScore(playerName);
         // step 2
-        resetAllPositionsToInitialState();
+        //resetAllPositionsToInitialState();
         // step 3
-        notifyServerOnGoal();
+        if (me.user.username() === playerName) {
+            notifyServerOnGoal(playerName);
+        }
     };
 
     // PRIVATE - At each step of the game, checks for any collision or goal event, and updates the app internal state
@@ -366,6 +359,26 @@ var pongR = (function (myPongR, $, ko) {
     myPongR.resetObjectsPositionToInitialState = function () {
         resetAllPositionsToInitialState();
     };
+
+    // PUBLIC
+    myPongR.displayGoalMessage = function (playerName) {
+        $("#messageContainer").text("Goal for " + playerName + "!");
+        $("#messageContainer").css("visibility", "visible");
+        window.setTimeout(hideGoalMessage, 1000);
+    };
+
+    // PUBLIC - Updates the score in the internal state of the app. Any change will be automatically reflected in the UI thanks to Knockout
+    myPongR.updateScore = function (playerNameWhoScored) {
+        var oldScore;
+        if (app.player1.user.username() === playerNameWhoScored) {
+            oldScore = app.player1.score();
+            app.player1.score(oldScore + 1);
+        }
+        else {
+            oldScore = app.player2.score();
+            app.player2.score(oldScore + 1);
+        }
+    }
 
     return myPongR;
 } (pongR, jQuery, ko));
