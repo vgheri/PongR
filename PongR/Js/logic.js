@@ -255,8 +255,8 @@ var pongR = (function (myPongR, $, ko) {
     function restartGameAfterGoal() {
         var playerName = getNameOfPlayerWhoScored();
         // step 0
-        myPongR.clearAnimation(requestAnimationFrameRequestId);
-        myPongR.removeKeyboardEventListener();
+        //myPongR.clearAnimation(requestAnimationFrameRequestId);
+        //myPongR.removeKeyboardEventListener();
         myPongR.clearPositionNotificationInterval(serverNotificationIntervalId);
         // step 1 
         displayGoalMessage(playerName);
@@ -361,6 +361,10 @@ var pongR = (function (myPongR, $, ko) {
             element = $("#player2-bar")[0];
         }
         me.topLeftVertex = getElementTopLeftVertex(element);
+    };
+
+    myPongR.resetObjectsPositionTOInitialState = function () {
+        resetAllPositionsToInitialState();
     };
 
     return myPongR;
