@@ -247,8 +247,8 @@ var pongR = (function (myPongR, $, ko) {
     function restartGameAfterGoal() {
         var playerName = getNameOfPlayerWhoScored();
         // step 0
-        pongR.clearAnimation(processStateTimeout);
-        pongR.removeKeyboardEventListener();
+        myPongR.clearAnimation(processStateTimeout);
+        myPongR.removeKeyboardEventListener();
         // step 1 
         displayGoalMessage(playerName);
         updateScore(playerName);
@@ -297,7 +297,7 @@ var pongR = (function (myPongR, $, ko) {
 
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
-        processStateTimeout = pongR.startAnimation(pongR.processState);
+        processStateTimeout = myPongR.startAnimation(pongR.processState);
         // 0: check if the bar has moved since last step, otherwise set its direction to "";
         // 1: update ball position
         // 2: check for collision
