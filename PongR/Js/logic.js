@@ -248,7 +248,7 @@ var pongR = (function (myPongR, $, ko) {
         // step 0
         //myPongR.clearAnimation(requestAnimationFrameRequestId);
         //myPongR.removeKeyboardEventListener();
-        myPongR.clearPositionNotificationInterval(serverNotificationIntervalId);
+        //myPongR.clearPositionNotificationInterval(serverNotificationIntervalId);
         // step 1 
         //displayGoalMessage(playerName);
         //updateScore(playerName);
