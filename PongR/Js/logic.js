@@ -10,7 +10,7 @@ var pongR = (function (myPongR, $, ko) {
 
 
     /*
-       Animation support functions and keyboard event handlers
+    Animation support functions and keyboard event handlers
     */
     myPongR.startAnimation = function (animationFunction) {
         return window.requestAnimationFrame(animationFunction);
@@ -27,6 +27,14 @@ var pongR = (function (myPongR, $, ko) {
     myPongR.setKeyboardEventListener = function () {
         document.addEventListener("keydown", pongR.animateMyBar, false);
     };
+
+    myPongR.startPositionNotificationInterval = function () {
+        return window.setInterval(pongRHub.notifyServerOfPlayerPosition, pongR.NOTIFICATION_FREQUENCY);
+    }
+
+    myPongR.clearPositionNotificationInterval = function (handle) {
+        window.clearInterval(handle);
+    }
 
     // PRIVATE - Get the top left vertex of a DOM element
     function getElementTopLeftVertex(element) {
@@ -247,8 +255,9 @@ var pongR = (function (myPongR, $, ko) {
     function restartGameAfterGoal() {
         var playerName = getNameOfPlayerWhoScored();
         // step 0
-        myPongR.clearAnimation(processStateTimeout);
+        myPongR.clearAnimation(requestAnimationFrameRequestId);
         myPongR.removeKeyboardEventListener();
+        myPongR.clearPositionNotificationInterval(serverNotificationIntervalId);
         // step 1 
         displayGoalMessage(playerName);
         updateScore(playerName);
@@ -297,7 +306,7 @@ var pongR = (function (myPongR, $, ko) {
 
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
-        processStateTimeout = myPongR.startAnimation(pongR.processState);
+        requestAnimationFrameRequestId = myPongR.startAnimation(pongR.processState);
         // 0: check if the bar has moved since last step, otherwise set its direction to "";
         // 1: update ball position
         // 2: check for collision
@@ -317,13 +326,10 @@ var pongR = (function (myPongR, $, ko) {
         var end = new Date().getTime();
         /* for test
         if (removeMe < 1000) {
-            var duration = end - start;
-            console.log("processState duration: " + duration + " ms");
+        var duration = end - start;
+        console.log("processState duration: " + duration + " ms");
         }
         removeMe++;*/
-        //TODO Refactor all the SignalR related code into a separate js file
-        //I have to remove this statement from here because othwerise I will flood the server! 
-        //pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
     };
 
     // Moves the player's bar accordingly to the keystroke pressed (up or down) and updates the javascript state

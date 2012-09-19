@@ -78,8 +78,10 @@ on the server. Each hub on the server will become a property on the client side 
     var app;
     var me; // indicates which of the two player I am
     
-    var processStateTimeout;        
+    var requestAnimationFrameRequestId; // The id associated with the frame animation request. It's used to cancel the animation request             
     var ball = document.querySelector('#ball');
+
+    var serverNotificationIntervalId;
 
     $(document).ready(function () {
         // Proxy creation
@@ -88,8 +90,9 @@ on the server. Each hub on the server will become a property on the client side 
                 
         pongRHub.opponentLeft = function() {
             alert("Opponent left. Going back to wait list");            
-            pongR.clearAnimation(processStateTimeout);            
+            pongR.clearAnimation(requestAnimationFrameRequestId);            
             pongR.removeKeyboardEventListener();
+            pongR.clearPositionNotificationInterval(serverNotificationIntervalId);
             // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
         };
 
@@ -98,6 +101,10 @@ on the server. Each hub on the server will become a property on the client side 
             // TODO: Use a lightbox to display a waiting message
             alert("Wait. Do nothing.");
         };       
+
+        pongRHub.notifyServerOfPlayerPosition = function() {
+            pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
+        }
         
         // SignalR notifies this client of the opponent new position
         pongRHub.updatePosition = function(player) {
@@ -121,7 +128,8 @@ on the server. Each hub on the server will become a property on the client side 
             pongR.setupMatch(opts);                                               
                         
             pongR.setKeyboardEventListener();
-            processStateTimeout = pongR.startAnimation(pongR.processState);                                                            
+            requestAnimationFrameRequestId = pongR.startAnimation(pongR.processState);  
+            serverNotificationIntervalId = pongR.startPositionNotificationInterval();                                                          
         };
         
         pongRHub.continueMatchAfterGoal = function(opts) {
@@ -133,7 +141,8 @@ on the server. Each hub on the server will become a property on the client side 
                 app.ball.angle = 0;
             }
             pongR.setKeyboardEventListener();
-            processStateTimeout = pongR.startAnimation(pongR.processState);
+            requestAnimationFrameRequestId = pongR.startAnimation(pongR.processState);
+            serverNotificationIntervalId = pongR.startPositionNotificationInterval();   
         };
 
         // Step 1: Start the connection        

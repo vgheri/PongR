@@ -8,7 +8,8 @@
 var pongR = (function ($) {
     var myPongR = {};
 
-    myPongR.BAR_SCROLL_UNIT = 5;
+    myPongR.BAR_SCROLL_UNIT = 5; // px
+    myPongR.NOTIFICATION_FREQUENCY = 250; // norify player position to the server every 250 ms 
 
     return myPongR;
 } (jQuery));
