@@ -4,7 +4,7 @@
 * Description: PongR viewmodels declaration with the Module Augmentation pattern
 */
 
-var pongR = (function (myPongR, $) {
+var pongR = (function (myPongR, $, ko) {
 
     function getElementTopLeftVertex(element) {
         var x, y;
@@ -76,4 +76,4 @@ var pongR = (function (myPongR, $) {
     };
 
     return myPongR;
-} (pongR, jQuery));
+} (pongR, jQuery, ko));

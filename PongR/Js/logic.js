@@ -30,11 +30,11 @@ var pongR = (function (myPongR, $, ko) {
 
     myPongR.startPositionNotificationInterval = function () {
         return window.setInterval(pongRHub.notifyServerOfPlayerPosition, pongR.NOTIFICATION_FREQUENCY);
-    }
+    };
 
     myPongR.clearPositionNotificationInterval = function (handle) {
         window.clearInterval(handle);
-    }
+    };
 
     // PRIVATE - Get the top left vertex of a DOM element
     function getElementTopLeftVertex(element) {
@@ -42,7 +42,7 @@ var pongR = (function (myPongR, $, ko) {
         x = element.offsetLeft;
         y = element.offsetTop;
         return new myPongR.Point(x, y);
-    };
+    }
 
     // PRIVATE - Updates the position of the ball based on its direction and its angle
     function updateBallPosition() {
@@ -72,14 +72,13 @@ var pongR = (function (myPongR, $, ko) {
             default:
                 alert("Unknown angle!");
                 console.log("Unknown angle value " + app.ball.angle.toString());
-                throw ("Unknown angle value");
-                break;
+                throw ("Unknown angle value");                
         }
         var centreX = app.ball.coordinates.x - app.ball.radius;
         var centreY = app.ball.coordinates.y - app.ball.radius;
         ball.style.left = centreX.toString() + 'px';
         ball.style.top = centreY.toString() + 'px';
-    };
+    }
 
     // PRIVATE - Calculates new angle after a ball collision with a player
     function calculateNewAngleAfterPlayerHit(player, newBallDirection) {
@@ -108,7 +107,7 @@ var pongR = (function (myPongR, $, ko) {
             throw ("Unknown new angle value");
         }
         return angle;
-    };
+    }
 
     // PRIVATE - Calculates new angle after a ball collision with a player
     function calculateNewAngleAfterFieldHit(oldAngle, ballDirection) {
@@ -131,7 +130,7 @@ var pongR = (function (myPongR, $, ko) {
             throw ("Unknown new angle value");
         }
         return newAngle;
-    };
+    }
 
     // TODO - PRIVATE - Rename the method to reflect the updates to the ball as well
     function checkCollisionWithPlayer() {
@@ -159,7 +158,7 @@ var pongR = (function (myPongR, $, ko) {
             app.ball.direction = newBallDirection;
         }
         return barCollision;
-    };
+    }
 
     // TODO - PRIVATE - Rename the method to reflect the updates to the ball as well
     function checkCollisionWithFieldDelimiters() {
@@ -180,7 +179,7 @@ var pongR = (function (myPongR, $, ko) {
             app.ball.angle = newAngle;
         }
         return fieldCollision;
-    };
+    }
 
     // PRIVATE - Checks if one of the players scored
     function checkGoal() {
@@ -189,13 +188,13 @@ var pongR = (function (myPongR, $, ko) {
             goal = true;
         }
         return goal;
-    };
+    }
 
     //PRIVATE -
-    function hideGoalMessage(playerName) {
+    function hideGoalMessage() {
         $("#messageContainer").text("");
         $("#messageContainer").css("visibility", "hidden");
-    };
+    }
 
     //PRIVATE -
     function getNameOfPlayerWhoScored() {
@@ -239,7 +238,7 @@ var pongR = (function (myPongR, $, ko) {
     // Notifies the server that the score is changed
     function notifyServerOnGoal(playerName) {
         pongRHub.onGoal(ko.toJSON(app), playerName);
-    };
+    }
 
     // 1: Clean timer and keyboard event handler    
     // 2: the player who scored send a message to the server to notify the new score. The server replies with the new ball direction to both players
@@ -258,11 +257,10 @@ var pongR = (function (myPongR, $, ko) {
         if (me.user.username() === playerName) {
             notifyServerOnGoal(playerName);
         }
-    };
+    }
 
     // PRIVATE - At each step of the game, checks for any collision or goal event, and updates the app internal state
-    function checkForCollisionsAndUpdateBallState() {
-        var goal = false;
+    function checkForCollisionsAndUpdateBallState() {        
         // check for collision
         // if collision with players' bar or field, update ball state (set next angle, next direction etc...)
         var collision = checkCollisionWithPlayer();
@@ -275,7 +273,7 @@ var pongR = (function (myPongR, $, ko) {
                 }
             }
         }
-    };
+    }
 
     // Initial setup of the match state and start of the game interval
     myPongR.setupMatch = function (opts) {
@@ -316,7 +314,7 @@ var pongR = (function (myPongR, $, ko) {
         updateBallPosition();
         checkForCollisionsAndUpdateBallState();
 
-        var end = new Date().getTime();
+        //var end = new Date().getTime();
         /* for test
         if (removeMe < 1000) {
         var duration = end - start;

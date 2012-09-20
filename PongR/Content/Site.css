@@ -1,14 +1,14 @@
 html {
 	width:100%;
-    height:100%;
+	height:100%;
 }
 
 body 
 {
 	font-family: Helvetica;		
 	width:100%;
-    height:100%;  
-    margin: 0px;  
+	height:100%;  
+	margin: 0px;  
 }
 
 h1 
@@ -26,10 +26,10 @@ h2
 
 ul 
 {
-    list-style: none;
-    list-style-image: none;
-    margin:0px;
-    padding:0px;
+	list-style: none;
+	list-style-image: none;
+	margin:0px;
+	padding:0px;
 }
 
 li {
@@ -41,8 +41,8 @@ li {
 
 #myContainer 
 {   
-    margin-top: 40px;
-        
+	margin-top: 40px;
+		
 }
 
 
@@ -95,172 +95,172 @@ input, button
 /* Header style */
 #header
 {
-    width: 100%;
-    height:15%;
-    /*border: 1px solid black;*/  
+	width: 100%;
+	height:15%;
+	/*border: 1px solid black;*/  
 }
 
 .player-info-container 
 {
-    width: 48%;
-    height: 100%;
-    float: left;       
+	width: 48%;
+	height: 100%;
+	float: left;       
 }
 
 #vs 
 {
-    display: inline;
-    float: left;
-    width: 4%;
-    height: 100%;  
-    
+	display: inline;
+	float: left;
+	width: 4%;
+	height: 100%;  
+	
 }
 
 #vs div
 {
-    margin-top: 10%;  
-    padding: 20% 20% 20% 20%;
-    font-size: 30px;
+	margin-top: 10%;  
+	padding: 20% 20% 20% 20%;
+	font-size: 30px;
 }
 
 .player-info
 {
-    margin-top: 2%;
-    width: 52%;
-    height: 50%;
-    border: 1px solid black;
+	margin-top: 2%;
+	width: 52%;
+	height: 50%;
+	border: 1px solid black;
 }
 
 #player1-info
 {
-    margin-left: 12%;
+	margin-left: 12%;
 }
 
 #player2-info
 {
-    float:right;
-    margin-right: 12%;
+	float:right;
+	margin-right: 12%;
 }
 
 .player-info ul li 
 {
-    padding: 2% 2% 2% 2%;
-    font-size: 30px;    
+	padding: 2% 2% 2% 2%;
+	font-size: 30px;    
 }
 
 .player-score
 {
-    float:right;
-    border-left: 1px solid black;
+	float:right;
+	border-left: 1px solid black;
 }
 
 /* Field  style */
 
 #fieldContainer
 {
-    width: 100%;
-    height: 85%;
-    /*border: 1px solid black;*/  
+	width: 100%;
+	height: 85%;
+	/*border: 1px solid black;*/  
 }
 
 .field
 {
-    width: 40%;
-    height: 90%;
-    float: left;
-    border: 1px solid black;    
+	width: 40%;
+	height: 90%;
+	float: left;
+	border: 1px solid black;    
 }
 
 #player1-field
 {
-    margin-left: 10%;   
-    border-right: 1px dotted black;
+	margin-left: 10%;   
+	border-right: 1px dotted black;
 }
 
 #player2-field
 {
-    border-left: 1px dotted black;
+	border-left: 1px dotted black;
 }
 
 .player-goal 
 {
-    width: 5%;
-    height: 100%; 
-    display:inline;   
+	width: 5%;
+	height: 100%; 
+	display:inline;   
 }
 
 #player1-goal
 {
-    float: left;
+	float: left;
 }
 
 #player2-goal
 {
-    float: right;
+	float: right;
 }
 
 .player-area
 {
-    width: 6%;
-    height: 100%;
-    overflow: hidden;
+	width: 6%;
+	height: 100%;
+	overflow: hidden;
 }
 
 #player1-area
 {
-    display:inline;
-    float:left;    
+	display:inline;
+	float:left;    
 }
 
 #player2-area
 {
-    display:inline;
-    float:right;
+	display:inline;
+	float:right;
 }
 
 .player-bar
 {    
-    position: relative;
-    width: 100%;
-    height: 25%;
-    /*margin-top: 600%;  */
-    top: 37%;
-    background-color: Green; 
-    /*
-    -webkit-transition: 0.01s;
-     -moz-transition: 0.01s;
-      -ms-transition: 0.01s;
-       -o-transition: 0.01s;
-          transition: 0.01s;  
-    */    
+	position: relative;
+	width: 100%;
+	height: 25%;
+	/*margin-top: 600%;  */
+	top: 37%;
+	background-color: Green; 
+	/*
+	-webkit-transition: 0.01s;
+	 -moz-transition: 0.01s;
+	  -ms-transition: 0.01s;
+	   -o-transition: 0.01s;
+		  transition: 0.01s;  
+	*/    
 }
 
 
 /******* Ball style ********/
 .ball 
 {
-    position: absolute;
-    top: 54%;
-    left: 49%;
-    background: #AF3232;
-    width: 20px;
-    height: 20px;
-    border-radius: 20px;
-    display: block;
-    /*
-    -webkit-transition: 0.01s;
-     -moz-transition: 0.01s;
-      -ms-transition: 0.01s;
-       -o-transition: 0.01s;
-          transition: 0.01s;
-    */
+	position: absolute;
+	top: 54%;
+	left: 49%;
+	background: #AF3232;
+	width: 20px;
+	height: 20px;
+	border-radius: 20px;
+	display: block;
+	/*
+	-webkit-transition: 0.01s;
+	 -moz-transition: 0.01s;
+	  -ms-transition: 0.01s;
+	   -o-transition: 0.01s;
+		  transition: 0.01s;
+	*/
 }
 /******* Footer **********/
 #footer 
 {
-    width: 100%;
-    height: 10%;
-    border: 1px solid black;
+	width: 100%;
+	height: 10%;
+	border: 1px solid black;
 }
 
 /******** Various styles *******/
