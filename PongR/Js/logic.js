@@ -13,11 +13,13 @@ var pongR = (function (myPongR, $, ko) {
     Animation support functions and keyboard event handlers
     */
     myPongR.startAnimation = function (animationFunction) {
-        return window.requestAnimationFrame(animationFunction);
+        //return window.requestAnimationFrame(animationFunction);
+        return window.setTimeout(animationFunction, 17);
     };
 
     myPongR.clearAnimation = function (requestId) {
-        window.cancelAnimationFrame(requestId);
+        //window.cancelAnimationFrame(requestId);
+        window.clearTimeout(requestId);
     };
 
     myPongR.removeKeyboardEventListener = function () {
@@ -72,7 +74,7 @@ var pongR = (function (myPongR, $, ko) {
             default:
                 alert("Unknown angle!");
                 console.log("Unknown angle value " + app.ball.angle.toString());
-                throw ("Unknown angle value");                
+                throw ("Unknown angle value");
         }
         var centreX = app.ball.coordinates.x - app.ball.radius;
         var centreY = app.ball.coordinates.y - app.ball.radius;
@@ -260,7 +262,7 @@ var pongR = (function (myPongR, $, ko) {
     }
 
     // PRIVATE - At each step of the game, checks for any collision or goal event, and updates the app internal state
-    function checkForCollisionsAndUpdateBallState() {        
+    function checkForCollisionsAndUpdateBallState() {
         // check for collision
         // if collision with players' bar or field, update ball state (set next angle, next direction etc...)
         var collision = checkCollisionWithPlayer();
@@ -294,10 +296,7 @@ var pongR = (function (myPongR, $, ko) {
     myPongR.processState = function () {
         // To test performance
         //var start = new Date().getTime();
-
-        // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
-        // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
-        requestAnimationFrameRequestId = myPongR.startAnimation(pongR.processState);
+                
         // 0: check if the bar has moved since last step, otherwise set its direction to "";
         // 1: update ball position
         // 2: check for collision
@@ -321,6 +320,9 @@ var pongR = (function (myPongR, $, ko) {
         console.log("processState duration: " + duration + " ms");
         }
         removeMe++;*/
+        // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
+        // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
+        requestAnimationFrameRequestId = myPongR.startAnimation(pongR.processState);
     };
 
     // Moves the player's bar accordingly to the keystroke pressed (up or down) and updates the javascript state
