@@ -84,9 +84,16 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\PongRHub.cs" />
+    <Compile Include="Models\Ball.cs" />
+    <Compile Include="Models\Command.cs" />
+    <Compile Include="Models\Engine.cs" />
+    <Compile Include="Models\Game.cs" />
     <Compile Include="Models\InMemoryRoomRepository.cs" />
     <Compile Include="Models\InMemoryUserRepository.cs" />
+    <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\PlayerInput.cs" />
     <Compile Include="Models\PlayRoom.cs" />
+    <Compile Include="Models\Point.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
