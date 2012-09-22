@@ -10,7 +10,7 @@ namespace PongR.Models
         public int Radius { get; set; }
         public Point Coordinates { get; set; }
         public string Direction { get; set; }
-        public double Angle { get; set; }
+        public int Angle { get; set; }
         public int FixedStep { get; set; }
     }
 }

@@ -90,6 +90,7 @@
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\InMemoryRoomRepository.cs" />
     <Compile Include="Models\InMemoryUserRepository.cs" />
+    <Compile Include="Models\Notifier.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Models\PlayerInput.cs" />
     <Compile Include="Models\PlayRoom.cs" />

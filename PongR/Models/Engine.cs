@@ -8,7 +8,7 @@ namespace PongR.Models
     public static class Engine
     {
         // Store of couples <playerRoomId, GameStatus> 
-        private static Dictionary<int, Game> _games;
+        private static Dictionary<int, Game> _games = new Dictionary<int,Game>();
         private const int BAR_SCROLL_UNIT = 5; // px
 
         public static void AddGame(Game newGame)
@@ -42,7 +42,7 @@ namespace PongR.Models
         private static void ProcessTick(Game game)
         {
             // 1: Apply inputs received from players (and progressively remove them from the buffer)
-            // 2: Update ball position using the delta function
+            // 2: Update ball position
             // 3: Check for collisions
             // 4: If collision, update ball status
             // 5: If no collision, check for a goal condition
@@ -100,12 +100,38 @@ namespace PongR.Models
         }
 
         /// <summary>
-        /// Update ball position using the delta function
+        /// Update ball position
         /// </summary>
         /// <param name="ball"></param>
         private static void UpdateBallPosition(Ball ball)
         {
-
+            switch (ball.Angle)
+            {
+                case 0:
+                    ball.Coordinates.X += ball.FixedStep;
+                    break;
+                case 45:
+                    ball.Coordinates.X += ball.FixedStep;
+                    ball.Coordinates.Y -= ball.FixedStep;
+                    break;
+                case 135:
+                    ball.Coordinates.X -= ball.FixedStep;
+                    ball.Coordinates.Y -= ball.FixedStep;
+                    break;
+                case 180:
+                    ball.Coordinates.X -= ball.FixedStep;
+                    break;
+                case 225:
+                    ball.Coordinates.X -= ball.FixedStep;
+                    ball.Coordinates.Y += ball.FixedStep;
+                    break;
+                case 315:
+                    ball.Coordinates.X += ball.FixedStep;
+                    ball.Coordinates.Y += ball.FixedStep;
+                    break;
+                default:
+                    throw new Exception("Unknown angle value");
+            }
         }
 
         private static void CheckGoalConditionAndUpdateStatus(Game game)
