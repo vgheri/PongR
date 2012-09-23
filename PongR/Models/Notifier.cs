@@ -12,10 +12,10 @@ namespace PongR.Models
     public class Notifier
     {
         // Synchronize clients with the new authoritative game status
-        public static void UpdateClients(string groupId, Game game)
+        public static void UpdateClients(Game game)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<PongRHub>();
-            context.Clients[groupId].updateGame(game);
+            context.Clients[game.PlayRoomId].updateGame(game);
         }
     }
 }

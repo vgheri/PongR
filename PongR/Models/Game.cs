@@ -13,7 +13,6 @@ namespace PongR.Models
         public Ball Ball { get; set; }
         public Point FieldTopLeftVertex { get; set; }
         public int FieldWidth { get; set; }
-        public int FieldHeight { get; set; }
-        public bool IsGoal { get; set; }
+        public int FieldHeight { get; set; }       
     }
 }
