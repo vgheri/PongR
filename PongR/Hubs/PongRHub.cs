@@ -48,6 +48,7 @@ namespace PongR.Hubs
                     var opponent = room.Player1.Id.Equals(user.Id) ? room.Player2 : room.Player1;
                     _userRepository.AddToWaitingList(opponent);
                     _roomRepository.Remove(room);
+                    Engine.RemoveGame(int.Parse(room.Id));
                     return Clients[opponent.Id].opponentLeft();                    
                 }
             }
@@ -107,12 +108,20 @@ namespace PongR.Hubs
                 }
                 */
 
+                Game game = new Game()
+                {
+                    PlayRoomId = int.Parse(playRoom.Id),
+                    Player1 = new Player() { User = playRoom.Player1, IsHost = true, PlayerNumber = 1, Score = 0 },
+                    Player2 = new Player() { User = playRoom.Player2, IsHost = true, PlayerNumber = 2, Score = 0 }
+                };
+                Engine.AddGame(game);
+
                 dynamic matchOptions = new ExpandoObject();
                 matchOptions.PlayRoomId = playRoom.Id;
                 matchOptions.Player1 = playRoom.Player1;
                 matchOptions.Player2 = playRoom.Player2;
                 matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
-                //var list = Clients[playRoom.Id];
+                
                 return Clients[playRoom.Id].startMatch(matchOptions);                               
             }
         }        

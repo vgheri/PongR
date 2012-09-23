@@ -13,6 +13,12 @@ namespace PongR.Models
         public Ball Ball { get; set; }
         public Point FieldTopLeftVertex { get; set; }
         public int FieldWidth { get; set; }
-        public int FieldHeight { get; set; }       
+        public int FieldHeight { get; set; }
+
+
+        public Player GetPlayer(string userId)
+        {
+            return Player1.User.Id == userId ? Player1 : Player2;
+        }
     }
 }

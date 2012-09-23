@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Timers;
+
 
 namespace PongR.Models
 {
@@ -19,10 +21,42 @@ namespace PongR.Models
             }
         }
 
+        public static void RemoveGame(int gameId)
+        {
+            if (_games.ContainsKey(gameId))
+            {
+                _games.Remove(gameId);
+            }
+        }
+
+        public static void QueueInput(int gameId, string userId, PlayerInput input)
+        {
+            Game game;
+            if (_games.TryGetValue(gameId, out game))
+            {
+                Player player = game.GetPlayer(userId);
+                player.UnprocessedPlayerInputs.Add(input);
+            }
+        }
+
+        // Specify what you want to happen when the Elapsed event is 
+        // raised.
+        public static void OnPhysicsTimedEvent(object source, ElapsedEventArgs e)
+        {
+            Engine.ProcessGamesTick();
+        }
+
+        // Specify what you want to happen when the Elapsed event is 
+        // raised.
+        public static void OnUpdateClientsTimedEvent(object source, ElapsedEventArgs e)
+        {
+            Engine.UpdateClients();
+        }
+
         /// <summary>
         /// Physics loop where, for each game registered in _games we process its state based on users inputs
         /// </summary>
-        public static void ProcessGamesTick()
+        private static void ProcessGamesTick()
         {
             foreach(var game in _games.Values)
             {
@@ -30,7 +64,7 @@ namespace PongR.Models
             }
         }
 
-        public static void UpdateClients()
+        private static void UpdateClients()
         {
             // Send to each group the updated Game object (maybe I need to add properties to it...)
             foreach (var game in _games.Values)
@@ -92,6 +126,7 @@ namespace PongR.Models
                 // Remove the just processed command
                 player.UnprocessedPlayerInputs.Remove(input);
             }
+            player.LastProcessedInputId = lastInputExecuted;
         }
 
         /// <summary>

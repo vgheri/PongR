@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using PongR.Models;
+using System.Timers;
 
 namespace PongR
 {
@@ -34,13 +35,22 @@ namespace PongR
         {
             AreaRegistration.RegisterAllAreas();
 
+            RegisterGlobalFilters(GlobalFilters.Filters);
+            RegisterRoutes(RouteTable.Routes);
+
             // TODO: remove this. For testing only. Clear repositories
             InMemoryUserRepository.GetInstance().ConnectedUsers.ToList().Clear();
             InMemoryUserRepository.GetInstance().WaitingList.ToList().Clear();
             InMemoryRoomRepository.GetInstance().Rooms.ToList().Clear();
 
-            RegisterGlobalFilters(GlobalFilters.Filters);
-            RegisterRoutes(RouteTable.Routes);
+            var physicsTimer = new System.Timers.Timer(15);
+            physicsTimer.Enabled = true;
+            // Hook up the Elapsed event for the timer.
+            physicsTimer.Elapsed += new ElapsedEventHandler(Engine.OnPhysicsTimedEvent);
+            
+            var updateTimer = new Timer(45);
+            updateTimer.Enabled = true;
+            updateTimer.Elapsed += new ElapsedEventHandler(Engine.OnUpdateClientsTimedEvent);
         }
     }
 }

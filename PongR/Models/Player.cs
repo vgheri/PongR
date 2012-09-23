@@ -17,5 +17,6 @@ namespace PongR.Models
         public int Score { get; set; }
         public bool IsHost { get; set; }
         public List<PlayerInput> UnprocessedPlayerInputs { get; set; }
+        public int LastProcessedInputId { get; set; }
     }
 }
