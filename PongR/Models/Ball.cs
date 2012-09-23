@@ -11,6 +11,13 @@ namespace PongR.Models
         public Point Coordinates { get; set; }
         public string Direction { get; set; }
         public int Angle { get; set; }
-        public int FixedStep { get; set; }
+        
+        public Ball(string direction, int angle)
+        {
+            Radius = 2; // 2%
+            Coordinates = new Point(50, 50);            
+            Direction = direction;
+            Angle = angle;
+        }
     }
 }

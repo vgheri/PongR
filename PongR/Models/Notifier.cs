@@ -15,7 +15,7 @@ namespace PongR.Models
         public static void UpdateClients(Game game)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<PongRHub>();
-            context.Clients[game.PlayRoomId].updateGame(game);
+            context.Clients[game.GameId].updateGame(game);
         }
     }
 }

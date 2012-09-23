@@ -107,20 +107,18 @@ namespace PongR.Hubs
                     int z = i * 4;
                 }
                 */
+                string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
+                int ballAngle = ballDirection.Equals("left") ? 180 : 0;
+                Player player1 = Engine.CreatePlayer(playRoom.Player1, 1, true);
+                Player player2 = Engine.CreatePlayer(playRoom.Player2, 2, false);
 
-                Game game = new Game()
-                {
-                    PlayRoomId = int.Parse(playRoom.Id),
-                    Player1 = new Player() { User = playRoom.Player1, IsHost = true, PlayerNumber = 1, Score = 0 },
-                    Player2 = new Player() { User = playRoom.Player2, IsHost = true, PlayerNumber = 2, Score = 0 }
-                };
-                Engine.AddGame(game);
+                Engine.CreateGame(playRoom.Id, player1, player2, ballDirection, ballAngle);
 
                 dynamic matchOptions = new ExpandoObject();
                 matchOptions.PlayRoomId = playRoom.Id;
                 matchOptions.Player1 = playRoom.Player1;
                 matchOptions.Player2 = playRoom.Player2;
-                matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
+                matchOptions.BallDirection = ballDirection;
                 
                 return Clients[playRoom.Id].startMatch(matchOptions);                               
             }
@@ -153,6 +151,11 @@ namespace PongR.Hubs
             }
             
             return null;            
+        }
+
+        public void RegisterInputs(string playRoomId, string userId, List<PlayerInput> inputs)
+        {            
+            Engine.QueueInputs(playRoomId, userId, inputs);
         }
 
         #endregion

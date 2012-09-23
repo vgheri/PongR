@@ -10,18 +10,22 @@ namespace PongR.Models
     public static class Engine
     {
         // Store of couples <playerRoomId, GameStatus> 
-        private static Dictionary<int, Game> _games = new Dictionary<int,Game>();
+        private static Dictionary<string, Game> _games = new Dictionary<string, Game>();
         private const int BAR_SCROLL_UNIT = 5; // px
-        
-        public static void AddGame(Game newGame)
+        private const int BALL_FIXED_STEP = 10;
+        private const int FIELD_WIDTH = 1000; // px
+        private const int FIELD_HEIGHT = 600; // px
+
+        public static void CreateGame(string gameId, Player host, Player opponent, string ballDirection, int ballAngle)
         {
-            if (!_games.ContainsKey(newGame.PlayRoomId))
+            Game game = new Game(gameId, host, opponent, new Ball(ballDirection, ballAngle));
+            if (!_games.ContainsKey(game.GameId))
             {
-                _games.Add(newGame.PlayRoomId, newGame);
+                _games.Add(game.GameId, game);
             }
         }
 
-        public static void RemoveGame(int gameId)
+        public static void RemoveGame(string gameId)
         {
             if (_games.ContainsKey(gameId))
             {
@@ -29,13 +33,28 @@ namespace PongR.Models
             }
         }
 
-        public static void QueueInput(int gameId, string userId, PlayerInput input)
+        public static Player CreatePlayer(User user, int playerNumber, bool isHost)
+        {
+            return new Player(user, playerNumber, isHost, FIELD_WIDTH, FIELD_HEIGHT);
+        }
+
+        public static void QueueInput(string gameId, string userId, PlayerInput input)
         {
             Game game;
             if (_games.TryGetValue(gameId, out game))
             {
                 Player player = game.GetPlayer(userId);
                 player.UnprocessedPlayerInputs.Add(input);
+            }
+        }
+
+        public static void QueueInputs(string gameId, string userId, List<PlayerInput> inputs)
+        {
+            Game game;
+            if (_games.TryGetValue(gameId, out game))
+            {
+                Player player = game.GetPlayer(userId);
+                player.UnprocessedPlayerInputs.AddRange(inputs);
             }
         }
 

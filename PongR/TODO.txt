@@ -1,0 +1,22 @@
+﻿Rethink the clients in terms of percent: when i update the ball position, I have to think in terms of % and not pixel.
+For every step I need to increment the X and Y by 1%, and 1% is 5 pixel, then i finally increment x and y by 5 pixel.
+This way I can have a consistent simulation both on the server and the clients, disregard their screen dimension.
+Clients and server communicate in terms of %, internally they think in terms of pixel!
+
+Reference field dimension on the server = 1000 (width) * 600 (height) px
+So everything should be expressed in terms of percentage: 
+
+Ball -> radius = 20px ==> (20/1000) * 100 = 2%
+	 -> center coordinates (50,50) , in the middle of the field
+	 -> fixed step = 10 px ==> (5/1000) * 100 = 1%
+
+Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
+		 -> bar height = 16% ==>  x:600 = 16:100 => x = (16*600) / 100 ==> height = 96px
+		 -> bar width = 3% ==> width = 30 px 
+		 -> BarMarginTop = 42% (50 - (height/2)) = 252px
+		 -> TopLeftVertex = 5% gap from left delimiter ==> 50px;
+
+
+Check what must be changed in the physics server loop now that I modified the Player internal status
+
+

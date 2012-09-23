@@ -18,5 +18,18 @@ namespace PongR.Models
         public bool IsHost { get; set; }
         public List<PlayerInput> UnprocessedPlayerInputs { get; set; }
         public int LastProcessedInputId { get; set; }
+
+        public Player(User user, int playerNumber, bool isHost, int fieldWidth, int fieldHeight)
+        {
+            User = user;
+            PlayerNumber = playerNumber;
+            BarDirection = "";
+            BarMarginTop = 42; //%
+            BarWidth = 30; //px
+            BarHeight = 96; //px
+            var x = playerNumber == 1 ? 50 : (fieldWidth - 50 - BarWidth); //px
+            var y = 252; //px
+            TopLeftVertex = new Point(x, y);
+        }
     }
 }
