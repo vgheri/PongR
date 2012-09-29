@@ -12,9 +12,12 @@ namespace PongR.Models
         // Store of couples <playerRoomId, GameStatus> 
         private static Dictionary<string, Game> _games = new Dictionary<string, Game>();
         private const int BAR_SCROLL_UNIT = 5; // px
-        private const int BALL_FIXED_STEP = 10;
+        private const int BAR_SCROLL_UNIT_PERC = 1; // %
+        private const int BALL_FIXED_STEP = 10; // px
         private const int FIELD_WIDTH = 1000; // px
         private const int FIELD_HEIGHT = 600; // px
+        // Minimum distance between the player and the field delimiters (up and down)
+        private const int FIXED_GAP = 30; // px
 
         public static void CreateGame(string gameId, Player host, Player opponent, string ballDirection, int ballAngle)
         {
@@ -63,6 +66,7 @@ namespace PongR.Models
         public static void OnPhysicsTimedEvent(object source, ElapsedEventArgs e)
         {
             Engine.ProcessGamesTick();
+            Console.WriteLine("PL Executed");
         }
 
         // Specify what you want to happen when the Elapsed event is 
@@ -70,6 +74,7 @@ namespace PongR.Models
         public static void OnUpdateClientsTimedEvent(object source, ElapsedEventArgs e)
         {
             Engine.UpdateClients();
+            Console.WriteLine("UL Executed");
         }
 
         /// <summary>
@@ -104,8 +109,8 @@ namespace PongR.Models
             // 4: If no collision, check for a goal condition and update status if goal
             
             // 1: TODO Write Unit Test
-            MovePlayer(game.Player1);
-            MovePlayer(game.Player2);
+            MovePlayer(game.Player1, game.FieldHeight);
+            MovePlayer(game.Player2, game.FieldHeight);
             // 2: TODO Write Unit Test
             UpdateBallPosition(game.Ball); // Just update (X,Y) based on the angle
             // 3: TODO Write Unit Test
@@ -120,29 +125,45 @@ namespace PongR.Models
         /// Apply inputs received from players (and progressively remove them from the buffer)
         /// </summary>
         /// <param name="player"></param>
-        private static void MovePlayer(Player player)
+        private static void MovePlayer(Player player, int fieldHeight)
         {
             int lastInputExecuted = -1;
+            List<PlayerInput> inputsToRemove = new List<PlayerInput>();
+
             foreach (var input in player.UnprocessedPlayerInputs)
-            {
+            {                
                 lastInputExecuted = input.Id;
                 if (input.Command == Command.Up)
-                {                    
-                    if (player.BarMarginTop - BAR_SCROLL_UNIT >= 5)
-                    {  // 0 + 5 (minimum distance from border)
-                        player.BarMarginTop -= BAR_SCROLL_UNIT;
+                {
+                    if (player.TopLeftVertex.Y - BAR_SCROLL_UNIT >= FIXED_GAP)
+                    {  // 30 px is the minimum distance from border
+                        player.BarMarginTop -= BAR_SCROLL_UNIT_PERC;
+                        player.TopLeftVertex.Y -= BAR_SCROLL_UNIT;
                         player.BarDirection = "up";
+                    }
+                    else
+                    {
+                        player.BarDirection = "";
                     }
                 }
                 else if (input.Command == Command.Down)
                 {
-                    if (player.BarMarginTop + BAR_SCROLL_UNIT <= 70)
-                    {  // 100 - 25 (bar height) - 5 (mininum distance from border)
-                        player.BarMarginTop += BAR_SCROLL_UNIT;
+                    if (player.TopLeftVertex.Y + BAR_SCROLL_UNIT <= fieldHeight - FIXED_GAP)
+                    {  
+                        player.BarMarginTop += BAR_SCROLL_UNIT_PERC;
+                        player.TopLeftVertex.Y += BAR_SCROLL_UNIT;
                         player.BarDirection = "down";
                     }
+                    else
+                    {
+                        player.BarDirection = "";
+                    }
                 }
-                // Remove the just processed command
+                inputsToRemove.Add(input);
+            }
+            // Remove the already processed commands. I cannot directly modify the collection while iterating over it
+            foreach (var input in inputsToRemove)
+            {                
                 player.UnprocessedPlayerInputs.Remove(input);
             }
             player.LastProcessedInputId = lastInputExecuted;
@@ -157,26 +178,26 @@ namespace PongR.Models
             switch (ball.Angle)
             {
                 case 0:
-                    ball.Coordinates.X += ball.FixedStep;
+                    ball.Coordinates.X += BALL_FIXED_STEP;
                     break;
                 case 45:
-                    ball.Coordinates.X += ball.FixedStep;
-                    ball.Coordinates.Y -= ball.FixedStep;
+                    ball.Coordinates.X += BALL_FIXED_STEP;
+                    ball.Coordinates.Y -= BALL_FIXED_STEP;
                     break;
                 case 135:
-                    ball.Coordinates.X -= ball.FixedStep;
-                    ball.Coordinates.Y -= ball.FixedStep;
+                    ball.Coordinates.X -= BALL_FIXED_STEP;
+                    ball.Coordinates.Y -= BALL_FIXED_STEP;
                     break;
                 case 180:
-                    ball.Coordinates.X -= ball.FixedStep;
+                    ball.Coordinates.X -= BALL_FIXED_STEP;
                     break;
                 case 225:
-                    ball.Coordinates.X -= ball.FixedStep;
-                    ball.Coordinates.Y += ball.FixedStep;
+                    ball.Coordinates.X -= BALL_FIXED_STEP;
+                    ball.Coordinates.Y += BALL_FIXED_STEP;
                     break;
                 case 315:
-                    ball.Coordinates.X += ball.FixedStep;
-                    ball.Coordinates.Y += ball.FixedStep;
+                    ball.Coordinates.X += BALL_FIXED_STEP;
+                    ball.Coordinates.Y += BALL_FIXED_STEP;
                     break;
                 default:
                     throw new Exception("Unknown angle value");
@@ -204,12 +225,11 @@ namespace PongR.Models
             // Hit check. I check first for y axis because it's less frequent that the condition will be true, so most of the time 
             // we check only 1 if statement instead of 2 
             // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
-            if ((game.Ball.Coordinates.Y >= game.FieldTopLeftVertex.Y - 5 && game.Ball.Coordinates.Y <= game.FieldTopLeftVertex.Y + 5) ||
-                    (game.Ball.Coordinates.Y >= game.FieldTopLeftVertex.Y + game.FieldHeight - 5 && game.Ball.Coordinates.Y <= game.FieldTopLeftVertex.Y + game.FieldHeight + 5))
+            if ((game.Ball.Coordinates.Y >= - 5 && game.Ball.Coordinates.Y <= + 5) ||
+                    (game.Ball.Coordinates.Y >= game.FieldHeight - 5 && game.Ball.Coordinates.Y <= game.FieldHeight + 5))
             {
-                if (game.Ball.Coordinates.X >= game.FieldTopLeftVertex.X && game.Ball.Coordinates.X <= game.FieldTopLeftVertex.X + game.FieldWidth)
+                if (game.Ball.Coordinates.X >= 0 && game.Ball.Coordinates.X <= game.FieldWidth)
                 {
-
                     fieldCollision = true;
                     newAngle = CalculateNewAngleAfterFieldHit(game.Ball.Angle, game.Ball.Direction);
                 }
@@ -305,12 +325,12 @@ namespace PongR.Models
         private static bool CheckGoalConditionAndUpdateStatus(Game game)
         {
             var goal = false;
-            if (game.Ball.Coordinates.X <= game.FieldTopLeftVertex.X)
+            if (game.Ball.Coordinates.X <= 0)
             {
                 game.Player2.Score++;
                 goal = true;
             }
-            else if (game.Ball.Coordinates.X >= game.FieldTopLeftVertex.X + game.FieldWidth)
+            else if (game.Ball.Coordinates.X >= game.FieldWidth)
             {
                 game.Player1.Score++;
                 goal = true;

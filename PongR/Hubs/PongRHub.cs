@@ -48,7 +48,7 @@ namespace PongR.Hubs
                     var opponent = room.Player1.Id.Equals(user.Id) ? room.Player2 : room.Player1;
                     _userRepository.AddToWaitingList(opponent);
                     _roomRepository.Remove(room);
-                    Engine.RemoveGame(int.Parse(room.Id));
+                    Engine.RemoveGame(room.Id);
                     return Clients[opponent.Id].opponentLeft();                    
                 }
             }
@@ -101,12 +101,7 @@ namespace PongR.Hubs
                 // Rough solution. We have to be sure the clients have received the group add messages over the wire
                 // TODO: ask maybe on Jabbr or on StackOverflow and think about a better solution
                 Thread.Sleep(3000);
-                /*
-                for (int i = 0; i < 10000000; i++)
-                {
-                    int z = i * 4;
-                }
-                */
+                
                 string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
                 int ballAngle = ballDirection.Equals("left") ? 180 : 0;
                 Player player1 = Engine.CreatePlayer(playRoom.Player1, 1, true);

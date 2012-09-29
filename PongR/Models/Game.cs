@@ -20,8 +20,8 @@ namespace PongR.Models
             Player1 = host;
             Player2 = opponent;
             Ball = ball;
-            FieldWidth = 100; // 100 %
-            FieldHeight = 100; // 100 %
+            FieldWidth = 1000; // px
+            FieldHeight = 600; // px
         }
         
         public Player GetPlayer(string userId)
