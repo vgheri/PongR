@@ -119,6 +119,7 @@ namespace PongR.Hubs
             }
         }        
 
+        /* Not used anymore
         public Task NotifyPosition(string playRoomId, string player)
         {
             User playerToNotify = null;            
@@ -147,10 +148,11 @@ namespace PongR.Hubs
             
             return null;            
         }
+        */
 
-        public void RegisterInputs(string playRoomId, string userId, List<PlayerInput> inputs)
-        {            
-            Engine.QueueInputs(playRoomId, userId, inputs);
+        public void QueueInput(string playRoomId, string userId, PlayerInput input)
+        {
+            Engine.QueueInput(playRoomId, userId, input);
         }
 
         #endregion

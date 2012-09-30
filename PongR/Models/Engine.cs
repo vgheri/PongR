@@ -41,24 +41,16 @@ namespace PongR.Models
             return new Player(user, playerNumber, isHost, FIELD_WIDTH);
         }
 
-        public static void QueueInput(Game game, Player player, PlayerInput input)
+        public static void QueueInput(string gameId, string userId, PlayerInput input)
         {   
-            player.UnprocessedPlayerInputs.Enqueue(input);            
-        }
-
-        public static void QueueInputs(string gameId, string userId, List<PlayerInput> inputs)
-        {
             Game game;
             if (_games.TryGetValue(gameId, out game))
             {
                 Player player = game.GetPlayer(userId);
-                foreach (var input in inputs)
-                {
-                    QueueInput(game, player, input);
-                }
+                player.UnprocessedPlayerInputs.Enqueue(input);
             }
         }
-
+                
         // Specify what you want to happen when the Elapsed event is 
         // raised.
         public static void OnPhysicsTimedEvent(object source, ElapsedEventArgs e)
