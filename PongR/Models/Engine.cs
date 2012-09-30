@@ -38,17 +38,12 @@ namespace PongR.Models
 
         public static Player CreatePlayer(User user, int playerNumber, bool isHost)
         {
-            return new Player(user, playerNumber, isHost, FIELD_WIDTH, FIELD_HEIGHT);
+            return new Player(user, playerNumber, isHost, FIELD_WIDTH);
         }
 
-        public static void QueueInput(string gameId, string userId, PlayerInput input)
-        {
-            Game game;
-            if (_games.TryGetValue(gameId, out game))
-            {
-                Player player = game.GetPlayer(userId);
-                player.UnprocessedPlayerInputs.Add(input);
-            }
+        public static void QueueInput(Game game, Player player, PlayerInput input)
+        {   
+            player.UnprocessedPlayerInputs.Enqueue(input);            
         }
 
         public static void QueueInputs(string gameId, string userId, List<PlayerInput> inputs)
@@ -57,7 +52,10 @@ namespace PongR.Models
             if (_games.TryGetValue(gameId, out game))
             {
                 Player player = game.GetPlayer(userId);
-                player.UnprocessedPlayerInputs.AddRange(inputs);
+                foreach (var input in inputs)
+                {
+                    QueueInput(game, player, input);
+                }
             }
         }
 
@@ -109,8 +107,8 @@ namespace PongR.Models
             // 4: If no collision, check for a goal condition and update status if goal
             
             // 1: TODO Write Unit Test
-            MovePlayer(game.Player1, game.FieldHeight);
-            MovePlayer(game.Player2, game.FieldHeight);
+            MovePlayer(game.Player1, FIELD_HEIGHT);
+            MovePlayer(game.Player2, FIELD_HEIGHT);
             // 2: TODO Write Unit Test
             UpdateBallPosition(game.Ball); // Just update (X,Y) based on the angle
             // 3: TODO Write Unit Test
@@ -127,11 +125,12 @@ namespace PongR.Models
         /// <param name="player"></param>
         private static void MovePlayer(Player player, int fieldHeight)
         {
+            PlayerInput input;
             int lastInputExecuted = -1;
-            List<PlayerInput> inputsToRemove = new List<PlayerInput>();
-
-            foreach (var input in player.UnprocessedPlayerInputs)
-            {                
+            List<PlayerInput> inputsToRemove = new List<PlayerInput>();            
+            while (player.UnprocessedPlayerInputs.Count > 0)
+            {
+                input = player.UnprocessedPlayerInputs.Dequeue();
                 lastInputExecuted = input.Id;
                 if (input.Command == Command.Up)
                 {
@@ -161,11 +160,7 @@ namespace PongR.Models
                 }
                 inputsToRemove.Add(input);
             }
-            // Remove the already processed commands. I cannot directly modify the collection while iterating over it
-            foreach (var input in inputsToRemove)
-            {                
-                player.UnprocessedPlayerInputs.Remove(input);
-            }
+            
             player.LastProcessedInputId = lastInputExecuted;
         }
 
@@ -226,9 +221,9 @@ namespace PongR.Models
             // we check only 1 if statement instead of 2 
             // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
             if ((game.Ball.Coordinates.Y >= - 5 && game.Ball.Coordinates.Y <= + 5) ||
-                    (game.Ball.Coordinates.Y >= game.FieldHeight - 5 && game.Ball.Coordinates.Y <= game.FieldHeight + 5))
+                    (game.Ball.Coordinates.Y >= FIELD_HEIGHT - 5 && game.Ball.Coordinates.Y <= FIELD_HEIGHT + 5))
             {
-                if (game.Ball.Coordinates.X >= 0 && game.Ball.Coordinates.X <= game.FieldWidth)
+                if (game.Ball.Coordinates.X >= 0 && game.Ball.Coordinates.X <= FIELD_WIDTH)
                 {
                     fieldCollision = true;
                     newAngle = CalculateNewAngleAfterFieldHit(game.Ball.Angle, game.Ball.Direction);
@@ -330,7 +325,7 @@ namespace PongR.Models
                 game.Player2.Score++;
                 goal = true;
             }
-            else if (game.Ball.Coordinates.X >= game.FieldWidth)
+            else if (game.Ball.Coordinates.X >= FIELD_WIDTH)
             {
                 game.Player1.Score++;
                 goal = true;

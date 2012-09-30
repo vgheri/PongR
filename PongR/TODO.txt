@@ -19,6 +19,6 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 		 -> TopLeftVertex = 5% gap from left delimiter ==> 50px;
 
 
-Check what must be changed in the physics server loop now that I modified the Player internal status
 
+--------------------------------------------------
 

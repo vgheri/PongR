@@ -11,17 +11,13 @@ namespace PongR.Models
         public Player Player1 { get; set; }
         public Player Player2 { get; set; }
         public Ball Ball { get; set; }        
-        public int FieldWidth { get; set; }
-        public int FieldHeight { get; set; }
-
+        
         public Game(string gameId, Player host, Player opponent, Ball ball)
         {
             GameId = gameId;
             Player1 = host;
             Player2 = opponent;
-            Ball = ball;
-            FieldWidth = 1000; // px
-            FieldHeight = 600; // px
+            Ball = ball;            
         }
         
         public Player GetPlayer(string userId)

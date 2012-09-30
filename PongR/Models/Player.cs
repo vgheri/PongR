@@ -16,10 +16,10 @@ namespace PongR.Models
         public int BarHeight { get; set; }
         public int Score { get; set; }
         public bool IsHost { get; set; }
-        public List<PlayerInput> UnprocessedPlayerInputs { get; set; }
+        public Queue<PlayerInput> UnprocessedPlayerInputs { get; set; }
         public int LastProcessedInputId { get; set; }
 
-        public Player(User user, int playerNumber, bool isHost, int fieldWidth, int fieldHeight)
+        public Player(User user, int playerNumber, bool isHost, int fieldWidth)
         {
             User = user;
             PlayerNumber = playerNumber;
@@ -30,6 +30,10 @@ namespace PongR.Models
             var x = playerNumber == 1 ? 50 : (fieldWidth - 50 - BarWidth); //px
             var y = 252; //px
             TopLeftVertex = new Point(x, y);
+            IsHost = isHost;
+            Score = 0;
+            UnprocessedPlayerInputs = new Queue<PlayerInput>();
+            LastProcessedInputId = -1;
         }
     }
 }
