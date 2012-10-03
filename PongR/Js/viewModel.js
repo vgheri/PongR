@@ -6,13 +6,6 @@
 
 var pongR = (function (myPongR, $, ko) {
 
-    function getElementTopLeftVertex(element) {
-        var x, y;
-        x = element.offsetLeft;
-        y = element.offsetTop;
-        return new myPongR.Point(x, y);
-    }
-
     // ViewModels
     myPongR.Point = function (x, y) {
         var self = this;
@@ -26,53 +19,57 @@ var pongR = (function (myPongR, $, ko) {
         self.connectionId = connectionId;
     };
 
-    myPongR.Player = function (user, playerNumber) {
+    myPongR.Input = function (commands, sequenceNumber) {
         var self = this;
-        var element = null;
-        if (playerNumber === 1) {
-            element = $("#player1-bar")[0];
-        }
-        else {
-            element = $("#player2-bar")[0];
-        }
-        self.user = new myPongR.User(user.Username, user.Id);
-        self.playerNumber = playerNumber;
-        self.barDirection = ""; // Can be empty (bar doesn't move), up or down
-        self.barMarginTop = ko.observable(37); // %
-        self.barMarginTop.subscribe(function (newValue) {
-            self.topLeftVertex = getElementTopLeftVertex(element);
-        });
-        self.topLeftVertex = getElementTopLeftVertex(element);
-        self.barWidth = $(".player-bar")[0].offsetWidth;
-        self.barHeight = $(".player-bar")[0].offsetHeight;
-        self.score = ko.observable(0);
+        self.commands = commands;
+        self.sequenceNumber = sequenceNumber;
     };
 
-    myPongR.Ball = function (direction) {
+    myPongR.Player = function (user, playerNumber, fieldWidth) {
         var self = this;
-        var element = $("#ball")[0];
-        self.radius = element.offsetWidth / 2;
-        var tempPoint = getElementTopLeftVertex(element);
-        var center = new myPongR.Point(tempPoint.x - self.radius, tempPoint.y - self.radius);
-        self.coordinates = center;
+        self.user = new myPongR.User(user.Username, user.Id);
+        self.playerNumber = playerNumber;
+        self.barWidth = 30;
+        self.barHeight = 96;
+        self.topLeftVertex = null;
+        if (playerNumber === 1) {
+            topLeftVertex = new myPongR.Point(50, 252);
+        }
+        else {
+            topLeftVertex = new myPongR.Point(fieldWidth - 50 - self.barWidth, 252);
+        }
+        self.barDirection = ""; // Can be empty (i.e. not moving), up or down
+        self.inputs = []; // Local history of inputs for this client. Each input is of type myPongR.Input
+        self.score = ko.observable(0);
+        self.lastProcessedInputId = -1;
+    };
+
+    myPongR.Ball = function (direction, fieldWidth, fieldHeight) {
+        var self = this;
+        self.radius = 20;
+        self.position = new myPongR.Point(fieldWidth/2, fieldHeight/2); // The ball starts at the center of the field
         self.direction = direction; // can be left or right        
         self.angle = (direction === "right" ? 0 : 180);
-        self.fixedStep = 5; // 5px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
+    };
+
+    myPongR.Settings = function () {
+        var self = this;
+        self.naive_approach = true; // default : true. Means we won't use lag compensation
+        self.client_prediction = true;
+        self.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        
+        this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
+        this.client_smooth = 25;        //amount of smoothing to apply to client update dest
     };
 
     myPongR.App = function (id, player1, player2, ballDirection) {
-        var self = this;
-        var element = $("#player1-field")[0];
-        self.playRoomId = id;
+        var self = this; // Instance of the game        
+        self.gameId = id;
         self.player1 = new myPongR.Player(player1, 1);
         self.player2 = new myPongR.Player(player2, 2);
         self.ball = new myPongR.Ball(ballDirection);
-        self.fieldTopLeftVertex = getElementTopLeftVertex(element);
-        self.fieldWidth = element.offsetWidth * 2;
-        self.fieldHeight = element.offsetHeight;
-        self.getMarginTop = function (player) {
-            return player.barMarginTop().toString() + "%";
-        };
+        self.fieldWidth = 1000;
+        self.fieldHeight = 600;
+        self.settings = new myPongR.Settings();
     };
 
     return myPongR;

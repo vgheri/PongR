@@ -14,7 +14,7 @@ namespace PongR.Models
         
         public Ball(string direction, int angle)
         {
-            Radius = 2; // 2%
+            Radius = 20; // 2%
             Coordinates = new Point(50, 50);            
             Direction = direction;
             Angle = angle;

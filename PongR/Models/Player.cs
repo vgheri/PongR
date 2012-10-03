@@ -10,7 +10,6 @@ namespace PongR.Models
         public User User { get; set; }
         public int PlayerNumber { get; set; }
         public string BarDirection { get; set; }
-        public int BarMarginTop { get; set; }
         public Point TopLeftVertex { get; set; }
         public int BarWidth { get; set; }
         public int BarHeight { get; set; }
@@ -24,7 +23,6 @@ namespace PongR.Models
             User = user;
             PlayerNumber = playerNumber;
             BarDirection = "";
-            BarMarginTop = 42; //%
             BarWidth = 30; //px
             BarHeight = 96; //px
             var x = playerNumber == 1 ? 50 : (fieldWidth - 50 - BarWidth); //px

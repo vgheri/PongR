@@ -7,7 +7,7 @@ namespace PongR.Models
 {
     public class PlayerInput
     {
-        public int Id { get; set; }
-        public Command Command { get; set; }
+        public int SequenceNumber { get; set; }
+        public List<Command> Commands { get; set; }
     }
 }

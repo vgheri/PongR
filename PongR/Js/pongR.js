@@ -9,7 +9,7 @@ var pongR = (function ($) {
     var myPongR = {};
 
     myPongR.BAR_SCROLL_UNIT = 5; // px
-    myPongR.NOTIFICATION_FREQUENCY = 250; // norify player position to the server every 250 ms 
+    myPongR.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
 
     return myPongR;
 } (jQuery));

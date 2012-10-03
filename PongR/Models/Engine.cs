@@ -92,7 +92,7 @@ namespace PongR.Models
         /// </summary>
         /// <param name="game"></param>
         private static void ProcessTick(Game game)
-        {
+        {            
             // 1: Apply inputs received from players (and progressively remove them from the buffer)
             // 2: Update ball position
             // 3: Check for collisions and if collision, update ball status
@@ -123,34 +123,34 @@ namespace PongR.Models
             while (player.UnprocessedPlayerInputs.Count > 0)
             {
                 input = player.UnprocessedPlayerInputs.Dequeue();
-                lastInputExecuted = input.Id;
-                if (input.Command == Command.Up)
+                lastInputExecuted = input.SequenceNumber;
+                foreach (Command command in input.Commands)
                 {
-                    if (player.TopLeftVertex.Y - BAR_SCROLL_UNIT >= FIXED_GAP)
-                    {  // 30 px is the minimum distance from border
-                        player.BarMarginTop -= BAR_SCROLL_UNIT_PERC;
-                        player.TopLeftVertex.Y -= BAR_SCROLL_UNIT;
-                        player.BarDirection = "up";
-                    }
-                    else
+                    if (command == Command.Up)
                     {
-                        player.BarDirection = "";
+                        if (player.TopLeftVertex.Y - BAR_SCROLL_UNIT >= FIXED_GAP)
+                        {  // 30 px is the minimum distance from border                        
+                            player.TopLeftVertex.Y -= BAR_SCROLL_UNIT;
+                            player.BarDirection = "up";
+                        }
+                        else
+                        {
+                            player.BarDirection = "";
+                        }
                     }
-                }
-                else if (input.Command == Command.Down)
-                {
-                    if (player.TopLeftVertex.Y + BAR_SCROLL_UNIT <= fieldHeight - FIXED_GAP)
-                    {  
-                        player.BarMarginTop += BAR_SCROLL_UNIT_PERC;
-                        player.TopLeftVertex.Y += BAR_SCROLL_UNIT;
-                        player.BarDirection = "down";
-                    }
-                    else
+                    else if (command == Command.Down)
                     {
-                        player.BarDirection = "";
+                        if (player.TopLeftVertex.Y + BAR_SCROLL_UNIT <= fieldHeight - FIXED_GAP)
+                        {
+                            player.TopLeftVertex.Y += BAR_SCROLL_UNIT;
+                            player.BarDirection = "down";
+                        }
+                        else
+                        {
+                            player.BarDirection = "";
+                        }
                     }
-                }
-                inputsToRemove.Add(input);
+                }                
             }
             
             player.LastProcessedInputId = lastInputExecuted;
