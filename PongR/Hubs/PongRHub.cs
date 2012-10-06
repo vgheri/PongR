@@ -118,38 +118,7 @@ namespace PongR.Hubs
                 return Clients[playRoom.Id].startMatch(matchOptions);                               
             }
         }        
-
-        /* Not used anymore
-        public Task NotifyPosition(string playRoomId, string player)
-        {
-            User playerToNotify = null;            
-            dynamic opponent = JObject.Parse(player);
-            var playRoom = _roomRepository.Rooms.Where(r => r.Id.Equals(playRoomId)).FirstOrDefault();
-            if (playRoom != null)
-            {
-                playerToNotify = opponent.playerNumber == 1 ? playRoom.Player2 : playRoom.Player1;
-                return Clients[playerToNotify.Id].updatePosition(opponent);
-            }
-            return null;
-        }
-
-        public Task OnGoal(string appStatus, string playerNameWhoScored)
-        {            
-            Random random = new Random();            
-            if (!string.IsNullOrEmpty(appStatus))
-            {
-                dynamic app = JObject.Parse(appStatus);
-                dynamic matchOptions = new ExpandoObject();                
-                matchOptions.BallDirection = random.Next() % 2 == 0 ? "left" : "right";
-                matchOptions.PlayerNameWhoScored = playerNameWhoScored;
-                var groupId = (string)app.playRoomId;
-                return Clients[groupId].continueMatchAfterGoal(matchOptions);
-            }
-            
-            return null;            
-        }
-        */
-
+        
         public void QueueInput(string playRoomId, string userId, PlayerInput input)
         {
             Engine.QueueInput(playRoomId, userId, input);
