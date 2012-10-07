@@ -27,8 +27,7 @@ var pongR = (function (myPongR, $, ko) {
         window.setInterval(updatePhysics, 15);
     };
 
-    // PRIVATE - Calculates new angle after a ball collision with a player
-    function calculateNewAngleAfterPlayerHit(player, newBallDirection) {
+    myPongR.calculateNewAngleAfterPlayerHit = function (player, newBallDirection) {
         var angle;
         if (newBallDirection === "right" && player.barDirection === "") {
             angle = 0;
@@ -49,15 +48,14 @@ var pongR = (function (myPongR, $, ko) {
             angle = 315;
         }
         else {
-            alert("Unknown new angle value");
-            console.log("Hit on player :" + player.playerNumber.toString() + ". New ball direction: " + newBallDirection + ". Player direction: " + player.barDirection);
-            throw ("Unknown new angle value");
+            console.log("Error! Unkown new angle value: hit on player :" + player.playerNumber.toString() + ". New ball direction: " + newBallDirection + ". Player direction: " + (player.barDirection !== "" ? player.barDirection : "none"));
+            return undefined;
         }
         return angle;
     }
 
     // PRIVATE - Calculates new angle after a ball collision with a player
-    function calculateNewAngleAfterFieldHit(oldAngle, ballDirection) {
+    myPongR.calculateNewAngleAfterFieldHit = function (oldAngle, ballDirection) {
         var newAngle;
         if (ballDirection === "right" && oldAngle === 45) {
             newAngle = 315;
@@ -72,12 +70,11 @@ var pongR = (function (myPongR, $, ko) {
             newAngle = 135;
         }
         else {
-            alert("Unknown new angle value");
             console.log("Unknown new angle value upon hit on field delimiters. Ball direction: " + ballDirection + ". Ball old angle: " + oldAngle);
-            throw ("Unknown new angle value");
+            return undefined;
         }
         return newAngle;
-    }
+    };
 
     // PRIVATE - Check if the ball hits one of the players and if so, returns a new object that contains the collision info
     function checkCollisionWithPlayers() {
@@ -173,16 +170,16 @@ var pongR = (function (myPongR, $, ko) {
         if (collisionInfo.collision) {
             collision = true;
             app.ball.direction = collisionInfo.newBallDirection;
-            app.ball.angle = calculateNewAngleAfterPlayerHit(collisionInfo.hitPlayer === 1 ? app.player1 : app.player2, collisionInfo.newBallDirection);
+            app.ball.angle = myPongR.calculateNewAngleAfterPlayerHit(collisionInfo.hitPlayer === 1 ? app.player1 : app.player2, collisionInfo.newBallDirection);
         }
         // No collision with player's bar, let's check if we have a collision with the field delimiters or if we have a goal condition
         else {
             collision = checkCollisionWithFieldDelimiters();
             if (collision) {
-                app.ball.angle = calculateNewAngleAfterFieldHit(app.ball.angle, app.ball.direction);
+                app.ball.angle = myPongR.calculateNewAngleAfterFieldHit(app.ball.angle, app.ball.direction);
             }
         }
-    }
+    };
 
     // Initial setup of the match state and start of the game interval
     myPongR.setupMatch = function (opts) {
@@ -406,7 +403,7 @@ var pongR = (function (myPongR, $, ko) {
         //give it back
         return y_dir;
     };
-        
+
     myPongR.resetObjectsPositionToInitialState = function () {
         resetAllPositionsToInitialState();
     };

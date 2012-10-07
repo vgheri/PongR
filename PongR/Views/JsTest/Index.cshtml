@@ -1,0 +1,14 @@
+﻿<h2>QUnit Test page</h2>
+
+<ul>
+@{
+    var controller = ViewContext.Controller.GetType();
+    var methods = controller.GetMethods()
+        .Where(m => m.ReturnType.ToString() == "System.Web.Mvc.ActionResult");
+
+    foreach(var method in methods)
+    {
+        <li>@Html.ActionLink(@method.Name, @method.Name, "JsTest")</li>
+    }
+}
+</ul>

@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Logic.js Tests";
+}
+
+@section Javascript{
+    <script src="@Url.Content("~/Js/logic.js")"></script>
+    <script src="@Url.Content("~/Js/test/logic_test.js")"></script>
+}
+
+@Html.Partial("_QUnit")
