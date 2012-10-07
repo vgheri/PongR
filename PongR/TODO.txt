@@ -22,3 +22,47 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
+New file: pongRHub.js
+in which I define a new variable -> 
+var PongRHub = (function($) {
+	function PongRHub(pongRInstance, username) {
+		this.myPongRHub = $.connection.pongRHub;
+		this.myPongRHub.username = username;
+		pongR = pongRInstance;
+	}
+	
+	PongRHub.prototype.opponentLeft = function() {
+            alert("Opponent left. Going back to wait list");            
+            pongR.clearAnimation(requestAnimationFrameRequestId);            
+            pongR.removeKeyboardEventListener();
+            pongR.clearPositionNotificationInterval(serverNotificationIntervalId);
+            // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
+    };
+	
+	return PongRHub;	
+}(jQuery));
+
+// File PongR.js
+var PongR = (function($) {
+	var self;
+	function PongR() {
+		self = this;
+		self.BAR_SCROLL_UNIT = 5; // px
+		self.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
+	}
+	
+	return PongR;
+}(jQuery)); 
+
+// File ViewModels.js
+var PongR = (function(PongR, $, ko) {
+	
+	// view model declarations
+	PongR.Point = function (x, y) {
+        var self = this;
+        self.x = x;
+        self.y = y;
+    };
+
+	//...
+}(PongR, jQuery, ko));
