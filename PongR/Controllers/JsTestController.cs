@@ -21,5 +21,10 @@ namespace PongR.Controllers
             return View();
         }
 
+        public ActionResult ViewModel()
+        {
+            return View();
+        }
+
     }
 }

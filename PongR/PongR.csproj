@@ -157,10 +157,12 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Js\logic.js" />
-    <Content Include="Js\pongR.js" />
+    <Content Include="Js\Logic.js" />
+    <Content Include="Js\old_logic.js" />
+    <Content Include="Js\PongR.js" />
     <Content Include="Js\RequestAnimationFrameShim.js" />
-    <Content Include="Js\test\logic_test.js" />
+    <Content Include="Js\test\Logic_test.js" />
+    <Content Include="Js\test\ViewModel_test.js" />
     <Content Include="Js\viewModel.js" />
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="Scripts\keyboard.js" />
@@ -226,7 +228,9 @@
   <ItemGroup>
     <Content Include="Views\JsTest\_QUnit.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Views\JsTest\ViewModel.cshtml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -60,6 +60,8 @@ var pongR = (function (myPongR, $, ko) {
         self.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
         self.client_smooth = 25;        //amount of smoothing to apply to client update dest
         self.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
+        self.BAR_SCROLL_UNIT = 5; // px
+        self.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
     };
 
     myPongR.App = function (id, player1, player2, ballDirection) {
@@ -69,7 +71,7 @@ var pongR = (function (myPongR, $, ko) {
         self.player2 = new myPongR.Player(player2, 2);
         self.fieldWidth = 1000; // Proposal: Move the two following properties inside settings
         self.fieldHeight = 600;
-        self.ball = new myPongR.Ball(ballDirection, self.fieldWidth, self.fieldHeight);        
+        self.ball = new myPongR.Ball(ballDirection, self.fieldWidth, self.fieldHeight);
         self.settings = new myPongR.Settings();
     };
 

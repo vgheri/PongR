@@ -325,8 +325,11 @@ var pongR = (function (myPongR, $, ko) {
     // Updates self position, only if we are not too close to the border 
     // Minimum distance between the player and the field delimiters (up and down) is 30 px
     function updateSelfPosition(self, yIncrement, height, gap) {
-        if ((me.topLeftVertex.y + yIncrement >= gap) && (me.topLeftVertex.y + yIncrement <= height - gap)) {
-            me.topLeftVertex.y += yIncrement;
+        if ((self.topLeftVertex.y + yIncrement >= gap) && (self.topLeftVertex.y + yIncrement <= height - gap)) {
+            self.topLeftVertex.y += yIncrement;
+        }
+        else {
+            // TODO: set the player ON the gap
         }
     };
 
@@ -381,10 +384,10 @@ var pongR = (function (myPongR, $, ko) {
                 var c = input.length;
                 for (var i = 0; i < c; ++i) {
                     var key = input[i];
-                    if (key == 'u') {
+                    if (key == 'up') {
                         y_dir -= myPongR.BAR_SCROLL_UNIT;
                     }
-                    else if (key == 'd') {
+                    else if (key == 'down') {
                         y_dir += myPongR.BAR_SCROLL_UNIT;
                     }
 

@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "ViewModel.js Tests";
+}
+
+@section Javascript{
+    <script src="@Url.Content("~/Js/ViewModel.js")"></script>
+    <script src="@Url.Content("~/Js/test/ViewModel_test.js")"></script>
+}
+
+@Html.Partial("_QUnit")
