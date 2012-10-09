@@ -7,9 +7,8 @@
 // Module creation
 var PongR = (function ($) {
 
-    function PongR(width, height) {        
-        var viewPort = new this.ViewPort(width, height);
-        this.settings = new this.Settings(viewPort);
+    function PongR(width, height) {                
+        this.settings = new this.Settings(width, height);
     }
 
     // ViewModels
@@ -58,8 +57,8 @@ var PongR = (function ($) {
         this.angle = (direction === "right" ? 0 : 180);
     };
 
-    PongR.prototype.Settings = function (viewPort) {        
-        this.viewPort = viewPort; // The viewport size as passed by the client
+    PongR.prototype.Settings = function (width, height) {        
+        this.viewPort = new this.ViewPort(width, height); // The viewport size as passed by the client
         this.naive_approach = true; // default : true. Means we won't use lag compensation
         this.client_prediction = true;
         this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        

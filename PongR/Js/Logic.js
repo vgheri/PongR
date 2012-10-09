@@ -116,7 +116,7 @@ var PongR = (function (PongR, $, ko) {
 
     //updateBallPosition(angle, position) : Point 
     //Updates the position of the ball based on its direction and its angle
-    PongR.prototype.updateBallPosition = function (angle, position) {
+    PongR.prototype.updateBallPosition = function(angle, position) {
         var newPosition = { x: position.x, y: position.y };
         switch (angle) {
             case 0:
@@ -150,7 +150,7 @@ var PongR = (function (PongR, $, ko) {
 
     //process_input(player : Player) : number 
     //Computes the increment on the Y axis, given a player list of inputs
-    PongR.prototype.process_input = function (player) {
+    PongR.prototype.process_input = function(player) {
         //It's possible to have received multiple inputs by now, so we process each one        
         // Each input is an object structured like:
         // commands: list of commands (i.e. a list of "up"/"down")
@@ -192,7 +192,7 @@ var PongR = (function (PongR, $, ko) {
     //updateSelfPosition(topLeftVertex : Point, yIncrement : number, fieldHeight : number, settings.gap : number) : Point 
     // Updates self position. If we are not too close, we move completely, otherwise we are set to the gap
     // Gap is defined as the minimum distance between the player and the field delimiters (up and down) is 30 px
-    PongR.prototype.updateSelfPosition = function (topLeftVertex, yIncrement, fieldHeight, gap) {
+    PongR.prototype.updateSelfPosition = function(topLeftVertex, yIncrement, fieldHeight, gap) {
         var newTopLeftVertex = { x: topLeftVertex.x, y: topLeftVertex.y };
         if ((topLeftVertex.y + yIncrement >= gap) && (topLeftVertex.y + yIncrement <= fieldHeight - gap)) {
             newTopLeftVertex.y += yIncrement;
@@ -204,6 +204,102 @@ var PongR = (function (PongR, $, ko) {
             newTopLeftVertex.y = fieldHeight - gap;
         }
         return newTopLeftVertex;
+    };
+
+    // This takes input from the client and keeps a record. 
+    // It also sends the input information to the server immediately
+    // as it is pressed. It also tags each input with a sequence number.
+    PongR.prototype.handleClientInputs = function(player) {
+
+        var input = [];
+        this.client_has_input = false; // TODO check why this variable is public
+        var playerInput = null;
+
+        if (keyboard.pressed('up')) {
+            input.push('up');
+        } // up
+
+        if (keyboard.pressed('down')) {
+            input.push('down');
+        } // down
+
+        if (input.length) {
+
+            //Update what sequence we are on now
+            this.settings.input_sequence += 1;
+
+            //Store the input state as a snapshot of what happened.
+            playerInput = {
+                sequenceNumber: this.input_seq,
+                commands: input
+            };
+
+            me.inputs.push(playerInput);
+        }
+
+        return playerInput;
+    };
+
+    // A single step of the client update loop (a frame)
+    PongR.prototype.updateLoopStep = function() {
+        // Step 1: Clear canvas
+        this.canvasContext.clearRect(0, 0, this.settings.viewPort.width, this.settings.viewPort.height);
+        // Step 2: Handle user inputs (update internal model)
+        var playerInput = handleClientInputs(me);
+        if (playerInput !== null) {
+            // Step 3: Send the just processed input batch to the server.
+            pongRHub.queueInput(app.gameId, me.user.connectionId, playerInput);
+        }
+        // Step 3: Draw the new frame in the canvas
+        draw(app, myPongR.canvasContext);
+    };
+
+    // Starts the client update loop 
+    PongR.prototype.startUpdateLoop = function() {
+        updateLoopStep();
+
+        // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
+        // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
+        // We use requestAnimationFrame so that the the image is redrawn as many times as possible per second
+        requestAnimationFrameRequestId = this.startAnimation(startUpdateLoop);
+    };
+
+    // Initial setup of the match state and start of the game interval
+    PongR.prototype.startMatch = function (opts, localUsername) {
+        // Proposal: app is now a global var... make it private
+        this.game = new this.Game(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
+
+        // Proposal: I can extract the following blocks of code into a function to retrieve the current canvas context
+        // Set the canvas dimensions
+        var canvas = document.getElementById("viewport");
+        canvas.width = this.settings.viewport.width;
+        canvas.height = this.settings.viewport.height;
+
+        // Get the 2d context to draw on the canvas
+        // getContext() returns an object that provides methods and properties for drawing on the canvas.
+        this.canvasContext = canvas.getContext("2d");
+        this.canvasContext.font = '11px "Helvetica"';
+
+        if (opts.Player1.Username === localUsername) {
+            me = this.game.player1;
+        }
+        else {
+            me = this.game.player2;
+        }
+
+        ko.applyBindings(this.game);
+
+        // Start the physics loop
+        this.startPhysicsLoop();
+
+        // Initialise keyboard handler
+        keyboard = new THREEx.KeyboardState();
+
+        //A list of recent server updates
+        this.serverUpdates = [];
+
+        // Start the update loop
+        this.startUpdateLoop();
     };
 
     return PongR;

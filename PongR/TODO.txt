@@ -22,31 +22,16 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
-Continue working on Logic.js 	
-	- replace useless "self" variables with "this"
-	- implement all the other functions.
+Continue working on Logic.js 		
+	- Implement all the other functions. (continue from updateLoopStep())
+	- Extend PongR module with all signalR callback functions. 
+	- Modify PongR constructor like:
+function PongR(width, height, username) {                
+        this.settings = new this.Settings(width, height);
+		this.channellR = $.connection.pongRHub;
+		this.channellR.username = username;
+}
 
-Consider refactoring function PongR(width, height) so that in the constructor we immediately create a variable called game like:
-this.game = new this.Game(playRoomId, player1, player2, ballDirection);
 
 
-Create new file: pongRHub.js
-in which I define a new variable -> 
-var PongRHub = (function($) {
-	function PongRHub(pongRInstance, username) {
-		this.myPongRHub = $.connection.pongRHub;
-		this.myPongRHub.username = username;
-		pongR = pongRInstance;
-	}
-	
-	PongRHub.prototype.opponentLeft = function() {
-            alert("Opponent left. Going back to wait list");            
-            pongR.clearAnimation(requestAnimationFrameRequestId);            
-            pongR.removeKeyboardEventListener();
-            pongR.clearPositionNotificationInterval(serverNotificationIntervalId);
-            // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
-    };
-	
-	return PongRHub;	
-}(jQuery));
 
