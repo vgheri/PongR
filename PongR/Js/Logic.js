@@ -84,9 +84,12 @@ var PongR = (function (PongR, $, ko) {
     PongR.prototype.checkCollisionWithPlayer = function (player, ball) {
         var collision = false;
 
-        if (player.topLeftVertex.x + player.barWidth >= ball.position.x - ball.radius) {
-            if ((player1.topLeftVertex.y <= ball.position.y + ball.radius)
-                && (player1.topLeftVertex.y + player1.barHeight >= ball.position.y - ball.radius)) {
+        // If player is on the left, then we need to substract the radius, otherwise add
+        var relativeRadius = player.playerNumber === 1 ? (0 - ball.radius) : ball.radius;
+
+        if (player.topLeftVertex.x <= ball.position.x + relativeRadius && player.topLeftVertex.x + player.barWidth >= ball.position.x + relativeRadius) {
+            if ((player.topLeftVertex.y <= ball.position.y + ball.radius)
+                && (player.topLeftVertex.y + player.barHeight >= ball.position.y - ball.radius)) {
                 collision = true;
             }
         }
@@ -101,9 +104,9 @@ var PongR = (function (PongR, $, ko) {
         // Hit check. I check first for y axis because it's less frequent that the condition will be true, so most of the time 
         // we check only 1 if statement instead of 2 
         // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
-        if ((ball.position.y >= -5 && ball.position.y <= 5) ||
-                (ball.position.y >= fieldHeight - 5 && ball.position.y <= fieldHeight + 5)) {
-            if (ball.position.x >= 0 && ball.position.x <= fieldWidth) {
+        if ((ball.position.y - ball.radius >= -5 && ball.position.y - ball.radius <= 5) ||
+                (ball.position.y + ball.radius >= fieldHeight - 5 && ball.position.y + ball.radius <= fieldHeight + 5)) {
+            if (ball.position.x - ball.radius >= 0 && ball.position.x + ball.radius <= fieldWidth) {
                 collision = true;
             }
         }
@@ -114,32 +117,32 @@ var PongR = (function (PongR, $, ko) {
     //updateBallPosition(angle, position) : Point 
     //Updates the position of the ball based on its direction and its angle
     PongR.prototype.updateBallPosition = function (angle, position) {
-        var newPosition = position;
+        var newPosition = { x: position.x, y: position.y };
         switch (angle) {
             case 0:
-                newPosition.x = position.x + myPongR.BALL_FIXED_STEP;
+                newPosition.x = position.x + this.settings.BALL_FIXED_STEP;
                 break;
             case 45:
-                newPosition.x = position.x + myPongR.BALL_FIXED_STEP;
-                newPosition.y = position.y - myPongR.BALL_FIXED_STEP;
+                newPosition.x = position.x + this.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y - this.settings.BALL_FIXED_STEP;
                 break;
             case 135:
-                newPosition.x = position.x - myPongR.BALL_FIXED_STEP;
-                newPosition.y = position.y - myPongR.BALL_FIXED_STEP;
+                newPosition.x = position.x - this.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y - this.settings.BALL_FIXED_STEP;
                 break;
             case 180:
-                newPosition.x = position.x - myPongR.BALL_FIXED_STEP;
+                newPosition.x = position.x - this.settings.BALL_FIXED_STEP;
                 break;
             case 225:
-                newPosition.x = position.x - myPongR.BALL_FIXED_STEP;
-                newPosition.y = position.y + myPongR.BALL_FIXED_STEP;
+                newPosition.x = position.x - this.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y + this.settings.BALL_FIXED_STEP;
                 break;
             case 315:
-                newPosition.x = position.x + myPongR.BALL_FIXED_STEP;
-                newPosition.y = position.y + myPongR.BALL_FIXED_STEP;
+                newPosition.x = position.x + this.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y + this.settings.BALL_FIXED_STEP;
                 break;
             default:
-                console.log("Unknown angle value " + app.ball.angle.toString());
+                console.log("Unknown angle value " + this.game.ball.angle.toString());
                 return undefined;
         }
         return newPosition;
@@ -164,10 +167,10 @@ var PongR = (function (PongR, $, ko) {
                 for (var i = 0; i < c; ++i) {
                     var key = input[i];
                     if (key == 'up') {
-                        y_dir -= myPongR.BAR_SCROLL_UNIT;
+                        y_dir -= this.settings.BAR_SCROLL_UNIT;
                     }
                     else if (key == 'down') {
-                        y_dir += myPongR.BAR_SCROLL_UNIT;
+                        y_dir += this.settings.BAR_SCROLL_UNIT;
                     }
 
                 } //for all input values
@@ -178,7 +181,7 @@ var PongR = (function (PongR, $, ko) {
         if (player.inputs.length) {
             //we can now update the sequence number for the last batch of input processed 
             // and then clear the array since these have been processed            
-            player.lastProcessedInputId = player.inputs[ic - 1].seq;
+            player.lastProcessedInputId = player.inputs[ic - 1].sequenceNumber;
             player.inputs.splice(0, ic);
         }
 
@@ -190,16 +193,17 @@ var PongR = (function (PongR, $, ko) {
     // Updates self position. If we are not too close, we move completely, otherwise we are set to the gap
     // Gap is defined as the minimum distance between the player and the field delimiters (up and down) is 30 px
     PongR.prototype.updateSelfPosition = function (topLeftVertex, yIncrement, fieldHeight, gap) {
-        var newTopLeftVertex = topLeftVertex;
-        if ((topLeftVertex.y + yIncrement >= gap) && (topLeftVertex.y + yIncrement <= height - gap)) {
-            topLeftVertex.y += yIncrement;
+        var newTopLeftVertex = { x: topLeftVertex.x, y: topLeftVertex.y };
+        if ((topLeftVertex.y + yIncrement >= gap) && (topLeftVertex.y + yIncrement <= fieldHeight - gap)) {
+            newTopLeftVertex.y += yIncrement;
         }
         else if (topLeftVertex.y + yIncrement < gap) {
-            topLeftVertex.y = gap;
+            newTopLeftVertex.y = gap;
         }
         else {
-            topLeftVertex.y = height - gap;
+            newTopLeftVertex.y = fieldHeight - gap;
         }
+        return newTopLeftVertex;
     };
 
     return PongR;

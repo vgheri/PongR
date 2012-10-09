@@ -3,59 +3,61 @@
  * Unit Tests for Logic.js, using qUnit
  */
 
+var PongR = new PongR(1000, 600);
+
 //calculateNewAngleAfterPlayerHit(player, newBallAngle) : number
 test("Test for calculateNewAngleAfterPlayerHit", function () {
     // Test 1
     var player = { barDirection: "up", playerNumber: 1 };
     var angle = PongR.calculateNewAngleAfterPlayerHit(player, "right");
-    equal(angle, 45);
+    deepEqual(angle, 45);
     // Test 2
     player = { barDirection: "down", playerNumber: 1 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "right");
-    equal(angle, 315);
+    deepEqual(angle, 315);
     // Test 4
     player = { barDirection: "down", playerNumber: 2 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "left");
-    equal(angle, 225);
+    deepEqual(angle, 225);
     // Test 4
     player = { barDirection: "up", playerNumber: 2 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "left");
-    equal(angle, 135);
+    deepEqual(angle, 135);
     // Test 5
     player = { barDirection: "", playerNumber: 2 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "left");
-    equal(angle, 180);
+    deepEqual(angle, 180);
     // Test 5
     player = { barDirection: "", playerNumber: 2 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "right");
-    equal(angle, 0);
+    deepEqual(angle, 0);
     // Test 5
     player = { barDirection: "", playerNumber: 2 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "up");
-    equal(angle, undefined);
+    deepEqual(angle, undefined);
     // Test 6
     player = { barDirection: "left", playerNumber: 1 }
     angle = PongR.calculateNewAngleAfterPlayerHit(player, "right");
-    equal(angle, undefined);
+    deepEqual(angle, undefined);
 });
 
 //calculateNewAngleAfterFieldHit(oldAngle, ballDirection) : number
 test("Test for calculateNewAngleAfterFieldHit", function () {
     // Test 1
     var angle = PongR.calculateNewAngleAfterFieldHit(45, "right");
-    equal(angle, 315);
+    deepEqual(angle, 315);
     // Test 2
     angle = PongR.calculateNewAngleAfterFieldHit(315, "right");
-    equal(angle, 45);
+    deepEqual(angle, 45);
     // Test 1
     angle = PongR.calculateNewAngleAfterFieldHit(135, "left");
-    equal(angle, 225);
+    deepEqual(angle, 225);
     // Test 1
     angle = PongR.calculateNewAngleAfterFieldHit(225, "left");
-    equal(angle, 135);
+    deepEqual(angle, 135);
     // Test 1
     angle = PongR.calculateNewAngleAfterFieldHit(45, "left");
-    equal(angle, undefined);
+    deepEqual(angle, undefined);
 });
 
 //checkCollisionWithPlayer(player, ball) : boolean
@@ -64,89 +66,275 @@ test("Check collision with player", function () {
     var player = {
         topLeftVertex: { x: 10, y: 10 },
         barWidth: 10,
-        barHeight: 20
+        barHeight: 30,
+        playerNumber: 1
     };
     var ball = {
-        position: { x: 20, y: 8 },
+        position: { x: 30, y: 20 },
         radius: 5
     };
     var collision = PongR.checkCollisionWithPlayer(player, ball);
-    equal(collision, true);
+    deepEqual(collision, false);
     // Test 2 
     player = {
-        topLeftVertex: { x: 10, y: 50 },
+        topLeftVertex: { x: 10, y: 10 },
         barWidth: 10,
-        barHeight: 20
+        barHeight: 30,
+        playerNumber: 1
     };
     ball = {
-        position: { x: 20, y: 8 },
+        position: { x: 25, y: 20 },
         radius: 5
     };
     collision = PongR.checkCollisionWithPlayer(player, ball);
-    equal(collision, false);
+    deepEqual(collision, true);
     // Test 3 
     player = {
-        topLeftVertex: { x: 10, y: 50 },
+        topLeftVertex: { x: 10, y: 10 },
         barWidth: 10,
-        barHeight: 20
+        barHeight: 30,
+        playerNumber: 1
     };
     ball = {
-        position: { x: 38, y: 8 },
+        position: { x: 22, y: 9 },
         radius: 5
     };
     collision = PongR.checkCollisionWithPlayer(player, ball);
-    equal(collision, false);
+    deepEqual(collision, true);
     // Test 4
     player = {
         topLeftVertex: { x: 10, y: 10 },
         barWidth: 10,
-        barHeight: 20
+        barHeight: 30,
+        playerNumber: 1
     };
     ball = {
-        position: { x: 16, y: 15 },
+        position: { x: 22, y: 39 },   
         radius: 5
     };
     collision = PongR.checkCollisionWithPlayer(player, ball);
-    equal(collision, true);
+    deepEqual(collision, true);
+    // Test 5
+    player = {
+        topLeftVertex: { x: 10, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 1
+    };
+    ball = {
+        position: { x: 22, y: 41 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 6
+    player = {
+        topLeftVertex: { x: 10, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 1
+    };
+    ball = {
+        position: { x: 18, y: 41 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 7
+    player = {
+        topLeftVertex: { x: 10, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 1
+    };
+    ball = {
+        position: { x: 18, y: 46 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, false);
+    // Test 7
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 94, y: 26 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, false);
+    // Test 8
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 26 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 9
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 99, y: 26 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 10
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 4 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, false);
+    // Test 11
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 5 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 12
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 34 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 13
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 35 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 14
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 36 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 15
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 40 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 16
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 41 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, true);
+    // Test 17
+    player = {
+        topLeftVertex: { x: 100, y: 10 },
+        barWidth: 10,
+        barHeight: 30,
+        playerNumber: 2
+    };
+    ball = {
+        position: { x: 95, y: 46 },
+        radius: 5
+    };
+    collision = PongR.checkCollisionWithPlayer(player, ball);
+    deepEqual(collision, false);
 });
 
 //checkCollisionWithFieldDelimiters(ball, fieldWidth, fieldHeight) : boolean
-test("Check collision with player", function () {
+test("Check collision with field", function () {
     // Test 1     
     var ball = {
-        position: { x: 20, y: 8 },
+        position: { x: 20, y: 18 },
         radius: 5
     };
     var collision = PongR.checkCollisionWithFieldDelimiters(ball, 1000, 600);
-    equal(collision, false);
+    deepEqual(collision, false);
     // Test 2 
     ball = {
         position: { x: 250, y: 8 },
         radius: 5
     };
     collision = PongR.checkCollisionWithFieldDelimiters(ball, 1000, 600);
-    equal(collision, true);
+    deepEqual(collision, true);
     // Test 3 
     ball = {
         position: { x: 150, y: 594 },
         radius: 5
     };
     collision = PongR.checkCollisionWithFieldDelimiters(ball, 1000, 600);
-    equal(collision, true);
+    deepEqual(collision, true);
     // Test 4
     ball = {
         position: { x: 150, y: 595 },
         radius: 5
     };
     collision = PongR.checkCollisionWithFieldDelimiters(ball, 1000, 600);
-    equal(collision, true);
+    deepEqual(collision, true);
     // Test 5
     ball = {
         position: { x: 150, y: 596 },
         radius: 5
     };
     collision = PongR.checkCollisionWithFieldDelimiters(ball, 1000, 600);
-    equal(collision, true);
+    deepEqual(collision, true);
 });
 
 //updateBallPosition(angle, position) : Point
@@ -155,33 +343,33 @@ test("Test updateBallPosition", function () {
     var angle = 45;
     var position = { x: 50, y: 50 };
     var newPosition = PongR.updateBallPosition(angle, position);
-    var expectedNewPosition = { x: 55, y: 55 };
-    equal(newPosition, expectedNewPosition);
+    var expectedNewPosition = { x: 60, y: 40 };
+    deepEqual(newPosition, expectedNewPosition);
     // Test 2
     angle = 135;
     newPosition = PongR.updateBallPosition(angle, position);
-    expectedNewPosition = { x: 45, y: 55 };
-    equal(newPosition, expectedNewPosition);
+    expectedNewPosition = { x: 40, y: 40 };
+    deepEqual(newPosition, expectedNewPosition);
     // Test 3
     angle = 180;
     newPosition = PongR.updateBallPosition(angle, position);
-    expectedNewPosition = { x: 45, y: 50 };
-    equal(newPosition, expectedNewPosition);
+    expectedNewPosition = { x: 40, y: 50 };
+    deepEqual(newPosition, expectedNewPosition);
     // Test 4
     angle = 225;
     newPosition = PongR.updateBallPosition(angle, position);
-    expectedNewPosition = { x: 45, y: 45 };
-    equal(newPosition, expectedNewPosition);
+    expectedNewPosition = { x: 40, y: 60 };
+    deepEqual(newPosition, expectedNewPosition);
     // Test 5
     angle = 315;
     newPosition = PongR.updateBallPosition(angle, position);
-    expectedNewPosition = { x: 55, y: 45 };
-    equal(newPosition, expectedNewPosition);
+    expectedNewPosition = { x: 60, y: 60 };
+    deepEqual(newPosition, expectedNewPosition);
     // Test 6
     angle = 0;
     newPosition = PongR.updateBallPosition(angle, position);
-    expectedNewPosition = { x: 55, y: 50 };
-    equal(newPosition, expectedNewPosition);
+    expectedNewPosition = { x: 60, y: 50 };
+    deepEqual(newPosition, expectedNewPosition);
 });
 
 //process_input(player) : number // returns the increment on the y axis
@@ -190,18 +378,18 @@ test("Test process_input", function () {
     var commands1 = ["up", "up"];
     var inputs = [{ commands: commands1, sequenceNumber: 0}];
     var player = { inputs: inputs, lastProcessedInputId: -1 };
-    var expectedIncrement = 10;
+    var expectedIncrement = -10;
     var observedIncrement = PongR.process_input(player);
-    equal(observedIncrement, expectedIncrement);
-    equal(player.lastProcessedInputId, 0);
+    deepEqual(observedIncrement, expectedIncrement);
+    deepEqual(player.lastProcessedInputId, 0);
     // Test 2    
     commands1 = ["up", "down"];
     inputs = [{ commands: commands1, sequenceNumber: 1}];
     player = { inputs: inputs, lastProcessedInputId: 0 };
     expectedIncrement = 0;
     observedIncrement = PongR.process_input(player);
-    equal(observedIncrement, expectedIncrement);
-    equal(player.lastProcessedInputId, 1);
+    deepEqual(observedIncrement, expectedIncrement);
+    deepEqual(player.lastProcessedInputId, 1);
 });
 
 //updateSelfPosition(position, yIncrement, fieldHeight, settings.gap) : Point
@@ -213,13 +401,13 @@ test("Test updateSelfPosition", function () {
     var gap = 30;
     var expectedPosition = { x: 30, y: 30 };
     var updatedPosition = PongR.updateSelfPosition(position, yIncrement, fieldHeight, gap);
-    equal(expectedPosition, updatedPosition);
-    // Test 1
+    deepEqual(expectedPosition, updatedPosition);
+    // Test 2
     var position = { x: 30, y: 54 };
     var yIncrement = -5;
     var fieldHeight = 600;
     var gap = 30;
     var expectedPosition = { x: 30, y: 49 };
     var updatedPosition = PongR.updateSelfPosition(position, yIncrement, fieldHeight, gap);
-    equal(expectedPosition, updatedPosition);
+    deepEqual(expectedPosition, updatedPosition);
 });

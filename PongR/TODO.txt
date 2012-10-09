@@ -22,9 +22,12 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
-Continue working on Logic.js 
-	- make the unit tests work! (there are missing script references i think)
-	-implement all the other functions.
+Continue working on Logic.js 	
+	- replace useless "self" variables with "this"
+	- implement all the other functions.
+
+Consider refactoring function PongR(width, height) so that in the constructor we immediately create a variable called game like:
+this.game = new this.Game(playRoomId, player1, player2, ballDirection);
 
 
 Create new file: pongRHub.js

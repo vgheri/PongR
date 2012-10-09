@@ -9,8 +9,8 @@ var PongR = (function ($) {
 
     function PongR(width, height) {
         var self = this;
-        var viewPort = new ViewPort(width, height);
-        self.settings = new myPongR.Settings(viewPort);
+        var viewPort = new self.ViewPort(width, height);
+        self.settings = new self.Settings(viewPort);
     }
 
     // ViewModels
