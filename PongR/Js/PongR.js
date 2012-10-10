@@ -5,21 +5,452 @@
 */
 
 // Module creation
-var PongR = (function ($) {
+var PongR = (function ($, ko) {
 
-    var self;
+    var pongR = {
+        PublicPrototype: {UnitTestPrototype: {}}
+    };
+    
+    // Used in the logic section
+    var me;
+    var keyboard;
+    var requestAnimationFrameRequestId;
+    var physicsLoopId;
 
-    function PongR(width, height, username) {
-        self = this;
-        this.settings = new this.Settings(width, height);
-        this.pongRHub = $.connection.pongRHub;
-        this.pongRHub.username = username;
-        this.pongRHub.opponentLeft = opponentLeft;
-        this.pongRHub.wait = wait;
-        this.pongRHub.startMatch = startMatch;
-    }
+    // Models
+    function Point(x, y) {
+        this.x = x;
+        this.y = y;
+    };
+
+    function Viewport(width, height) {
+        this.width = width;
+        this.height = height;
+    };
+
+    function User(username, connectionId) {
+        this.username = ko.observable(username);
+        this.connectionId = connectionId;
+    };
+
+    function Input(commands, sequenceNumber) {
+        this.commands = commands;
+        this.sequenceNumber = sequenceNumber;
+    };
+
+    function Player(user, playerNumber, fieldWidth) {
+        this.user = new User(user.Username, user.Id);
+        this.playerNumber = playerNumber;
+        this.barWidth = 30;
+        this.barHeight = 96;
+        this.topLeftVertex = null;
+        if (playerNumber === 1) {
+            this.topLeftVertex = new Point(50, 252);
+        }
+        else {
+            this.topLeftVertex = new Point(fieldWidth - 50 - this.barWidth, 252);
+        }
+        this.barDirection = ""; // Can be empty (i.e. not moving), up or down
+        this.inputs = []; // Local history of inputs for this client. Each input is of type myPongR.Input
+        this.score = ko.observable(0);
+        this.lastProcessedInputId = -1;
+    };
+
+    function Ball(direction, fieldWidth, fieldHeight) {
+        this.radius = 20;
+        this.position = new Point(fieldWidth / 2, fieldHeight / 2); // The ball starts at the center of the field
+        this.direction = direction; // can be left or right        
+        this.angle = (direction === "right" ? 0 : 180);
+    };
+
+    function Settings(width, height) {
+        this.viewport = new Viewport(width, height); // The viewport size as passed by the client
+        this.naive_approach = true; // default : true. Means we won't use lag compensation
+        this.client_prediction = true;
+        this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        
+        this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
+        this.client_smooth = 25;        //amount of smoothing to apply to client update dest
+        this.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
+        this.BAR_SCROLL_UNIT = 5; // px
+        this.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
+    };
+
+    function Game(id, player1, player2, ballDirection) {
+        this.gameId = id;
+        this.player1 = new Player(player1, 1);
+        this.player2 = new Player(player2, 2);
+        this.ball = new Ball(ballDirection, pongR.settings.viewport.width, pongR.settings.viewport.height);
+    };
+
+    // Logic
+
+    function startAnimation() {
+        requestAnimationFrameRequestId = window.requestAnimationFrame(startUpdateLoop);
+    };
+
+    function clearAnimation() {
+        window.cancelAnimationFrame(requestAnimationFrameRequestId);
+    };
+
+    function startPhysicsLoop() {
+        physicsLoopId = window.setInterval(this.updatePhysics, 15);
+    };
+
+    function clearPhysicsLoop() {
+        window.setInterval(physicsLoopId);
+    };
+
+    //calculateNewAngleAfterPlayerHit(player : Player, newBallDirection : string) : number
+    //Calculates new angle after a ball collision with a player
+    function calculateNewAngleAfterPlayerHit(player, newBallDirection) {
+        var angle;
+        if (newBallDirection === "right" && player.barDirection === "") {
+            angle = 0;
+        }
+        else if (newBallDirection === "right" && player.barDirection === "up") {
+            angle = 45;
+        }
+        else if (newBallDirection === "left" && player.barDirection === "up") {
+            angle = 135;
+        }
+        else if (newBallDirection === "left" && player.barDirection === "") {
+            angle = 180;
+        }
+        else if (newBallDirection === "left" && player.barDirection === "down") {
+            angle = 225;
+        }
+        else if (newBallDirection === "right" && player.barDirection === "down") {
+            angle = 315;
+        }
+        else {
+            console.log("Error! Unkown new angle value: hit on player :" + player.playerNumber.toString() + ". New ball direction: " + newBallDirection + ". Player direction: " + (player.barDirection !== "" ? player.barDirection : "none"));
+            return undefined;
+        }
+        return angle;
+    };
+
+    //calculateNewAngleAfterFieldHit(oldAngle : number, ballDirection : string) : number
+    //Calculates new angle after a ball collision with the field
+    function calculateNewAngleAfterFieldHit(oldAngle, ballDirection) {
+        var newAngle;
+        if (ballDirection === "right" && oldAngle === 45) {
+            newAngle = 315;
+        }
+        else if (ballDirection === "right" && oldAngle === 315) {
+            newAngle = 45;
+        }
+        else if (ballDirection === "left" && oldAngle === 135) {
+            newAngle = 225;
+        }
+        else if (ballDirection === "left" && oldAngle === 225) {
+            newAngle = 135;
+        }
+        else {
+            console.log("Unknown new angle value upon hit on field delimiters. Ball direction: " + ballDirection + ". Ball old angle: " + oldAngle);
+            return undefined;
+        }
+        return newAngle;
+    };
+
+    //checkCollisionWithPlayer(player : Player, ball : Ball) : boolean 
+    //Check if the ball hits one of the player
+    function checkCollisionWithPlayer(player, ball) {
+        var collision = false;
+
+        // If player is on the left, then we need to substract the radius, otherwise add
+        var relativeRadius = player.playerNumber === 1 ? (0 - ball.radius) : ball.radius;
+
+        if (player.topLeftVertex.x <= ball.position.x + relativeRadius && player.topLeftVertex.x + player.barWidth >= ball.position.x + relativeRadius) {
+            if ((player.topLeftVertex.y <= ball.position.y + ball.radius)
+                && (player.topLeftVertex.y + player.barHeight >= ball.position.y - ball.radius)) {
+                collision = true;
+            }
+        }
+
+        return collision;
+    };
+
+    //checkCollisionWithFieldDelimiters(ball : Ball, fieldWidth : number, fieldHeight : number) : boolean
+    //Check if the ball hits one of the sides of the field 
+    function checkCollisionWithFieldDelimiters(ball, fieldWidth, fieldHeight) {
+        var collision = false;
+        // Hit check. I check first for y axis because it's less frequent that the condition will be true, so most of the time 
+        // we check only 1 if statement instead of 2 
+        // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
+        if ((ball.position.y - ball.radius >= -5 && ball.position.y - ball.radius <= 5) ||
+                (ball.position.y + ball.radius >= fieldHeight - 5 && ball.position.y + ball.radius <= fieldHeight + 5)) {
+            if (ball.position.x - ball.radius >= 0 && ball.position.x + ball.radius <= fieldWidth) {
+                collision = true;
+            }
+        }
+
+        return collision;
+    };
+
+    //updateBallPosition(angle, position) : Point 
+    //Updates the position of the ball based on its direction and its angle
+    function updateBallPosition(angle, position) {
+        var newPosition = { x: position.x, y: position.y };
+        switch (angle) {
+            case 0:
+                newPosition.x = position.x + pongR.settings.BALL_FIXED_STEP;
+                break;
+            case 45:
+                newPosition.x = position.x + pongR.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y - pongR.settings.BALL_FIXED_STEP;
+                break;
+            case 135:
+                newPosition.x = position.x - pongR.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y - pongR.settings.BALL_FIXED_STEP;
+                break;
+            case 180:
+                newPosition.x = position.x - pongR.settings.BALL_FIXED_STEP;
+                break;
+            case 225:
+                newPosition.x = position.x - pongR.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y + pongR.settings.BALL_FIXED_STEP;
+                break;
+            case 315:
+                newPosition.x = position.x + pongR.settings.BALL_FIXED_STEP;
+                newPosition.y = position.y + pongR.settings.BALL_FIXED_STEP;
+                break;
+            default:
+                console.log("Unknown angle value " + pongR.game.ball.angle.toString());
+                return undefined;
+        }
+        return newPosition;
+    };
+
+    //process_input(player : Player) : number 
+    //Computes the increment on the Y axis, given a player list of inputs
+    function process_input(player) {
+        //It's possible to have received multiple inputs by now, so we process each one        
+        // Each input is an object structured like:
+        // commands: list of commands (i.e. a list of "up"/"down")
+        // sequenceNumber: the sequence number for this batch of inputs
+        var y_dir = 0;
+        var ic = player.inputs.length;
+        if (ic) {
+            for (var j = 0; j < ic; ++j) {
+                //don't process ones we already have simulated locally
+                if (player.inputs[j].sequenceNumber <= player.lastProcessedInputId) continue;
+
+                var input = player.inputs[j].commands;
+                var c = input.length;
+                for (var i = 0; i < c; ++i) {
+                    var key = input[i];
+                    if (key == 'up') {
+                        y_dir -= pongR.settings.BAR_SCROLL_UNIT;
+                        player.barDirection = "up";
+                    }
+                    else if (key == 'down') {
+                        y_dir += pongR.settings.BAR_SCROLL_UNIT;
+                        player.barDirection = "down";
+                    }
+                } //for all input values
+
+            } //for each input command
+        } //if we have inputs
+        else {
+            // We didn't move
+            player.barDirection = "";
+        }
+
+        if (player.inputs.length) {
+            //we can now update the sequence number for the last batch of input processed 
+            // and then clear the array since these have been processed            
+            player.lastProcessedInputId = player.inputs[ic - 1].sequenceNumber;
+            player.inputs.splice(0, ic);
+        }
+
+        //give it back
+        return y_dir;
+    };
+
+    //updateSelfPosition(topLeftVertex : Point, yIncrement : number, fieldHeight : number, settings.gap : number) : Point 
+    // Updates self position. If we are not too close, we move completely, otherwise we are set to the gap
+    // Gap is defined as the minimum distance between the player and the field delimiters (up and down) is 30 px
+    function updateSelfPosition(topLeftVertex, yIncrement, fieldHeight, gap) {
+        var newTopLeftVertex = { x: topLeftVertex.x, y: topLeftVertex.y };
+        if ((topLeftVertex.y + yIncrement >= gap) && (topLeftVertex.y + yIncrement <= fieldHeight - gap)) {
+            newTopLeftVertex.y += yIncrement;
+        }
+        else if (topLeftVertex.y + yIncrement < gap) {
+            newTopLeftVertex.y = gap;
+        }
+        else {
+            newTopLeftVertex.y = fieldHeight - gap;
+        }
+        return newTopLeftVertex;
+    };
+
+    // PRIVATE
+    // Draws a frame of the game: the two players and the ball
+    function draw() {
+        drawField();
+        drawPlayer(pongR.game.player1);
+        drawPlayer(pongR.game.player1);
+        drawBall();
+    };
+
+    function drawField() {
+        //Set the color for this player
+        pongR.canvasContext.fillStyle = "#111111"; // Almost Black
+        //Draw a rectangle for us
+        pongR.canvasContext.fillRect(0, 0, pongR.settings.viewport.width, pongR.settings.viewport.height);
+    };
+
+    function drawBall() {
+        //Set the color for this player
+        pongR.canvasContext.fillStyle = "#EE0000"; // Red
+        //Draw a circle for us
+        pongR.canvasContext.arc(pongR.game.ball.position.x, pongR.game.ball.position.y, pongR.game.ball.radius, 0, 2 * Math.PI);
+    };
+
+    function drawPlayer(player) {
+        //Set the color for this player
+        pongR.canvasContext.fillStyle = "#00FF00"; // Light Green
+        //Draw a rectangle for us
+        pongR.canvasContext.fillRect(player.topLeftVertex.x, player.topLeftVertex.y, player.barWidth, player.barHeight);
+    };
+
+    // This takes input from the client and keeps a record. 
+    // It also sends the input information to the server immediately
+    // as it is pressed. It also tags each input with a sequence number.
+    function handleClientInputs(player) {
+
+        var input = [];
+        pongR.client_has_input = false; // TODO check why this variable is public
+        var playerInput = null;
+
+        if (keyboard.pressed('up')) {
+            input.push('up');
+        } // up
+
+        if (keyboard.pressed('down')) {
+            input.push('down');
+        } // down
+
+        if (input.length) {
+
+            //Update what sequence we are on now
+            this.settings.input_sequence += 1;
+
+            //Store the input state as a snapshot of what happened.
+            playerInput = {
+                sequenceNumber: pongR.settings.input_sequence,
+                commands: input
+            };
+
+            me.inputs.push(playerInput);
+        }
+
+        return playerInput;
+    };
+
+    // A single step of the client update loop (a frame)
+    function updateLoopStep() {
+        // Step 1: Clear canvas
+        pongR.canvasContext.clearRect(0, 0, pongR.settings.viewport.width, pongR.settings.viewport.height);
+        // Step 2: Handle user inputs (update internal model)
+        var playerInput = handleClientInputs(me);
+        if (playerInput !== null) {
+            // Step 3: Send the just processed input batch to the server.
+            pongR.sendInput(pongR.game.gameId, me.user.connectionId, playerInput);
+        }
+        // Step 3: Draw the new frame in the canvas
+        draw(pongR.game, pongR.canvasContext);
+    };
+
+    // Starts the client update loop 
+    function startUpdateLoop() {
+        updateLoopStep();
+
+        // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
+        // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
+        // We use requestAnimationFrame so that the the image is redrawn as many times as possible per second
+        requestAnimationFrameRequestId = startAnimation(startUpdateLoop);
+    };
+
+    // PRIVATE - At each step of the game, checks for any collision, and updates the app internal state
+    function checkForCollisionsAndUpdateBallState() {
+        var collision = false;
+        var newAngle = -1;
+        // if collision with players' bar or field, update ball state (set next angle, next direction etc...)
+        collision = this.checkCollisionWithPlayers(pongR.game.player1);
+        if (collision) {
+            pongR.game.ball.direction = "right";
+            pongR.game.ball.angle = calculateNewAngleAfterPlayerHit(pongR.game.player1, pongR.game.ball.direction);
+        }
+        else {
+            collision = checkCollisionWithPlayers(pongR.game.player2);
+            if (collision) {
+                pongR.game.ball.direction = "left";
+                pongR.game.ball.angle = calculateNewAngleAfterPlayerHit(pongR.game.player2, pongR.game.ball.direction);
+            }
+            // No collision with players, let's check if we have a collision with the field delimiters
+            else {
+                collision = checkCollisionWithFieldDelimiters(pongR.game.ball, pongR.settings.viewport.width, pongR.settings.viewport.height);
+                if (collision) {
+                    pongR.game.ball.angle = calculateNewAngleAfterFieldHit(pongR.game.ball.angle, pongR.game.ball.direction);
+                }
+            }
+        }
+    };
+
+    function updatePhysics() {
+        // 1: updates self position and direction
+        //var yIncrement = this.process_input(me);
+        var yIncrement = process_input(me);
+        var newPosition = updateSelfPosition(me.topLeftVertex, yIncrement, pongR.settings.viewport.heigth, pongR.settings.gap);
+        me.topLeftVertex = newPosition;
+        // 2: update ball position
+        var newPosition = updateBallPosition(pongR.game.ball.angle, pongR.game.ball.position);
+        pongR.game.ball.position = newPosition;
+        // 2: check collision
+        checkForCollisionsAndUpdateBallState();
+    };
+
+    // Initial setup of the match state and start of the game interval
+    function startMatch(opts) {
+        // Proposal: app is now a global var... make it private
+        pongR.game = new Game(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
+
+        // Proposal: I can extract the following blocks of code into a function to retrieve the current canvas context
+        // Set the canvas dimensions
+        var canvas = document.getElementById("viewport");
+        canvas.width = pongR.settings.viewport.width;
+        canvas.height = pongR.settings.viewport.height;
+
+        // Get the 2d context to draw on the canvas
+        // getContext() returns an object that provides methods and properties for drawing on the canvas.
+        pongR.canvasContext = canvas.getContext("2d");
+        pongR.canvasContext.font = '11px "Helvetica"';
+
+        if (opts.Player1.Username === pongR.pongRHub.username) {
+            me = pongR.game.player1;
+        }
+        else {
+            me = pongR.game.player2;
+        }
+
+        ko.applyBindings(pongR.game);
+
+        // Start the physics loop
+        startPhysicsLoop();
+
+        // Initialise keyboard handler
+        keyboard = new THREEx.KeyboardState();
+
+        //A list of recent server updates
+        pongR.serverUpdates = [];
+
+        // Start the update loop
+        startUpdateLoop();
+    };
 
     // SignalR functions
+
     function opponentLeft() {
         alert("Opponent left. Going back to wait list");
         //pongR.clearAnimation(requestAnimationFrameRequestId);            
@@ -31,12 +462,12 @@ var PongR = (function ($) {
         alert("Wait. Do nothing.");
     };
 
-    function startMatch(opts) {
+    function setupMatch(opts) {
         // TODO: Populate all the view models and do the binding with knockout.
         // Set the timeout to compute game state and for notifying bars position
         // Set event handlers for keystrokes keyUp and KeyDown
         // Start to animate the ball
-        self.startMatch(opts);
+        startMatch(opts);
     };
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
@@ -44,16 +475,9 @@ var PongR = (function ($) {
         //TODO
     }
 
-    PongR.prototype.connect = function () {
-        $.connection.hub.start()
-                    .done(function () {
-                        self.pongRHub.joined();
-                    });
-    };
-
     // sendInput(gameId : number, connectionId : string, input : PlayerInput) : void
-    PongR.prototype.sendInput = function (gameId, connectionId, input) {
-        this.pongRHub.queueInput(gameId, connectionId, input);
+    function sendInput(gameId, connectionId, input) {
+        pongR.pongRHub.queueInput(gameId, connectionId, input);
     }
 
     /*
@@ -79,70 +503,30 @@ var PongR = (function ($) {
     };    
     */
 
-    // ViewModels
-    PongR.prototype.Point = function (x, y) {
-        this.x = x;
-        this.y = y;
+    // Public methods
+    pongR.PublicPrototype.createInstance = function (width, height, username) {
+        pongR.settings = new Settings(width, height);
+        pongR.pongRHub = $.connection.pongRHub;
+        pongR.pongRHub.username = username;
+        pongR.pongRHub.opponentLeft = opponentLeft;
+        pongR.pongRHub.wait = wait;
+        pongR.pongRHub.setupMatch = setupMatch;
+    }
+
+    pongR.PublicPrototype.connect = function () {
+        $.connection.hub.start()
+                    .done(function () {
+                        pongR.pongRHub.joined();
+                    });
     };
 
-    PongR.prototype.Viewport = function (width, height) {
-        this.width = width;
-        this.height = height;
-    };
+    pongR.PublicPrototype.UnitTestPrototype.calculateNewAngleAfterPlayerHit = calculateNewAngleAfterPlayerHit;
+    pongR.PublicPrototype.UnitTestPrototype.calculateNewAngleAfterFieldHit = calculateNewAngleAfterFieldHit;
+    pongR.PublicPrototype.UnitTestPrototype.checkCollisionWithPlayer = checkCollisionWithPlayer;
+    pongR.PublicPrototype.UnitTestPrototype.checkCollisionWithFieldDelimiters = checkCollisionWithFieldDelimiters;
+    pongR.PublicPrototype.UnitTestPrototype.updateBallPosition = updateBallPosition;
+    pongR.PublicPrototype.UnitTestPrototype.process_input = process_input;
+    pongR.PublicPrototype.UnitTestPrototype.updateSelfPosition = updateSelfPosition;
 
-    PongR.prototype.User = function (username, connectionId) {
-        this.username = ko.observable(username);
-        this.connectionId = connectionId;
-    };
-
-    PongR.prototype.Input = function (commands, sequenceNumber) {
-        this.commands = commands;
-        this.sequenceNumber = sequenceNumber;
-    };
-
-    PongR.prototype.Player = function (user, playerNumber, fieldWidth) {
-        this.user = new self.User(user.Username, user.Id);
-        this.playerNumber = playerNumber;
-        this.barWidth = 30;
-        this.barHeight = 96;
-        this.topLeftVertex = null;
-        if (playerNumber === 1) {
-            this.topLeftVertex = new self.Point(50, 252);
-        }
-        else {
-            this.topLeftVertex = new self.Point(fieldWidth - 50 - this.barWidth, 252);
-        }
-        this.barDirection = ""; // Can be empty (i.e. not moving), up or down
-        this.inputs = []; // Local history of inputs for this client. Each input is of type myPongR.Input
-        this.score = ko.observable(0);
-        this.lastProcessedInputId = -1;
-    };
-
-    PongR.prototype.Ball = function (direction, fieldWidth, fieldHeight) {
-        this.radius = 20;
-        this.position = new self.Point(fieldWidth / 2, fieldHeight / 2); // The ball starts at the center of the field
-        this.direction = direction; // can be left or right        
-        this.angle = (direction === "right" ? 0 : 180);
-    };
-
-    PongR.prototype.Settings = function (width, height) {
-        this.viewport = new self.Viewport(width, height); // The viewport size as passed by the client
-        this.naive_approach = true; // default : true. Means we won't use lag compensation
-        this.client_prediction = true;
-        this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        
-        this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
-        this.client_smooth = 25;        //amount of smoothing to apply to client update dest
-        this.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
-        this.BAR_SCROLL_UNIT = 5; // px
-        this.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
-    };
-
-    PongR.prototype.Game = function (id, player1, player2, ballDirection) {
-        this.gameId = id;
-        this.player1 = new self.Player(player1, 1);
-        this.player2 = new self.Player(player2, 2);
-        this.ball = new self.Ball(ballDirection, self.settings.viewport.width, self.settings.viewport.height);
-    };
-
-    return PongR;
-} (jQuery));
+    return pongR.PublicPrototype;
+} (jQuery, ko));

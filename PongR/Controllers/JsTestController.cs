@@ -16,7 +16,7 @@ namespace PongR.Controllers
             return View();
         }
 
-        public ActionResult Logic()
+        public ActionResult PongR()
         {
             return View();
         }

@@ -115,7 +115,7 @@ namespace PongR.Hubs
                 matchOptions.Player2 = playRoom.Player2;
                 matchOptions.BallDirection = ballDirection;
                 
-                return Clients[playRoom.Id].startMatch(matchOptions);                               
+                return Clients[playRoom.Id].setupMatch(matchOptions);                               
             }
         }        
         

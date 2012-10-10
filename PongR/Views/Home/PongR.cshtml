@@ -54,16 +54,12 @@ on the server. Each hub on the server will become a property on the client side 
 <script type="text/javascript" src="@Url.Content("~/Js/RequestAnimationFrameShim.js")"></script>
 <script type="text/javascript" src="@Url.Content("/signalr/hubs")"></script>  
 <script type="text/javascript" src="@Url.Content("~/Js/PongR.js")"></script>
-<!--<script type="text/javascript" src="@Url.Content("~/Js/Logic.js")"></script>-->
 <script type="text/javascript">
     $(document).ready(function () {
-        
-        PongR.PongR(200);
-        var width = PongR.width;
-
         var username = @Html.Raw(Json.Encode(Model));
-        var game = new PongR(1000,600,username);
-        game.connect();                      
+        
+        PongR.createInstance(1000,600,username);
+        PongR.connect();                      
     });
 
 </script>

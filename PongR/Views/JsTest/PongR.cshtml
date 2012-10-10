@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "PongR.js Tests";
+}
+
+@section Javascript{
+    <script src="@Url.Content("~/Js/PongR.js")"></script>
+    <script src="@Url.Content("~/Js/test/PongR_test.js")"></script>
+}
+
+@Html.Partial("_QUnit")
