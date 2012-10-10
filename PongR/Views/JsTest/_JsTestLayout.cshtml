@@ -3,9 +3,10 @@
     <head>
         <title>@ViewBag.Title</title>
         <link rel="stylesheet" href="@Url.Content("~/Content/qunit.css")" />
-        <script type="text/javascript" src="@Url.Content("~/Js/RequestAnimationFrameShim.js")"></script>
         <script src="@Url.Content("~/Scripts/jquery-1.8.0.min.js")" type="text/javascript"></script>
         <script src="@Url.Content("~/Scripts/jquery.signalR-0.5.3.min.js")" type="text/javascript"></script>
+        <script type="text/javascript" src="@Url.Content("~/Js/RequestAnimationFrameShim.js")"></script>
+        <script type="text/javascript" src="@Url.Content("/signalr/hubs")"></script>         
         <script src="@Url.Content("~/Scripts/knockout-2.1.0.js")" type="text/javascript"></script>    
         <script src="@Url.Content("~/Scripts/keyboard.js")" type="text/javascript"></script>
         <script src="@Url.Content("~/Scripts/qunit.js")"></script>

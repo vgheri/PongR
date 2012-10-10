@@ -122,35 +122,36 @@ namespace PongR.Models
             List<PlayerInput> inputsToRemove = new List<PlayerInput>();            
             while (player.UnprocessedPlayerInputs.Count > 0)
             {
-                input = player.UnprocessedPlayerInputs.Dequeue();
-                lastInputExecuted = input.SequenceNumber;
-                foreach (Command command in input.Commands)
+                if (player.UnprocessedPlayerInputs.Count == 0)
                 {
-                    if (command == Command.Up)
+                    player.BarDirection = "";
+                }
+                else
+                {
+                    input = player.UnprocessedPlayerInputs.Dequeue();
+                    lastInputExecuted = input.SequenceNumber;
+
+                    foreach (Command command in input.Commands)
                     {
-                        if (player.TopLeftVertex.Y - BAR_SCROLL_UNIT >= FIXED_GAP)
-                        {  // 30 px is the minimum distance from border                        
-                            player.TopLeftVertex.Y -= BAR_SCROLL_UNIT;
-                            player.BarDirection = "up";
-                        }
-                        else
+                        if (command == Command.Up)
                         {
-                            player.BarDirection = "";
+                            if (player.TopLeftVertex.Y - BAR_SCROLL_UNIT >= FIXED_GAP)
+                            {  // 30 px is the minimum distance from border                        
+                                player.TopLeftVertex.Y -= BAR_SCROLL_UNIT;
+                                player.BarDirection = "up";
+                            }
+                        }
+                        else if (command == Command.Down)
+                        {
+                            if (player.TopLeftVertex.Y + BAR_SCROLL_UNIT <= fieldHeight - FIXED_GAP)
+                            {
+                                player.TopLeftVertex.Y += BAR_SCROLL_UNIT;
+                                player.BarDirection = "down";
+                            }
                         }
                     }
-                    else if (command == Command.Down)
-                    {
-                        if (player.TopLeftVertex.Y + BAR_SCROLL_UNIT <= fieldHeight - FIXED_GAP)
-                        {
-                            player.TopLeftVertex.Y += BAR_SCROLL_UNIT;
-                            player.BarDirection = "down";
-                        }
-                        else
-                        {
-                            player.BarDirection = "";
-                        }
-                    }
-                }                
+                }
+                
             }
             
             player.LastProcessedInputId = lastInputExecuted;

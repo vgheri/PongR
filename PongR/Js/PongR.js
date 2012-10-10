@@ -7,42 +7,47 @@
 // Module creation
 var PongR = (function ($) {
 
-    function PongR(width, height) {                
+    var self;
+
+    function PongR(width, height, username) {
+        self = this;        
         this.settings = new this.Settings(width, height);
+        this.pongRHub = $.connection.pongRHub;
+        this.pongRHub.username = username;
     }
 
     // ViewModels
-    PongR.prototype.Point = function (x, y) {        
+    PongR.prototype.Point = function (x, y) {
         this.x = x;
         this.y = y;
     };
 
-    PongR.prototype.ViewPort = function (width, height) {        
+    PongR.prototype.ViewPort = function (width, height) {
         this.width = width;
         this.height = height;
     };
 
-    PongR.prototype.User = function (username, connectionId) {        
+    PongR.prototype.User = function (username, connectionId) {
         this.username = ko.observable(username);
         this.connectionId = connectionId;
     };
 
-    PongR.prototype.Input = function (commands, sequenceNumber) {        
+    PongR.prototype.Input = function (commands, sequenceNumber) {
         this.commands = commands;
         this.sequenceNumber = sequenceNumber;
     };
 
-    PongR.prototype.Player = function (user, playerNumber, fieldWidth) {        
-        this.user = new myPongR.User(user.Username, user.Id);
+    PongR.prototype.Player = function (user, playerNumber, fieldWidth) {
+        this.user = new this.User(user.Username, user.Id);
         this.playerNumber = playerNumber;
         this.barWidth = 30;
         this.barHeight = 96;
         this.topLeftVertex = null;
         if (playerNumber === 1) {
-            this.topLeftVertex = new this.Point(50, 252);
+            this.topLeftVertex = new self.Point(50, 252);
         }
         else {
-            this.topLeftVertex = new this.Point(fieldWidth - 50 - this.barWidth, 252);
+            this.topLeftVertex = new self.Point(fieldWidth - 50 - this.barWidth, 252);
         }
         this.barDirection = ""; // Can be empty (i.e. not moving), up or down
         this.inputs = []; // Local history of inputs for this client. Each input is of type myPongR.Input
@@ -50,15 +55,15 @@ var PongR = (function ($) {
         this.lastProcessedInputId = -1;
     };
 
-    PongR.prototype.Ball = function (direction, fieldWidth, fieldHeight) {        
+    PongR.prototype.Ball = function (direction, fieldWidth, fieldHeight) {
         this.radius = 20;
-        this.position = new this.Point(fieldWidth / 2, fieldHeight / 2); // The ball starts at the center of the field
+        this.position = new self.Point(fieldWidth / 2, fieldHeight / 2); // The ball starts at the center of the field
         this.direction = direction; // can be left or right        
         this.angle = (direction === "right" ? 0 : 180);
     };
 
-    PongR.prototype.Settings = function (width, height) {        
-        this.viewPort = new this.ViewPort(width, height); // The viewport size as passed by the client
+    PongR.prototype.Settings = function (width, height) {
+        this.viewPort = new self.ViewPort(width, height); // The viewport size as passed by the client
         this.naive_approach = true; // default : true. Means we won't use lag compensation
         this.client_prediction = true;
         this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        
@@ -69,11 +74,11 @@ var PongR = (function ($) {
         this.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
     };
 
-    PongR.prototype.Game = function (id, player1, player2, ballDirection) {        
+    PongR.prototype.Game = function (id, player1, player2, ballDirection) {
         this.gameId = id;
-        this.player1 = new this.Player(player1, 1);
-        this.player2 = new this.Player(player2, 2);        
-        this.ball = new this.Ball(ballDirection, this.fieldWidth, this.fieldHeight);
+        this.player1 = new self.Player(player1, 1);
+        this.player2 = new self.Player(player2, 2);
+        this.ball = new self.Ball(ballDirection, self.settings.viewport.width, self.settings.viewport.height);
     };
 
     return PongR;

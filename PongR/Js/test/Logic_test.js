@@ -3,9 +3,9 @@
  * Unit Tests for Logic.js, using qUnit
  */
 
-var PongR = new PongR(1000, 600);
+var PongR = new PongR(1000, 600, "test");
 
-//calculateNewAngleAfterPlayerHit(player, newBallAngle) : number
+//calculateNewAngleAfterPlayerHit(player, newBallDirection) : number
 test("Test for calculateNewAngleAfterPlayerHit", function () {
     // Test 1
     var player = { barDirection: "up", playerNumber: 1 };
