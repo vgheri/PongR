@@ -3,9 +3,7 @@
 }
 
 @if (false) { 
-    <script src="../../Scripts/jquery-1.8.0-vsdoc.js" type="text/javascript"></script>
-    <script src="../../Js/pongR.js" type="text/javascript"></script>    
-    <script src="../../Js/logic.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery-1.8.0-vsdoc.js" type="text/javascript"></script>   
     <script src="../../Scripts/knockout-2.1.0.js" type="text/javascript"></script>
 }
 <!-- Contains players' name and the score -->
@@ -55,99 +53,17 @@ on the server. Each hub on the server will become a property on the client side 
 
 <script type="text/javascript" src="@Url.Content("~/Js/RequestAnimationFrameShim.js")"></script>
 <script type="text/javascript" src="@Url.Content("/signalr/hubs")"></script>  
-<script type="text/javascript" src="@Url.Content("~/Js/pongR.js")"></script>
-<script type="text/javascript" src="@Url.Content("~/Js/viewModel.js")"></script>
-<script type="text/javascript" src="@Url.Content("~/Js/logic.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Js/PongR.js")"></script>
+<!--<script type="text/javascript" src="@Url.Content("~/Js/Logic.js")"></script>-->
 <script type="text/javascript">
-    // To test performance
-    // var removeMe = 0;
-    var pongRHub;
-    var app;
-    var me; // indicates which of the two player I am
-    
-    var requestAnimationFrameRequestId; // The id associated with the frame animation request. It's used to cancel the animation request             
-    var ball = document.querySelector('#ball');
-
-    var serverNotificationIntervalId;
-
     $(document).ready(function () {
-        // Proxy creation
-        pongRHub = $.connection.pongRHub;
-        pongRHub.username = @Html.Raw(Json.Encode(Model));
-                
-        pongRHub.opponentLeft = function() {
-            alert("Opponent left. Going back to wait list");            
-            pongR.clearAnimation(requestAnimationFrameRequestId);            
-            pongR.removeKeyboardEventListener();
-            pongR.clearPositionNotificationInterval(serverNotificationIntervalId);
-            // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
-        };
-
-        // Function invoked when the user has to wait for an opponent
-        pongRHub.wait = function() {
-            // TODO: Use a lightbox to display a waiting message
-            alert("Wait. Do nothing.");
-        };       
-
-        pongRHub.notifyServerOfPlayerPosition = function() {
-            pongRHub.notifyPosition(app.playRoomId, ko.toJSON(me));
-        }
         
-        // SignalR notifies this client of the opponent new position
-        pongRHub.updatePosition = function(player) {
-            var playerToUpdate;
-            if (player.playerNumber === 1) {
-                playerToUpdate = app.player1;
-            }
-            else {
-                playerToUpdate = app.player2;
-            }
-            playerToUpdate.barDirection = player.barDirection;
-            playerToUpdate.barMarginTop(player.barMarginTop);
-            playerToUpdate.topLeftVertex = player.topLeftVertex;
-        };
-        
-                
-        pongRHub.startMatch = function(opts) {
-            // TODO: Populate all the view models and do the binding with knockout.
-            // Set the timeout to compute game state and for notifying bars position
-            // Set event handlers for keystrokes keyUp and KeyDown
-            // Start to animate the ball
-            pongR.setupMatch(opts);                                               
-                        
-            pongR.setKeyboardEventListener();
-            requestAnimationFrameRequestId = pongR.startAnimation(pongR.processState);  
-            serverNotificationIntervalId = pongR.startPositionNotificationInterval();                                                          
-        };
-        
-        // Steps: 
-        // 1: display a message and update score
-        // 2: reset players and ball position    
-        // 3: set new ball direction/angle
-        // 4: reset notification interval
-        pongRHub.continueMatchAfterGoal = function(opts) {
-            pongR.displayGoalMessage(opts.PlayerNameWhoScored);
-            pongR.updateScore(opts.PlayerNameWhoScored);
-            pongR.resetObjectsPositionToInitialState();
-            app.ball.direction = opts.BallDirection;
-            if (opts.BallDirection === "left") {
-                app.ball.angle = 180;
-            }
-            else {
-                app.ball.angle = 0;
-            }
-            //pongR.setKeyboardEventListener();
-            //requestAnimationFrameRequestId = pongR.startAnimation(pongR.processState);
-            //serverNotificationIntervalId = pongR.startPositionNotificationInterval();   
-        };
+        PongR.PongR(200);
+        var width = PongR.width;
 
-        // Step 1: Start the connection        
-        // Step 3: Join the system
-        $.connection.hub.start()
-                    .done(function () {
-                        pongRHub.joined();
-                    });
-                    
+        var username = @Html.Raw(Json.Encode(Model));
+        var game = new PongR(1000,600,username);
+        game.connect();                      
     });
 
 </script>

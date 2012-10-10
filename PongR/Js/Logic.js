@@ -4,25 +4,30 @@
 * Description: PongR game logic definition with the Module Augmentation pattern
 */
 
-var PongR = (function (PongR, $, ko) {    
+var PongR = (function (PongR, $, ko) {
     var me;
     var keyboard;
     var requestAnimationFrameRequestId;
     var physicsLoopId;
 
-    PongR.prototype.startAnimation = function () {
+    this.startAnimation = function() {
         requestAnimationFrameRequestId = window.requestAnimationFrame(this.startUpdateLoop);
     };
 
-    PongR.prototype.clearAnimation = function () {
+    this.clearAnimation = function() {
         window.cancelAnimationFrame(requestAnimationFrameRequestId);
     };
 
-    PongR.prototype.startPhysicsLoop = function () {
-        physicsLoopId = window.setInterval(this.updatePhysics, 15);
+    this.startPhysicsLoop = function() {
+        //physicsLoopId = window.setInterval(this.updatePhysics, 15);
+        //physicsLoopId = setInterval(function () { this.updatePhysics(); }, 15);
+        physicsLoopId =  setInterval((function (self) {
+            return function () { self.updatePhysics(); } 
+        })(this),
+        15);
     };
 
-    PongR.prototype.clearPhysicsLoop = function () {
+    this.clearPhysicsLoop = function() {
         window.setInterval(physicsLoopId);
     };
 
@@ -277,7 +282,7 @@ var PongR = (function (PongR, $, ko) {
     // A single step of the client update loop (a frame)
     PongR.prototype.updateLoopStep = function () {
         // Step 1: Clear canvas
-        this.canvasContext.clearRect(0, 0, this.settings.viewPort.width, this.settings.viewPort.height);
+        this.canvasContext.clearRect(0, 0, this.settings.viewport.width, this.settings.viewport.height);
         // Step 2: Handle user inputs (update internal model)
         var playerInput = this.handleClientInputs(me);
         if (playerInput !== null) {
@@ -326,11 +331,12 @@ var PongR = (function (PongR, $, ko) {
 
     PongR.prototype.updatePhysics = function () {
         // 1: updates self position and direction
-        var yIncrement = this.process_input(me);
-        var newPosition = this.updateSelfPosition(me.topLeftVertex, yIncrement, this.settings.viewport.heigth, this.settings.gap);
+        //var yIncrement = this.process_input(me);
+        var yIncrement = PongR.prototype.process_input(me);
+        var newPosition = PongR.prototype.updateSelfPosition(me.topLeftVertex, yIncrement, this.settings.viewport.heigth, this.settings.gap);
         me.topLeftVertex = newPosition;
         // 2: update ball position
-        var newPosition = this.updateBallPosition(this.game.ball.angle, this.game.ball.position);
+        var newPosition = PongR.prototype.updateBallPosition(this.game.ball.angle, this.game.ball.position);
         this.game.ball.position = newPosition;
         // 2: check collision
         checkForCollisionsAndUpdateBallState();

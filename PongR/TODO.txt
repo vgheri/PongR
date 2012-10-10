@@ -34,4 +34,22 @@ function PongR(width, height, username) {
 
 
 
+Rethink the module structure for PongR
+
+var PongR = (function ($) {
+	var _pongR = {};
+
+	// ViewModels section
+	
+	// PongRHub section
+	
+	// Logic section
+	
+	_pongR.PublicPrototype = {};
+	// Add publics methods to the Public prototype
+
+	return _pongR.PublicPrototype;
+}(jQuery);
+
+
 

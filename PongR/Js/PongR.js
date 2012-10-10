@@ -10,11 +10,74 @@ var PongR = (function ($) {
     var self;
 
     function PongR(width, height, username) {
-        self = this;        
+        self = this;
         this.settings = new this.Settings(width, height);
         this.pongRHub = $.connection.pongRHub;
         this.pongRHub.username = username;
+        this.pongRHub.opponentLeft = opponentLeft;
+        this.pongRHub.wait = wait;
+        this.pongRHub.startMatch = startMatch;
     }
+
+    // SignalR functions
+    function opponentLeft() {
+        alert("Opponent left. Going back to wait list");
+        //pongR.clearAnimation(requestAnimationFrameRequestId);            
+        // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
+    };
+
+    function wait() {
+        // TODO: Use a lightbox to display a waiting message
+        alert("Wait. Do nothing.");
+    };
+
+    function startMatch(opts) {
+        // TODO: Populate all the view models and do the binding with knockout.
+        // Set the timeout to compute game state and for notifying bars position
+        // Set event handlers for keystrokes keyUp and KeyDown
+        // Start to animate the ball
+        self.startMatch(opts);
+    };
+
+    // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
+    function updateGame(game) {
+        //TODO
+    }
+
+    PongR.prototype.connect = function () {
+        $.connection.hub.start()
+                    .done(function () {
+                        self.pongRHub.joined();
+                    });
+    };
+
+    // sendInput(gameId : number, connectionId : string, input : PlayerInput) : void
+    PongR.prototype.sendInput = function (gameId, connectionId, input) {
+        this.pongRHub.queueInput(gameId, connectionId, input);
+    }
+
+    /*
+    // Steps: 
+    // 1: display a message and update score
+    // 2: reset players and ball position    
+    // 3: set new ball direction/angle
+    // 4: reset notification interval
+    pongRHub.continueMatchAfterGoal = function(opts) {
+    pongR.displayGoalMessage(opts.PlayerNameWhoScored);
+    pongR.updateScore(opts.PlayerNameWhoScored);
+    pongR.resetObjectsPositionToInitialState();
+    app.ball.direction = opts.BallDirection;
+    if (opts.BallDirection === "left") {
+    app.ball.angle = 180;
+    }
+    else {
+    app.ball.angle = 0;
+    }
+    //pongR.setKeyboardEventListener();
+    //requestAnimationFrameRequestId = pongR.startAnimation(pongR.processState);
+    //serverNotificationIntervalId = pongR.startPositionNotificationInterval();   
+    };    
+    */
 
     // ViewModels
     PongR.prototype.Point = function (x, y) {
@@ -22,7 +85,7 @@ var PongR = (function ($) {
         this.y = y;
     };
 
-    PongR.prototype.ViewPort = function (width, height) {
+    PongR.prototype.Viewport = function (width, height) {
         this.width = width;
         this.height = height;
     };
@@ -38,7 +101,7 @@ var PongR = (function ($) {
     };
 
     PongR.prototype.Player = function (user, playerNumber, fieldWidth) {
-        this.user = new this.User(user.Username, user.Id);
+        this.user = new self.User(user.Username, user.Id);
         this.playerNumber = playerNumber;
         this.barWidth = 30;
         this.barHeight = 96;
@@ -63,7 +126,7 @@ var PongR = (function ($) {
     };
 
     PongR.prototype.Settings = function (width, height) {
-        this.viewPort = new self.ViewPort(width, height); // The viewport size as passed by the client
+        this.viewport = new self.Viewport(width, height); // The viewport size as passed by the client
         this.naive_approach = true; // default : true. Means we won't use lag compensation
         this.client_prediction = true;
         this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        

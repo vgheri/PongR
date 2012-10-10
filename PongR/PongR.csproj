@@ -157,10 +157,11 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Js\PongR.js" />
     <Content Include="Js\PongR-network.js" />
     <Content Include="Js\Logic.js" />
     <Content Include="Js\old_logic.js" />
-    <Content Include="Js\PongR.js" />
+    <Content Include="Js\_PongR.js" />
     <Content Include="Js\RequestAnimationFrameShim.js" />
     <Content Include="Js\test\Logic_test.js" />
     <Content Include="README.jQuery.vsdoc.txt" />
