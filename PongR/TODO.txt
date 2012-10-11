@@ -8,7 +8,7 @@ So everything should be expressed in terms of percentage:
 
 Fixed gap -> 30px ==> (30/600) * 100 = 5%
 
-Ball -> radius = 20px ==> (20/1000) * 100 = 2%
+Ball -> radius = 10px ==> (20/1000) * 100 = 1%
 	 -> center coordinates (50,50) , in the middle of the field
 	 -> fixed step = 10 px ==> (5/1000) * 100 = 1%
 
@@ -22,6 +22,7 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
+- Write code that handles server updates
 - Write unit tests for the Models
 - Write unit tests for the modified keyboard.js 
 - Buffer inputs if we the client keeps the button pressed

@@ -8,9 +8,9 @@
 var PongR = (function ($, ko) {
 
     var pongR = {
-        PublicPrototype: {UnitTestPrototype: {}}
+        PublicPrototype: { UnitTestPrototype: {} }
     };
-    
+
     // Used in the logic section
     var me;
     var keyboard;
@@ -48,7 +48,7 @@ var PongR = (function ($, ko) {
             this.topLeftVertex = new Point(50, 252);
         }
         else {
-            var xValue = fieldWidth -50 -this.barWidth;
+            var xValue = fieldWidth - 50 - this.barWidth;
             this.topLeftVertex = new Point(xValue, 252);
         }
         this.barDirection = ""; // Can be empty (i.e. not moving), up or down
@@ -332,7 +332,7 @@ var PongR = (function ($, ko) {
         } // up
 
         count = keyboard.pressed('down');
-        for (var i = 0; i < count; i++) {            
+        for (var i = 0; i < count; i++) {
             input.push('down');
         } // down
 
@@ -477,8 +477,38 @@ var PongR = (function ($, ko) {
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
     function updateGame(game) {
-        //TODO
-    }
+        var goalInfo = { goal: false, playerWhoScored: -1 };
+        if (pongR.game.player1.score() < game.Player1.score) {
+            goalInfo.goal = true;
+            goalInfo.playerWhoScored = 1;
+        }
+        else if (pongR.game.player2.score() < game.Player2.score) {
+            goalInfo.goal = true;
+            goalInfo.playerWhoScored = 2;
+        }
+        // Player 1
+        pongR.game.player1.barDirection = game.Player1.BarDirection;
+        pongR.game.player1.topLeftVertex.x = game.Player1.TopLeftVertex.X;
+        pongR.game.player1.topLeftVertex.y = game.Player1.TopLeftVertex.Y;
+        pongR.game.player1.score(game.Player1.Score);
+        pongR.game.player1.lastProcessedInputId = game.Player1.LastProcessedInputId
+        // Player 2
+        pongR.game.player2.barDirection = game.Player2.BarDirection;
+        pongR.game.player2.topLeftVertex.x = game.Player2.TopLeftVertex.X;
+        pongR.game.player2.topLeftVertex.y = game.Player2.TopLeftVertex.Y;
+        pongR.game.player2.score(game.Player2.Score);
+        pongR.game.player2.lastProcessedInputId = game.Player2.LastProcessedInputId
+        // Ball
+        pongR.game.ball.position.x = game.Ball.Position.X;
+        pongR.game.ball.position.y = game.Ball.Position.Y;
+        pongR.game.ball.direction = game.Ball.Direction;
+        pongR.game.ball.angle = game.Ball.Angle;
+        /*
+        if (goalInfo.goal) {
+        alert("Goal!!");
+        }
+        */
+    };
 
     // sendInput(gameId : number, connectionId : string, input : PlayerInput) : void
     function sendInput(gameId, connectionId, input) {
@@ -516,6 +546,7 @@ var PongR = (function ($, ko) {
         pongR.pongRHub.opponentLeft = opponentLeft;
         pongR.pongRHub.wait = wait;
         pongR.pongRHub.setupMatch = setupMatch;
+        pongR.pongRHub.updateGame = updateGame;
     }
 
     pongR.PublicPrototype.connect = function () {
@@ -532,6 +563,7 @@ var PongR = (function ($, ko) {
     pongR.PublicPrototype.UnitTestPrototype.updateBallPosition = updateBallPosition;
     pongR.PublicPrototype.UnitTestPrototype.process_input = process_input;
     pongR.PublicPrototype.UnitTestPrototype.updateSelfPosition = updateSelfPosition;
+    pongR.PublicPrototype.UnitTestPrototype.updateGame = updateGame;
 
     return pongR.PublicPrototype;
 } (jQuery, ko));

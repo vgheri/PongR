@@ -411,3 +411,5 @@ test("Test updateSelfPosition", function () {
     var updatedPosition = PongR.UnitTestPrototype.updateSelfPosition(position, yIncrement, fieldHeight, gap);
     deepEqual(expectedPosition, updatedPosition);
 });
+
+

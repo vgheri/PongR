@@ -166,26 +166,26 @@ namespace PongR.Models
             switch (ball.Angle)
             {
                 case 0:
-                    ball.Coordinates.X += BALL_FIXED_STEP;
+                    ball.Position.X += BALL_FIXED_STEP;
                     break;
                 case 45:
-                    ball.Coordinates.X += BALL_FIXED_STEP;
-                    ball.Coordinates.Y -= BALL_FIXED_STEP;
+                    ball.Position.X += BALL_FIXED_STEP;
+                    ball.Position.Y -= BALL_FIXED_STEP;
                     break;
                 case 135:
-                    ball.Coordinates.X -= BALL_FIXED_STEP;
-                    ball.Coordinates.Y -= BALL_FIXED_STEP;
+                    ball.Position.X -= BALL_FIXED_STEP;
+                    ball.Position.Y -= BALL_FIXED_STEP;
                     break;
                 case 180:
-                    ball.Coordinates.X -= BALL_FIXED_STEP;
+                    ball.Position.X -= BALL_FIXED_STEP;
                     break;
                 case 225:
-                    ball.Coordinates.X -= BALL_FIXED_STEP;
-                    ball.Coordinates.Y += BALL_FIXED_STEP;
+                    ball.Position.X -= BALL_FIXED_STEP;
+                    ball.Position.Y += BALL_FIXED_STEP;
                     break;
                 case 315:
-                    ball.Coordinates.X += BALL_FIXED_STEP;
-                    ball.Coordinates.Y += BALL_FIXED_STEP;
+                    ball.Position.X += BALL_FIXED_STEP;
+                    ball.Position.Y += BALL_FIXED_STEP;
                     break;
                 default:
                     throw new Exception("Unknown angle value");
@@ -213,10 +213,10 @@ namespace PongR.Models
             // Hit check. I check first for y axis because it's less frequent that the condition will be true, so most of the time 
             // we check only 1 if statement instead of 2 
             // We consider a hit when the ball is very close to the field delimiter (+/-5 px)
-            if ((game.Ball.Coordinates.Y >= - 5 && game.Ball.Coordinates.Y <= + 5) ||
-                    (game.Ball.Coordinates.Y >= FIELD_HEIGHT - 5 && game.Ball.Coordinates.Y <= FIELD_HEIGHT + 5))
+            if ((game.Ball.Position.Y >= - 5 && game.Ball.Position.Y <= + 5) ||
+                    (game.Ball.Position.Y >= FIELD_HEIGHT - 5 && game.Ball.Position.Y <= FIELD_HEIGHT + 5))
             {
-                if (game.Ball.Coordinates.X >= 0 && game.Ball.Coordinates.X <= FIELD_WIDTH)
+                if (game.Ball.Position.X >= 0 && game.Ball.Position.X <= FIELD_WIDTH)
                 {
                     fieldCollision = true;
                     newAngle = CalculateNewAngleAfterFieldHit(game.Ball.Angle, game.Ball.Direction);
@@ -234,20 +234,20 @@ namespace PongR.Models
             var barCollision = false;
             string newBallDirection = string.Empty;
             int newAngle = 0;
-            if (game.Player1.TopLeftVertex.X + game.Player1.BarWidth >= game.Ball.Coordinates.X - game.Ball.Radius)
+            if (game.Player1.TopLeftVertex.X + game.Player1.BarWidth >= game.Ball.Position.X - game.Ball.Radius)
             {
-                if ((game.Player1.TopLeftVertex.Y <= game.Ball.Coordinates.Y + game.Ball.Radius)
-                    && (game.Player1.TopLeftVertex.Y + game.Player1.BarHeight >= game.Ball.Coordinates.Y - game.Ball.Radius))
+                if ((game.Player1.TopLeftVertex.Y <= game.Ball.Position.Y + game.Ball.Radius)
+                    && (game.Player1.TopLeftVertex.Y + game.Player1.BarHeight >= game.Ball.Position.Y - game.Ball.Radius))
                 {
                     barCollision = true;
                     newBallDirection = "right";
                     newAngle = CalculateNewAngleAfterPlayerHit(game.Player1, newBallDirection);
                 }
             }
-            else if (game.Player2.TopLeftVertex.X <= game.Ball.Coordinates.X + game.Ball.Radius)
+            else if (game.Player2.TopLeftVertex.X <= game.Ball.Position.X + game.Ball.Radius)
             {
-                if ((game.Player2.TopLeftVertex.Y <= game.Ball.Coordinates.Y + game.Ball.Radius)
-                    && (game.Player2.TopLeftVertex.Y + game.Player2.BarHeight >= game.Ball.Coordinates.Y - game.Ball.Radius))
+                if ((game.Player2.TopLeftVertex.Y <= game.Ball.Position.Y + game.Ball.Radius)
+                    && (game.Player2.TopLeftVertex.Y + game.Player2.BarHeight >= game.Ball.Position.Y - game.Ball.Radius))
                 {
                     barCollision = true;
                     newBallDirection = "left";
@@ -313,12 +313,12 @@ namespace PongR.Models
         private static bool CheckGoalConditionAndUpdateStatus(Game game)
         {
             var goal = false;
-            if (game.Ball.Coordinates.X <= 0)
+            if (game.Ball.Position.X <= 0)
             {
                 game.Player2.Score++;
                 goal = true;
             }
-            else if (game.Ball.Coordinates.X >= FIELD_WIDTH)
+            else if (game.Ball.Position.X >= FIELD_WIDTH)
             {
                 game.Player1.Score++;
                 goal = true;

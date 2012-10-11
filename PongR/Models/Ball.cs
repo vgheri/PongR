@@ -8,14 +8,14 @@ namespace PongR.Models
     public class Ball
     {
         public int Radius { get; set; }
-        public Point Coordinates { get; set; }
+        public Point Position { get; set; }
         public string Direction { get; set; }
         public int Angle { get; set; }
         
         public Ball(string direction, int angle)
         {
-            Radius = 20; // 2%
-            Coordinates = new Point(50, 50);            
+            Radius = 10; // 1%
+            Position = new Point(500, 300);            
             Direction = direction;
             Angle = angle;
         }
