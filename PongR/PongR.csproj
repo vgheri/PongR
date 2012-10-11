@@ -158,8 +158,6 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Js\PongR.js" />
-    <Content Include="Js\Logic.js" />
-    <Content Include="Js\old_logic.js" />
     <Content Include="Js\RequestAnimationFrameShim.js" />
     <Content Include="Js\test\PongR_test.js" />
     <Content Include="README.jQuery.vsdoc.txt" />

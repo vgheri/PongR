@@ -46,7 +46,7 @@ THREEx.KeyboardState = function () {
 
     // bind keyEvents
     document.addEventListener("keydown", this._onKeyDown, false);
-    document.addEventListener("keyup", this._onKeyUp, false);
+    //document.addEventListener("keyup", this._onKeyUp, false);
 }
 
 /**
@@ -55,7 +55,7 @@ THREEx.KeyboardState = function () {
 THREEx.KeyboardState.prototype.destroy = function () {
     // unbind keyEvents
     document.removeEventListener("keydown", this._onKeyDown, false);
-    document.removeEventListener("keyup", this._onKeyUp, false);
+    //document.removeEventListener("keyup", this._onKeyUp, false);
 }
 
 THREEx.KeyboardState.MODIFIERS = ['shift', 'ctrl', 'alt', 'meta'];
@@ -79,9 +79,13 @@ THREEx.KeyboardState.prototype._onKeyChange = function (event, pressed) {
 
     // update this.keyCodes
     var keyCode = event.keyCode;
-    this.keyCodes[keyCode] = pressed;
-    var text = pressed ? "pressed" : "not pressed";
-    console.log("Keystroke: " + event.keyCode + " state: " + text);
+    if (this.keyCodes[keyCode]) {
+        this.keyCodes[keyCode] += 1;
+    }
+    else {
+        this.keyCodes[keyCode] = 1;
+    }
+
 
     // update this.modifiers
     this.modifiers['shift'] = event.shiftKey;
@@ -96,6 +100,7 @@ THREEx.KeyboardState.prototype._onKeyChange = function (event, pressed) {
 * @param {String} keyDesc the description of the key. format : modifiers+key e.g shift+A
 * @returns {Boolean} true if the key is pressed, false otherwise
 */
+/*
 THREEx.KeyboardState.prototype.pressed = function (keyDesc) {
     var keys = keyDesc.split("+");
     for (var i = 0; i < keys.length; i++) {
@@ -111,4 +116,26 @@ THREEx.KeyboardState.prototype.pressed = function (keyDesc) {
         if (!pressed) return false;
     };
     return true;
+}
+*/
+
+THREEx.KeyboardState.prototype.pressed = function (keyDesc) {
+    var keys = keyDesc.split("+");
+    var timesPressed = 0;
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (THREEx.KeyboardState.MODIFIERS.indexOf(key) !== -1) {
+            timesPressed = this.modifiers[key];
+            this.modifiers[key] = 0;
+        }
+        else if (Object.keys(THREEx.KeyboardState.ALIAS).indexOf(key) != -1) {
+            timesPressed = this.keyCodes[THREEx.KeyboardState.ALIAS[key]];
+            this.keyCodes[THREEx.KeyboardState.ALIAS[key]] = 0;
+        }
+        else {
+            timesPressed = this.keyCodes[key.toUpperCase().charCodeAt(0)];
+            this.keyCodes[key.toUpperCase().charCodeAt(0)] = 0;
+        }
+    };
+    return timesPressed;
 }

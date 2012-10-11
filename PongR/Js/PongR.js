@@ -324,11 +324,13 @@ var PongR = (function ($, ko) {
         pongR.client_has_input = false; // TODO check why this variable is public
         var playerInput = null;
 
-        if (keyboard.pressed('up')) {
+        var count = keyboard.pressed('up');
+        for (var i = 0; i < count; i++) {
             input.push('up');
         } // up
 
-        if (keyboard.pressed('down')) {
+        count = keyboard.pressed('down');
+        for (var i = 0; i < count; i++) {            
             input.push('down');
         } // down
 

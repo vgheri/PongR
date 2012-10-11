@@ -10,11 +10,12 @@
         var keyboard = new THREEx.KeyboardState();
         window.input = [];
         window.setInterval(function () {
-            if (keyboard.pressed('up')) {
+            var count = keyboard.pressed('up');
+            for (var i = 0; i < count; i++) {
                 window.input.push('up');
             } // up
-
-            if (keyboard.pressed('down')) {
+            var count = keyboard.pressed('down');
+            for (var i = 0; i < count; i++) {            
                 window.input.push('down');
             } // down
         }, 15);
