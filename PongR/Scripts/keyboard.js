@@ -80,6 +80,8 @@ THREEx.KeyboardState.prototype._onKeyChange = function (event, pressed) {
     // update this.keyCodes
     var keyCode = event.keyCode;
     this.keyCodes[keyCode] = pressed;
+    var text = pressed ? "pressed" : "not pressed";
+    console.log("Keystroke: " + event.keyCode + " state: " + text);
 
     // update this.modifiers
     this.modifiers['shift'] = event.shiftKey;

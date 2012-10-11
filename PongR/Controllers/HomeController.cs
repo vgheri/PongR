@@ -48,5 +48,10 @@ namespace PongR.Controllers
             }
         }
 
+        public ActionResult Test()
+        {
+            return View();
+        }
+
     }
 }

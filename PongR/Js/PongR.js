@@ -48,7 +48,8 @@ var PongR = (function ($, ko) {
             this.topLeftVertex = new Point(50, 252);
         }
         else {
-            this.topLeftVertex = new Point(fieldWidth - 50 - this.barWidth, 252);
+            var xValue = fieldWidth -50 -this.barWidth;
+            this.topLeftVertex = new Point(xValue, 252);
         }
         this.barDirection = ""; // Can be empty (i.e. not moving), up or down
         this.inputs = []; // Local history of inputs for this client. Each input is of type myPongR.Input
@@ -77,8 +78,8 @@ var PongR = (function ($, ko) {
 
     function Game(id, player1, player2, ballDirection) {
         this.gameId = id;
-        this.player1 = new Player(player1, 1);
-        this.player2 = new Player(player2, 2);
+        this.player1 = new Player(player1, 1, pongR.settings.viewport.width);
+        this.player2 = new Player(player2, 2, pongR.settings.viewport.width);
         this.ball = new Ball(ballDirection, pongR.settings.viewport.width, pongR.settings.viewport.height);
     };
 
@@ -93,7 +94,7 @@ var PongR = (function ($, ko) {
     };
 
     function startPhysicsLoop() {
-        physicsLoopId = window.setInterval(this.updatePhysics, 15);
+        physicsLoopId = window.setInterval(updatePhysics, 15);
     };
 
     function clearPhysicsLoop() {
@@ -334,7 +335,7 @@ var PongR = (function ($, ko) {
         if (input.length) {
 
             //Update what sequence we are on now
-            this.settings.input_sequence += 1;
+            pongR.settings.input_sequence += 1;
 
             //Store the input state as a snapshot of what happened.
             playerInput = {
@@ -356,7 +357,7 @@ var PongR = (function ($, ko) {
         var playerInput = handleClientInputs(me);
         if (playerInput !== null) {
             // Step 3: Send the just processed input batch to the server.
-            pongR.sendInput(pongR.game.gameId, me.user.connectionId, playerInput);
+            sendInput(pongR.game.gameId, me.user.connectionId, playerInput);
         }
         // Step 3: Draw the new frame in the canvas
         draw(pongR.game, pongR.canvasContext);
@@ -369,7 +370,7 @@ var PongR = (function ($, ko) {
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
         // We use requestAnimationFrame so that the the image is redrawn as many times as possible per second
-        requestAnimationFrameRequestId = startAnimation(startUpdateLoop);
+        requestAnimationFrameRequestId = startAnimation(startUpdateLoop, pongR.canvas);
     };
 
     // PRIVATE - At each step of the game, checks for any collision, and updates the app internal state
@@ -377,13 +378,13 @@ var PongR = (function ($, ko) {
         var collision = false;
         var newAngle = -1;
         // if collision with players' bar or field, update ball state (set next angle, next direction etc...)
-        collision = this.checkCollisionWithPlayers(pongR.game.player1);
+        collision = checkCollisionWithPlayer(pongR.game.player1, pongR.game.ball);
         if (collision) {
             pongR.game.ball.direction = "right";
             pongR.game.ball.angle = calculateNewAngleAfterPlayerHit(pongR.game.player1, pongR.game.ball.direction);
         }
         else {
-            collision = checkCollisionWithPlayers(pongR.game.player2);
+            collision = checkCollisionWithPlayer(pongR.game.player2, pongR.game.ball);
             if (collision) {
                 pongR.game.ball.direction = "left";
                 pongR.game.ball.angle = calculateNewAngleAfterPlayerHit(pongR.game.player2, pongR.game.ball.direction);
@@ -402,7 +403,7 @@ var PongR = (function ($, ko) {
         // 1: updates self position and direction
         //var yIncrement = this.process_input(me);
         var yIncrement = process_input(me);
-        var newPosition = updateSelfPosition(me.topLeftVertex, yIncrement, pongR.settings.viewport.heigth, pongR.settings.gap);
+        var newPosition = updateSelfPosition(me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
         me.topLeftVertex = newPosition;
         // 2: update ball position
         var newPosition = updateBallPosition(pongR.game.ball.angle, pongR.game.ball.position);
@@ -418,13 +419,13 @@ var PongR = (function ($, ko) {
 
         // Proposal: I can extract the following blocks of code into a function to retrieve the current canvas context
         // Set the canvas dimensions
-        var canvas = document.getElementById("viewport");
-        canvas.width = pongR.settings.viewport.width;
-        canvas.height = pongR.settings.viewport.height;
+        pongR.canvas = document.getElementById("viewport");
+        pongR.canvas.width = pongR.settings.viewport.width;
+        pongR.canvas.height = pongR.settings.viewport.height;
 
         // Get the 2d context to draw on the canvas
         // getContext() returns an object that provides methods and properties for drawing on the canvas.
-        pongR.canvasContext = canvas.getContext("2d");
+        pongR.canvasContext = pongR.canvas.getContext("2d");
         pongR.canvasContext.font = '11px "Helvetica"';
 
         if (opts.Player1.Username === pongR.pongRHub.username) {

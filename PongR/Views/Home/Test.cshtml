@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Test";
+}
+
+<h2>Test</h2>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Initialise keyboard handler
+        var keyboard = new THREEx.KeyboardState();
+        window.input = [];
+        window.setInterval(function () {
+            if (keyboard.pressed('up')) {
+                window.input.push('up');
+            } // up
+
+            if (keyboard.pressed('down')) {
+                window.input.push('down');
+            } // down
+        }, 15);
+    });
+</script>
