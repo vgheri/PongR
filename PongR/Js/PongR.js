@@ -58,7 +58,7 @@ var PongR = (function ($, ko) {
     };
 
     function Ball(direction, fieldWidth, fieldHeight) {
-        this.radius = 20;
+        this.radius = 10;
         this.position = new Point(fieldWidth / 2, fieldHeight / 2); // The ball starts at the center of the field
         this.direction = direction; // can be left or right        
         this.angle = (direction === "right" ? 0 : 180);
@@ -290,7 +290,7 @@ var PongR = (function ($, ko) {
     function draw() {
         drawField();
         drawPlayer(pongR.game.player1);
-        drawPlayer(pongR.game.player1);
+        drawPlayer(pongR.game.player2);
         drawBall();
     };
 
@@ -305,7 +305,9 @@ var PongR = (function ($, ko) {
         //Set the color for this player
         pongR.canvasContext.fillStyle = "#EE0000"; // Red
         //Draw a circle for us
+        pongR.canvasContext.beginPath();
         pongR.canvasContext.arc(pongR.game.ball.position.x, pongR.game.ball.position.y, pongR.game.ball.radius, 0, 2 * Math.PI);
+        pongR.canvasContext.fill();
     };
 
     function drawPlayer(player) {

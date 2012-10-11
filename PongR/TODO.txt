@@ -22,6 +22,10 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
+- Write unit tests for the Models
+- Write unit tests for the modified keyboard.js 
+- Buffer inputs if we the client keeps the button pressed
+
 Old functions yet to be implemented from old version of Logic.js
 
 //PRIVATE -
