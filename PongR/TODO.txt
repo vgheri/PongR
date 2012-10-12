@@ -34,19 +34,7 @@ Old functions yet to be implemented from old version of Logic.js
         $("#messageContainer").text("");
         $("#messageContainer").css("visibility", "hidden");
     }
-
-    // PRIVATE - Updates the score in the internal state of the app. Any change will be automatically reflected in the UI thanks to Knockout
-    function updateScore(playerNameWhoScored) {
-        var oldScore;
-        if (app.player1.user.username() === playerNameWhoScored) {
-            oldScore = app.player1.score();
-            app.player1.score(oldScore + 1);
-        }
-        else {
-            oldScore = app.player2.score();
-            app.player2.score(oldScore + 1);
-        }
-    }
+	    
 
     // To be modified
     // 1: Clean timer and keyboard event handler    
@@ -113,7 +101,17 @@ Old functions yet to be implemented from old version of Logic.js
     }
 
 
+-------------------------------------------------------------------------------------------------------------
+Performance improvements
 
+- Canvas: (see http://www.html5rocks.com/en/tutorials/canvas/performance/)
+	- group together players drawing into one call
+	- apply bounding boxes for all objects on-screen, so that we don't do a clearRect at the beginning of each frame,
+	but we clear only the bounding boxes and then we redraw only the items that changed
+	- For the icons of the bonuses, use pre-render technique
+	- Use 3 layers: one for the background (the field, that can be rendered at a slower rate), 
+	one middlelayer for bonuses (also drawn at a slower rate), and one for the foreground (the players and the ball)
+	
 
 
 

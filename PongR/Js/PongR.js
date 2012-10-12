@@ -101,6 +101,26 @@ var PongR = (function ($, ko) {
         window.setInterval(physicsLoopId);
     };
 
+    function updatePlayerState(clientPlayer, serverPlayer) {
+        clientPlayer.barDirection = serverPlayer.BarDirection;
+        clientPlayer.topLeftVertex.x = convertToPixels(serverPlayer.TopLeftVertex.X);
+        clientPlayer.topLeftVertex.y = convertToPixels(serverPlayer.TopLeftVertex.Y);
+        clientPlayer.score(serverPlayer.Score);
+        clientPlayer.lastProcessedInputId = serverPlayer.LastProcessedInputId
+    };
+
+    function updateBallState(serverBall) {
+        pongR.game.ball.position.x = convertToPixels(serverBall.Position.X);
+        pongR.game.ball.position.y = convertToPixels(serverBall.Position.Y);
+        pongR.game.ball.direction = serverBall.Direction;
+        pongR.game.ball.angle = serverBall.Angle;
+    };
+
+    function convertToPixels(position) {
+        // At the moment we are communicating using directly pixel values, so we just return the value
+        return position;
+    };
+
     //calculateNewAngleAfterPlayerHit(player : Player, newBallDirection : string) : number
     //Calculates new angle after a ball collision with a player
     function calculateNewAngleAfterPlayerHit(player, newBallDirection) {
@@ -487,22 +507,11 @@ var PongR = (function ($, ko) {
             goalInfo.playerWhoScored = 2;
         }
         // Player 1
-        pongR.game.player1.barDirection = game.Player1.BarDirection;
-        pongR.game.player1.topLeftVertex.x = game.Player1.TopLeftVertex.X;
-        pongR.game.player1.topLeftVertex.y = game.Player1.TopLeftVertex.Y;
-        pongR.game.player1.score(game.Player1.Score);
-        pongR.game.player1.lastProcessedInputId = game.Player1.LastProcessedInputId
+        updatePlayerState(pongR.game.player1, game.Player1);
         // Player 2
-        pongR.game.player2.barDirection = game.Player2.BarDirection;
-        pongR.game.player2.topLeftVertex.x = game.Player2.TopLeftVertex.X;
-        pongR.game.player2.topLeftVertex.y = game.Player2.TopLeftVertex.Y;
-        pongR.game.player2.score(game.Player2.Score);
-        pongR.game.player2.lastProcessedInputId = game.Player2.LastProcessedInputId
+        updatePlayerState(pongR.game.player2, game.Player2);
         // Ball
-        pongR.game.ball.position.x = game.Ball.Position.X;
-        pongR.game.ball.position.y = game.Ball.Position.Y;
-        pongR.game.ball.direction = game.Ball.Direction;
-        pongR.game.ball.angle = game.Ball.Angle;
+        updateBallState(game.Ball);
         /*
         if (goalInfo.goal) {
         alert("Goal!!");
