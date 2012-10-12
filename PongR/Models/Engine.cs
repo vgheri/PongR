@@ -114,9 +114,8 @@ namespace PongR.Models
                 var goal = CheckGoalConditionAndUpdateStatus(game);
                 if (goal)
                 {
-                    RestartGameAfterGoal(game);
-                }
-                
+                    RestartGameAfterGoal(game);                    
+                }                
             }
         }
         

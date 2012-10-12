@@ -133,11 +133,11 @@ var PongR = (function ($, ko) {
         pongR.game.ball.angle = serverBall.Angle;
     };
 
-    function ResetPositionsToInitialState(serverBall) {
+    function ResetPositionsToInitialState(serverGame) {
         pongR.game.player1.resetPositionAndDirection(pongR.settings.viewport.width);
         pongR.game.player2.resetPositionAndDirection(pongR.settings.viewport.width);
-        pongR.game.ball.resetPositionDirectionAndAngle(pongR.settings.viewport.width, pongR.settings.viewport.height, 
-                                                            serverBall.Direction, serverBall.Angle);
+        pongR.game.ball.resetPositionDirectionAndAngle(pongR.settings.viewport.width, pongR.settings.viewport.height,
+                                                            serverGame.Ball.Direction, serverGame.Ball.Angle);
     }
 
     function convertToPixels(position) {
@@ -260,7 +260,9 @@ var PongR = (function ($, ko) {
                 newPosition.y = position.y + pongR.settings.BALL_FIXED_STEP;
                 break;
             default:
-                console.log("Unknown angle value " + pongR.game.ball.angle.toString());
+                if (pongR.game.ball.angle !== undefined) {
+                    console.log("Unknown angle value " + pongR.game.ball.angle.toString());
+                }
                 return undefined;
         }
         return newPosition;
@@ -361,6 +363,12 @@ var PongR = (function ($, ko) {
         pongR.canvasContext.fillRect(player.topLeftVertex.x, player.topLeftVertex.y, player.barWidth, player.barHeight);
     };
 
+    function drawMessage(message) {
+        pongR.canvasContext.font = '20px "Helvetica"';
+        pongR.canvasContext.fillStyle = "#EE0000"; // Red
+        pongR.canvasContext.fillText(message, 450, 280);
+    };
+
     // This takes input from the client and keeps a record. 
     // It also sends the input information to the server immediately
     // as it is pressed. It also tags each input with a sequence number.
@@ -418,7 +426,7 @@ var PongR = (function ($, ko) {
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
         // We use requestAnimationFrame so that the the image is redrawn as many times as possible per second
-        requestAnimationFrameRequestId = startAnimation(startUpdateLoop, pongR.canvas);
+        startAnimation(startUpdateLoop, pongR.canvas);
     };
 
     // PRIVATE - At each step of the game, checks for any collision, and updates the app internal state
@@ -474,7 +482,6 @@ var PongR = (function ($, ko) {
         // Get the 2d context to draw on the canvas
         // getContext() returns an object that provides methods and properties for drawing on the canvas.
         pongR.canvasContext = pongR.canvas.getContext("2d");
-        pongR.canvasContext.font = '11px "Helvetica"';
 
         if (opts.Player1.Username === pongR.pongRHub.username) {
             me = pongR.game.player1;
@@ -512,21 +519,17 @@ var PongR = (function ($, ko) {
     };
 
     function setupMatch(opts) {
-        // TODO: Populate all the view models and do the binding with knockout.
-        // Set the timeout to compute game state and for notifying bars position
-        // Set event handlers for keystrokes keyUp and KeyDown
-        // Start to animate the ball
         startMatch(opts);
     };
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
     function updateGame(game) {
         var goalInfo = { goal: false, playerWhoScored: -1 };
-        if (pongR.game.player1.score() < game.Player1.score) {
+        if (pongR.game.player1.score() < game.Player1.Score) {
             goalInfo.goal = true;
             goalInfo.playerWhoScored = 1;
         }
-        else if (pongR.game.player2.score() < game.Player2.score) {
+        else if (pongR.game.player2.score() < game.Player2.Score) {
             goalInfo.goal = true;
             goalInfo.playerWhoScored = 2;
         }
@@ -535,7 +538,14 @@ var PongR = (function ($, ko) {
             pongR.game.player1.score(game.Player1.Score);
             pongR.game.player2.score(game.Player2.Score);
             // Then reset positions
-            ResetPositionsToInitialState(game);
+            ResetPositionsToInitialState(game);            
+            /*
+            clearAnimation();
+            clearPhysicsLoop();
+            var text = "Goal";
+            drawMessage(text);
+            window.setTimeout(restartGame, 2000); // Wait for 2 secs and then re-start animation            
+            */
         }
         else {
             // Player 1
@@ -548,33 +558,15 @@ var PongR = (function ($, ko) {
 
     };
 
+    function restartGame() {
+        startPhysicsLoop();
+        startUpdateLoop();
+    }
+
     // sendInput(gameId : number, connectionId : string, input : PlayerInput) : void
     function sendInput(gameId, connectionId, input) {
         pongR.pongRHub.queueInput(gameId, connectionId, input);
     }
-
-    /*
-    // Steps: 
-    // 1: display a message and update score
-    // 2: reset players and ball position    
-    // 3: set new ball direction/angle
-    // 4: reset notification interval
-    pongRHub.continueMatchAfterGoal = function(opts) {
-    pongR.displayGoalMessage(opts.PlayerNameWhoScored);
-    pongR.updateScore(opts.PlayerNameWhoScored);
-    pongR.resetObjectsPositionToInitialState();
-    app.ball.direction = opts.BallDirection;
-    if (opts.BallDirection === "left") {
-    app.ball.angle = 180;
-    }
-    else {
-    app.ball.angle = 0;
-    }
-    //pongR.setKeyboardEventListener();
-    //requestAnimationFrameRequestId = pongR.startAnimation(pongR.processState);
-    //serverNotificationIntervalId = pongR.startPositionNotificationInterval();   
-    };    
-    */
 
     // Public methods
     pongR.PublicPrototype.createInstance = function (width, height, username) {
