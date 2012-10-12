@@ -39,6 +39,7 @@ var PongR = (function ($, ko) {
     };
 
     function Player(user, playerNumber, fieldWidth) {
+        var self = this;
         this.user = new User(user.Username, user.Id);
         this.playerNumber = playerNumber;
         this.barWidth = 30;
@@ -55,13 +56,29 @@ var PongR = (function ($, ko) {
         this.inputs = []; // Local history of inputs for this client. Each input is of type myPongR.Input
         this.score = ko.observable(0);
         this.lastProcessedInputId = -1;
+        this.resetPositionAndDirection = function (fieldWidth) {
+            self.barDirection = "";
+            if (self.playerNumber === 1) {
+                self.topLeftVertex = new Point(50, 252);
+            }
+            else {
+                var xValue = fieldWidth - 50 - self.barWidth;
+                self.topLeftVertex = new Point(xValue, 252);
+            }
+        };
     };
 
     function Ball(direction, fieldWidth, fieldHeight) {
+        var self = this;
         this.radius = 10;
         this.position = new Point(fieldWidth / 2, fieldHeight / 2); // The ball starts at the center of the field
         this.direction = direction; // can be left or right        
         this.angle = (direction === "right" ? 0 : 180);
+        this.resetPositionDirectionAndAngle = function (fieldWidth, fieldHeight, direction, angle) {
+            self.position = new Point(fieldWidth / 2, fieldHeight / 2);
+            self.direction = direction;
+            self.angle = angle;
+        };
     };
 
     function Settings(width, height) {
@@ -115,6 +132,13 @@ var PongR = (function ($, ko) {
         pongR.game.ball.direction = serverBall.Direction;
         pongR.game.ball.angle = serverBall.Angle;
     };
+
+    function ResetPositionsToInitialState(serverBall) {
+        pongR.game.player1.resetPositionAndDirection(pongR.settings.viewport.width);
+        pongR.game.player2.resetPositionAndDirection(pongR.settings.viewport.width);
+        pongR.game.ball.resetPositionDirectionAndAngle(pongR.settings.viewport.width, pongR.settings.viewport.height, 
+                                                            serverBall.Direction, serverBall.Angle);
+    }
 
     function convertToPixels(position) {
         // At the moment we are communicating using directly pixel values, so we just return the value
@@ -506,17 +530,22 @@ var PongR = (function ($, ko) {
             goalInfo.goal = true;
             goalInfo.playerWhoScored = 2;
         }
-        // Player 1
-        updatePlayerState(pongR.game.player1, game.Player1);
-        // Player 2
-        updatePlayerState(pongR.game.player2, game.Player2);
-        // Ball
-        updateBallState(game.Ball);
-        /*
         if (goalInfo.goal) {
-        alert("Goal!!");
+            // Only update score
+            pongR.game.player1.score(game.Player1.Score);
+            pongR.game.player2.score(game.Player2.Score);
+            // Then reset positions
+            ResetPositionsToInitialState(game);
         }
-        */
+        else {
+            // Player 1
+            updatePlayerState(pongR.game.player1, game.Player1);
+            // Player 2
+            updatePlayerState(pongR.game.player2, game.Player2);
+            // Ball
+            updateBallState(game.Ball);
+        }
+
     };
 
     // sendInput(gameId : number, connectionId : string, input : PlayerInput) : void

@@ -19,5 +19,12 @@ namespace PongR.Models
             Direction = direction;
             Angle = angle;
         }
+
+        public void ResetBallToInitialPosition(string direction, int angle) 
+        {
+            this.Position = new Point(500,300); 
+            this.Direction = direction;
+            this.Angle = angle;            
+        }
     }
 }

@@ -41,5 +41,13 @@ namespace PongR.Models
             UnprocessedPlayerInputs = new Queue<PlayerInput>();
             LastProcessedInputId = -1;
         }
+
+        public void ResetPlayerToIntialPositionAndState(int fieldWidth)
+        {
+            this.BarDirection = "";
+            var x = this.PlayerNumber == 1 ? 50 : (fieldWidth - 50 - this.BarWidth); //px
+            var y = 252; //px
+            this.TopLeftVertex = new Point(x, y);
+        }
     }
 }

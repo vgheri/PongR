@@ -61,8 +61,7 @@ namespace PongR.Hubs
         /// Invoked when a new client joins the system
         /// </summary>        
         public Task Joined()
-        {
-            Random random = new Random();            
+        {                 
             // 1: Add user to list of connected users
             // 2: If waiting list is empty add user to waiting list            
             // 3: Else find an opponent (first in the waiting list) and remove him from the waiting list
@@ -102,18 +101,16 @@ namespace PongR.Hubs
                 // TODO: ask maybe on Jabbr or on StackOverflow and think about a better solution
                 Thread.Sleep(3000);
                 
-                string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
-                int ballAngle = ballDirection.Equals("left") ? 180 : 0;
                 Player player1 = Engine.CreatePlayer(playRoom.Player1, 1, true);
                 Player player2 = Engine.CreatePlayer(playRoom.Player2, 2, false);
 
-                Engine.CreateGame(playRoom.Id, player1, player2, ballDirection, ballAngle);
+                Game game = Engine.CreateGame(playRoom.Id, player1, player2);
 
                 dynamic matchOptions = new ExpandoObject();
                 matchOptions.PlayRoomId = playRoom.Id;
                 matchOptions.Player1 = playRoom.Player1;
                 matchOptions.Player2 = playRoom.Player2;
-                matchOptions.BallDirection = ballDirection;
+                matchOptions.BallDirection = game.Ball.Direction;
                 
                 return Clients[playRoom.Id].setupMatch(matchOptions);                               
             }

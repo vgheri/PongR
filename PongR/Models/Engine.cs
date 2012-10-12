@@ -19,13 +19,17 @@ namespace PongR.Models
         // Minimum distance between the player and the field delimiters (up and down)
         private const int FIXED_GAP = 30; // px
 
-        public static void CreateGame(string gameId, Player host, Player opponent, string ballDirection, int ballAngle)
+        public static Game CreateGame(string gameId, Player host, Player opponent)
         {
+            Random random = new Random();         
+            string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
+            int ballAngle = ballDirection.Equals("left") ? 180 : 0;
             Game game = new Game(gameId, host, opponent, new Ball(ballDirection, ballAngle));
             if (!_games.ContainsKey(game.GameId))
             {
                 _games.Add(game.GameId, game);
             }
+            return game;
         }
 
         public static void RemoveGame(string gameId)
@@ -107,7 +111,12 @@ namespace PongR.Models
             if (!CheckCollisions(game))
             {
                 // 4: TODO Write Unit Test
-                CheckGoalConditionAndUpdateStatus(game);                
+                var goal = CheckGoalConditionAndUpdateStatus(game);
+                if (goal)
+                {
+                    RestartGameAfterGoal(game);
+                }
+                
             }
         }
         
@@ -324,6 +333,21 @@ namespace PongR.Models
                 goal = true;
             }
             return goal;
+        }
+
+        private static void RestartGameAfterGoal(Game game)
+        {
+            Random random = new Random();            
+            // Reset objects position to initial state
+            game.Player1.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
+            game.Player2.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
+            string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
+            int ballAngle = ballDirection.Equals("left") ? 180 : 0;
+            game.Ball.ResetBallToInitialPosition(ballDirection, ballAngle);
+                        
+            // Wait 5 seconds (the client will display a message)
+            //System.Threading.Thread.Sleep(5000);
+            // Restart the simulation
         }
     }
 }
