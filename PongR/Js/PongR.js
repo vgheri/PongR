@@ -91,6 +91,7 @@ var PongR = (function ($, ko) {
         this.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
         this.BAR_SCROLL_UNIT = 5; // px
         this.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
+        this.PAUSE_AFTER_GOAL = 3; // seconds
     };
 
     function Game(id, player1, player2, ballDirection) {
@@ -363,10 +364,28 @@ var PongR = (function ($, ko) {
         pongR.canvasContext.fillRect(player.topLeftVertex.x, player.topLeftVertex.y, player.barWidth, player.barHeight);
     };
 
-    function drawMessage(message) {
+    function drawGoalMessageWrapper() {
+        drawGoalMessage(3);
+    };
+
+    function drawGoalMessage(counter) {
+        if (counter > 0) {
+            drawMessage(counter);
+            window.setTimeout(function () { drawGoalMessage(--counter) }, 1000);
+        }
+    };
+
+    function drawMessage(counter) {        
+        var display = "Goal! Game starts in " + counter;
+        pongR.canvasContext.clearRect(400, 260, pongR.canvasContext.measureText(display).width, 20);
+        pongR.canvasContext.fillStyle = "#111111"; // Almost Black
+        pongR.canvasContext.fillRect(400, 260, pongR.canvasContext.measureText(display).width, 20);
+
         pongR.canvasContext.font = '20px "Helvetica"';
-        pongR.canvasContext.fillStyle = "#EE0000"; // Red
-        pongR.canvasContext.fillText(message, 450, 280);
+        pongR.canvasContext.fillStyle = "#EE0000"; // Red        
+
+        pongR.canvasContext.fillText(display, 400, 280);
+
     };
 
     // This takes input from the client and keeps a record. 
@@ -421,7 +440,17 @@ var PongR = (function ($, ko) {
 
     // Starts the client update loop 
     function startUpdateLoop() {
-        updateLoopStep();
+        if (pongR.goalTimestamp) {
+            var now = new Date().getTime();
+            var timelapse = (now - pongR.goalTimestamp) / 1000; // in seconds
+            if (timelapse > pongR.settings.PAUSE_AFTER_GOAL) {
+                pongR.goalTimestamp = undefined;
+                updateLoopStep();
+            }
+        }
+        else {
+            updateLoopStep();
+        }
 
         // From MDN https://developer.mozilla.org/en-US/docs/DOM/window.requestAnimationFrame  
         // Your callback routine must itself call requestAnimationFrame() unless you want the animation to stop.
@@ -534,18 +563,13 @@ var PongR = (function ($, ko) {
             goalInfo.playerWhoScored = 2;
         }
         if (goalInfo.goal) {
+            pongR.goalTimestamp = new Date().getTime();
             // Only update score
             pongR.game.player1.score(game.Player1.Score);
             pongR.game.player2.score(game.Player2.Score);
             // Then reset positions
-            ResetPositionsToInitialState(game);            
-            /*
-            clearAnimation();
-            clearPhysicsLoop();
-            var text = "Goal";
-            drawMessage(text);
-            window.setTimeout(restartGame, 2000); // Wait for 2 secs and then re-start animation            
-            */
+            ResetPositionsToInitialState(game);
+            drawGoalMessageWrapper();
         }
         else {
             // Player 1

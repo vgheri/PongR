@@ -22,20 +22,11 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
+- Compute latency from client to server and adjust the pause after goal based on the latency
 - Write unit tests for the Models
 - Write unit tests for the modified keyboard.js 
 - Buffer inputs if we the client keeps the button pressed
 
-Old functions yet to be implemented from old version of Logic.js
-
-    // PUBLIC
-    myPongR.displayGoalMessage = function (playerName) {
-        $("#messageContainer").text("Goal for " + playerName + "!");
-        $("#messageContainer").css("visibility", "visible");
-        window.setTimeout(hideGoalMessage, 1000);
-    };
-
-    
 
 
 -------------------------------------------------------------------------------------------------------------

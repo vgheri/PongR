@@ -11,6 +11,8 @@ namespace PongR.Models
     {
         // Store of couples <playerRoomId, GameStatus> 
         private static Dictionary<string, Game> _games = new Dictionary<string, Game>();
+        // Key : room Id / value: timestamp of the goal 
+        private static Dictionary<string, DateTime> _goalTimestamps = new Dictionary<string, DateTime>();
         private const int BAR_SCROLL_UNIT = 5; // px
         private const int BAR_SCROLL_UNIT_PERC = 1; // %
         private const int BALL_FIXED_STEP = 10; // px
@@ -18,6 +20,7 @@ namespace PongR.Models
         private const int FIELD_HEIGHT = 600; // px
         // Minimum distance between the player and the field delimiters (up and down)
         private const int FIXED_GAP = 30; // px
+        private const int PAUSE_AFTER_GOAL = 3; //seconds
 
         public static Game CreateGame(string gameId, Player host, Player opponent)
         {
@@ -76,9 +79,26 @@ namespace PongR.Models
         /// </summary>
         private static void ProcessGamesTick()
         {
+            DateTime timestamp;
             foreach(var game in _games.Values)
             {
-                ProcessTick(game);
+                // If in one of the previous rounds we had a goal condition
+                if (_goalTimestamps.TryGetValue(game.GameId, out timestamp))
+                {
+                    var now = DateTime.Now;
+                    var timelapse = (now - timestamp).TotalSeconds;
+                    // If more than 3 seconds have passed, let's update the state of the game!
+                    if (timelapse > PAUSE_AFTER_GOAL)
+                    {
+                        // Let's remove the timestamp, so that next round everything will be back to normal
+                        _goalTimestamps.Remove(game.GameId);
+                        ProcessTick(game);
+                    }
+                } // Otherwise just process the new state
+                else
+                {
+                    ProcessTick(game);
+                }
             }
         }
 
@@ -114,6 +134,7 @@ namespace PongR.Models
                 var goal = CheckGoalConditionAndUpdateStatus(game);
                 if (goal)
                 {
+                    _goalTimestamps.Add(game.GameId, DateTime.Now);               
                     RestartGameAfterGoal(game);                    
                 }                
             }
