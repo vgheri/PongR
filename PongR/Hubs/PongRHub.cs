@@ -60,7 +60,7 @@ namespace PongR.Hubs
         /// <summary>
         /// Invoked when a new client joins the system
         /// </summary>        
-        public Task Joined()
+        public void Joined()
         {                 
             // 1: Add user to list of connected users
             // 2: If waiting list is empty add user to waiting list            
@@ -78,7 +78,7 @@ namespace PongR.Hubs
             if (_userRepository.WaitingList.Count() == 0)
             {
                 _userRepository.AddToWaitingList(user);
-                return Caller.wait();
+                Caller.wait();
             }
             else
             {
@@ -112,7 +112,10 @@ namespace PongR.Hubs
                 matchOptions.Player2 = playRoom.Player2;
                 matchOptions.BallDirection = game.Ball.Direction;
                 
-                return Clients[playRoom.Id].setupMatch(matchOptions);                               
+                Clients[playRoom.Id].setupMatch(matchOptions);
+
+                Thread.Sleep(3000);
+                Engine.AddGame(game);
             }
         }        
         

@@ -334,7 +334,7 @@ var PongR = (function ($, ko) {
 
     // PRIVATE
     // Draws a frame of the game: the two players and the ball
-    function draw() {
+    function drawScene() {
         drawField();
         drawPlayer(pongR.game.player1);
         drawPlayer(pongR.game.player2);
@@ -364,19 +364,20 @@ var PongR = (function ($, ko) {
         pongR.canvasContext.fillRect(player.topLeftVertex.x, player.topLeftVertex.y, player.barWidth, player.barHeight);
     };
 
-    function drawGoalMessageWrapper() {
-        drawGoalMessage(3);
-    };
-
-    function drawGoalMessage(counter) {
+    function performCountdown(counter, callback) {
         if (counter > 0) {
-            drawMessage(counter);
-            window.setTimeout(function () { drawGoalMessage(--counter) }, 1000);
+            drawText(counter);
+            setTimeout(function () { performCountdown(--counter, callback) }, 1000);
+        }
+        else { // Countdown expired. If we have a callback, invoke it
+            if (callback) {
+                callback();
+            }
         }
     };
 
-    function drawMessage(counter) {        
-        var display = "Goal! Game starts in " + counter;
+    function drawText(counter) {
+        var display = "Game starts in " + counter;
         pongR.canvasContext.clearRect(400, 260, pongR.canvasContext.measureText(display).width, 20);
         pongR.canvasContext.fillStyle = "#111111"; // Almost Black
         pongR.canvasContext.fillRect(400, 260, pongR.canvasContext.measureText(display).width, 20);
@@ -435,7 +436,7 @@ var PongR = (function ($, ko) {
             sendInput(pongR.game.gameId, me.user.connectionId, playerInput);
         }
         // Step 3: Draw the new frame in the canvas
-        draw(pongR.game, pongR.canvasContext);
+        drawScene();
     };
 
     // Starts the client update loop 
@@ -443,7 +444,7 @@ var PongR = (function ($, ko) {
         if (pongR.goalTimestamp) {
             var now = new Date().getTime();
             var timelapse = (now - pongR.goalTimestamp) / 1000; // in seconds
-            if (timelapse > pongR.settings.PAUSE_AFTER_GOAL) {
+            if (timelapse > pongR.settings.PAUSE_AFTER_GOAL) { // TODO Change here to adjust with network latency
                 pongR.goalTimestamp = undefined;
                 updateLoopStep();
             }
@@ -498,7 +499,7 @@ var PongR = (function ($, ko) {
     };
 
     // Initial setup of the match state and start of the game interval
-    function startMatch(opts) {
+    function initMatch(opts) {
         // Proposal: app is now a global var... make it private
         pongR.game = new Game(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
 
@@ -521,8 +522,9 @@ var PongR = (function ($, ko) {
 
         ko.applyBindings(pongR.game);
 
+        // Edited: physics and update loops are started in a separate function, after the countdown
         // Start the physics loop
-        startPhysicsLoop();
+        //startPhysicsLoop();
 
         // Initialise keyboard handler
         keyboard = new THREEx.KeyboardState();
@@ -531,7 +533,10 @@ var PongR = (function ($, ko) {
         pongR.serverUpdates = [];
 
         // Start the update loop
-        startUpdateLoop();
+        //startUpdateLoop();
+        
+        // Draw initial scene
+        drawScene();
     };
 
     // SignalR functions
@@ -548,7 +553,10 @@ var PongR = (function ($, ko) {
     };
 
     function setupMatch(opts) {
-        startMatch(opts);
+        
+        initMatch(opts);
+
+        performCountdown(3, startGame);
     };
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
@@ -569,7 +577,7 @@ var PongR = (function ($, ko) {
             pongR.game.player2.score(game.Player2.Score);
             // Then reset positions
             ResetPositionsToInitialState(game);
-            drawGoalMessageWrapper();
+            performCountdown(3);
         }
         else {
             // Player 1
@@ -579,10 +587,9 @@ var PongR = (function ($, ko) {
             // Ball
             updateBallState(game.Ball);
         }
-
     };
 
-    function restartGame() {
+    function startGame() {
         startPhysicsLoop();
         startUpdateLoop();
     }

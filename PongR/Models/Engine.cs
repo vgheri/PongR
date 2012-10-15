@@ -27,12 +27,16 @@ namespace PongR.Models
             Random random = new Random();         
             string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
             int ballAngle = ballDirection.Equals("left") ? 180 : 0;
-            Game game = new Game(gameId, host, opponent, new Ball(ballDirection, ballAngle));
+            Game game = new Game(gameId, host, opponent, new Ball(ballDirection, ballAngle));            
+            return game;
+        }
+
+        public static void AddGame(Game game)
+        {
             if (!_games.ContainsKey(game.GameId))
             {
                 _games.Add(game.GameId, game);
             }
-            return game;
         }
 
         public static void RemoveGame(string gameId)
