@@ -152,14 +152,14 @@ namespace PongR.Models
         {
             PlayerInput input;
             int lastInputExecuted = -1;
-            List<PlayerInput> inputsToRemove = new List<PlayerInput>();            
-            while (player.UnprocessedPlayerInputs.Count > 0)
+            List<PlayerInput> inputsToRemove = new List<PlayerInput>();
+            if (player.UnprocessedPlayerInputs.Count == 0)
             {
-                if (player.UnprocessedPlayerInputs.Count == 0)
-                {
-                    player.BarDirection = "";
-                }
-                else
+                player.BarDirection = "";
+            }
+            else
+            {
+                while (player.UnprocessedPlayerInputs.Count > 0)
                 {
                     input = player.UnprocessedPlayerInputs.Dequeue();
                     lastInputExecuted = input.SequenceNumber;
@@ -184,10 +184,8 @@ namespace PongR.Models
                         }
                     }
                 }
-                
+                player.LastProcessedInputId = lastInputExecuted;
             }
-            
-            player.LastProcessedInputId = lastInputExecuted;
         }
 
         /// <summary>
