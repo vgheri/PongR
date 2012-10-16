@@ -12,17 +12,17 @@ namespace PongR.Models
         public string Direction { get; set; }
         public int Angle { get; set; }
         
-        public Ball(string direction, int angle)
+        public Ball(string direction, int angle, int fieldWidth, int fieldHeight)
         {
             Radius = 10; // 1%
-            Position = new Point(500, 300);            
+            Position = new Point(fieldWidth/2, fieldHeight/2);            
             Direction = direction;
             Angle = angle;
         }
 
-        public void ResetBallToInitialPosition(string direction, int angle) 
+        public void ResetBallToInitialPosition(string direction, int angle, int fieldWidth, int fieldHeight) 
         {
-            this.Position = new Point(500,300); 
+            this.Position = new Point(fieldWidth / 2, fieldHeight / 2);            
             this.Direction = direction;
             this.Angle = angle;            
         }

@@ -30,10 +30,10 @@
 
 <!-- Contains the play field -->
 
-<!--<div id="fieldContainer">-->
+<div id="fieldContainer">
     <canvas id="viewport">
     </canvas>
-<!--</div>-->
+</div>
 
 
 
@@ -58,7 +58,7 @@ on the server. Each hub on the server will become a property on the client side 
     $(document).ready(function () {
         var username = @Html.Raw(Json.Encode(Model));
         
-        PongR.createInstance(1000,600,username);
+        PongR.createInstance(1200,600,username);
         PongR.connect();                      
     });
 

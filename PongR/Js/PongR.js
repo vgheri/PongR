@@ -90,7 +90,7 @@ var PongR = (function ($, ko) {
         this.client_smooth = 25;        //amount of smoothing to apply to client update dest
         this.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
         this.BAR_SCROLL_UNIT = 5; // px
-        this.BALL_FIXED_STEP = 10; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
+        this.BALL_FIXED_STEP = 7; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
         this.PAUSE_AFTER_GOAL = 3; // seconds
     };
 

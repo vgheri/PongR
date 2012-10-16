@@ -15,8 +15,8 @@ namespace PongR.Models
         private static Dictionary<string, DateTime> _goalTimestamps = new Dictionary<string, DateTime>();
         private const int BAR_SCROLL_UNIT = 5; // px
         private const int BAR_SCROLL_UNIT_PERC = 1; // %
-        private const int BALL_FIXED_STEP = 10; // px
-        private const int FIELD_WIDTH = 1000; // px
+        private const int BALL_FIXED_STEP = 7; // px
+        private const int FIELD_WIDTH = 1200; // px
         private const int FIELD_HEIGHT = 600; // px
         // Minimum distance between the player and the field delimiters (up and down)
         private const int FIXED_GAP = 30; // px
@@ -27,7 +27,7 @@ namespace PongR.Models
             Random random = new Random();         
             string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
             int ballAngle = ballDirection.Equals("left") ? 180 : 0;
-            Game game = new Game(gameId, host, opponent, new Ball(ballDirection, ballAngle));            
+            Game game = new Game(gameId, host, opponent, new Ball(ballDirection, ballAngle, FIELD_WIDTH, FIELD_HEIGHT));            
             return game;
         }
 
@@ -365,7 +365,7 @@ namespace PongR.Models
             game.Player2.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
             string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
             int ballAngle = ballDirection.Equals("left") ? 180 : 0;
-            game.Ball.ResetBallToInitialPosition(ballDirection, ballAngle);
+            game.Ball.ResetBallToInitialPosition(ballDirection, ballAngle, FIELD_WIDTH, FIELD_HEIGHT);
                         
             // Wait 5 seconds (the client will display a message)
             //System.Threading.Thread.Sleep(5000);
