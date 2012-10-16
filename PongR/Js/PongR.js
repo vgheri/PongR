@@ -89,8 +89,8 @@ var PongR = (function ($, ko) {
         this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
         this.client_smooth = 25;        //amount of smoothing to apply to client update dest
         this.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
-        this.BAR_SCROLL_UNIT = 5; // px
-        this.BALL_FIXED_STEP = 7; // px is the fixed distance that the ball moves (both over x and y axis) between 2 frames
+        this.BAR_SCROLL_UNIT = 330; // desired speed: pixels per second
+        this.BALL_FIXED_STEP = 400; // desired speed: pixels per second
         this.PAUSE_AFTER_GOAL = 3; // seconds
     };
 
@@ -237,28 +237,29 @@ var PongR = (function ($, ko) {
     //Updates the position of the ball based on its direction and its angle
     function updateBallPosition(angle, position) {
         var newPosition = { x: position.x, y: position.y };
+        var step = Math.round(pongR.settings.BALL_FIXED_STEP * pongR.deltaTime);
         switch (angle) {
             case 0:
-                newPosition.x = position.x + pongR.settings.BALL_FIXED_STEP;
+                newPosition.x = position.x + step;
                 break;
             case 45:
-                newPosition.x = position.x + pongR.settings.BALL_FIXED_STEP;
-                newPosition.y = position.y - pongR.settings.BALL_FIXED_STEP;
+                newPosition.x = position.x + step;
+                newPosition.y = position.y - step;
                 break;
             case 135:
-                newPosition.x = position.x - pongR.settings.BALL_FIXED_STEP;
-                newPosition.y = position.y - pongR.settings.BALL_FIXED_STEP;
+                newPosition.x = position.x - step;
+                newPosition.y = position.y - step;
                 break;
             case 180:
-                newPosition.x = position.x - pongR.settings.BALL_FIXED_STEP;
+                newPosition.x = position.x - step;
                 break;
             case 225:
-                newPosition.x = position.x - pongR.settings.BALL_FIXED_STEP;
-                newPosition.y = position.y + pongR.settings.BALL_FIXED_STEP;
+                newPosition.x = position.x - step;
+                newPosition.y = position.y + step;
                 break;
             case 315:
-                newPosition.x = position.x + pongR.settings.BALL_FIXED_STEP;
-                newPosition.y = position.y + pongR.settings.BALL_FIXED_STEP;
+                newPosition.x = position.x + step;
+                newPosition.y = position.y + step;
                 break;
             default:
                 if (pongR.game.ball.angle !== undefined) {
@@ -278,6 +279,7 @@ var PongR = (function ($, ko) {
         // sequenceNumber: the sequence number for this batch of inputs
         var y_dir = 0;
         var ic = player.inputs.length;
+        var step = Math.round(pongR.settings.BAR_SCROLL_UNIT * pongR.deltaTime);
         if (ic) {
             for (var j = 0; j < ic; ++j) {
                 //don't process ones we already have simulated locally
@@ -288,11 +290,11 @@ var PongR = (function ($, ko) {
                 for (var i = 0; i < c; ++i) {
                     var key = input[i];
                     if (key == 'up') {
-                        y_dir -= pongR.settings.BAR_SCROLL_UNIT;
+                        y_dir -= step;
                         player.barDirection = "up";
                     }
                     else if (key == 'down') {
-                        y_dir += pongR.settings.BAR_SCROLL_UNIT;
+                        y_dir += step;
                         player.barDirection = "down";
                     }
                 } //for all input values
@@ -486,8 +488,16 @@ var PongR = (function ($, ko) {
     };
 
     function updatePhysics() {
-        // 1: updates self position and direction
-        //var yIncrement = this.process_input(me);
+        // 1: updates self position and direction        
+        if (!pongR.updateTimestamp) { // The first time this loop runs, pongR.updateTimestamp will be undefined
+            pongR.updateTimestamp = new Date().getTime();
+        }
+        else {
+            var now = new Date().getTime();
+            pongR.deltaTime = (now - pongR.updateTimestamp) / 1000;
+            //console.log("Delta time: " + pongR.deltaTime + ". Now: " + now + ", previous update: " + pongR.updateTimestamp);
+            pongR.updateTimestamp = now;
+        }
         var yIncrement = process_input(me);
         var newPosition = updateSelfPosition(me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
         me.topLeftVertex = newPosition;
@@ -534,9 +544,11 @@ var PongR = (function ($, ko) {
 
         // Start the update loop
         //startUpdateLoop();
-        
+
         // Draw initial scene
         drawScene();
+
+        pongR.deltaTime = 0.015; // default at 66 fps
     };
 
     // SignalR functions
@@ -553,7 +565,7 @@ var PongR = (function ($, ko) {
     };
 
     function setupMatch(opts) {
-        
+
         initMatch(opts);
 
         performCountdown(3, startGame);

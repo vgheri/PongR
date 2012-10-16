@@ -13,14 +13,15 @@ namespace PongR.Models
         private static Dictionary<string, Game> _games = new Dictionary<string, Game>();
         // Key : room Id / value: timestamp of the goal 
         private static Dictionary<string, DateTime> _goalTimestamps = new Dictionary<string, DateTime>();
-        private const int BAR_SCROLL_UNIT = 5; // px
+        private const int BAR_SCROLL_UNIT = 330; // 330 px per second
         private const int BAR_SCROLL_UNIT_PERC = 1; // %
-        private const int BALL_FIXED_STEP = 7; // px
+        private const int BALL_FIXED_STEP = 400; // 400 px per second 
         private const int FIELD_WIDTH = 1200; // px
         private const int FIELD_HEIGHT = 600; // px
         // Minimum distance between the player and the field delimiters (up and down)
         private const int FIXED_GAP = 30; // px
         private const int PAUSE_AFTER_GOAL = 3; //seconds
+        private const double DELTA_TIME = 0.015; // The physics update loop runs each 15ms
 
         public static Game CreateGame(string gameId, Player host, Player opponent)
         {
@@ -163,22 +164,22 @@ namespace PongR.Models
                 {
                     input = player.UnprocessedPlayerInputs.Dequeue();
                     lastInputExecuted = input.SequenceNumber;
-
+                    var step = (int)Math.Round(BAR_SCROLL_UNIT * DELTA_TIME);
                     foreach (Command command in input.Commands)
                     {
                         if (command == Command.Up)
                         {
-                            if (player.TopLeftVertex.Y - BAR_SCROLL_UNIT >= FIXED_GAP)
+                            if (player.TopLeftVertex.Y - step >= FIXED_GAP)
                             {  // 30 px is the minimum distance from border                        
-                                player.TopLeftVertex.Y -= BAR_SCROLL_UNIT;
+                                player.TopLeftVertex.Y -= step;  
                                 player.BarDirection = "up";
                             }
                         }
                         else if (command == Command.Down)
                         {
-                            if (player.TopLeftVertex.Y + BAR_SCROLL_UNIT <= fieldHeight - FIXED_GAP)
+                            if (player.TopLeftVertex.Y + step <= fieldHeight - FIXED_GAP)
                             {
-                                player.TopLeftVertex.Y += BAR_SCROLL_UNIT;
+                                player.TopLeftVertex.Y += step;  
                                 player.BarDirection = "down";
                             }
                         }
@@ -194,29 +195,30 @@ namespace PongR.Models
         /// <param name="ball"></param>
         private static void UpdateBallPosition(Ball ball)
         {
+            int step = (int)Math.Round(BALL_FIXED_STEP * DELTA_TIME, 0);
             switch (ball.Angle)
             {
                 case 0:
-                    ball.Position.X += BALL_FIXED_STEP;
+                    ball.Position.X += step; // Must be fixed step, at physics sync speed. 0.015 is the physics loop speed;
                     break;
                 case 45:
-                    ball.Position.X += BALL_FIXED_STEP;
-                    ball.Position.Y -= BALL_FIXED_STEP;
+                    ball.Position.X += step;
+                    ball.Position.Y -= step;
                     break;
                 case 135:
-                    ball.Position.X -= BALL_FIXED_STEP;
-                    ball.Position.Y -= BALL_FIXED_STEP;
+                    ball.Position.X -= step;
+                    ball.Position.Y -= step;
                     break;
                 case 180:
-                    ball.Position.X -= BALL_FIXED_STEP;
+                    ball.Position.X -= step;
                     break;
                 case 225:
-                    ball.Position.X -= BALL_FIXED_STEP;
-                    ball.Position.Y += BALL_FIXED_STEP;
+                    ball.Position.X -= step;
+                    ball.Position.Y += step;
                     break;
                 case 315:
-                    ball.Position.X += BALL_FIXED_STEP;
-                    ball.Position.Y += BALL_FIXED_STEP;
+                    ball.Position.X += step;
+                    ball.Position.Y += step;
                     break;
                 default:
                     throw new Exception("Unknown angle value");
