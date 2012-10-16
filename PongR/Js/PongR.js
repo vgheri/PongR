@@ -582,20 +582,25 @@ var PongR = (function ($, ko) {
             goalInfo.goal = true;
             goalInfo.playerWhoScored = 2;
         }
+
+        // Player 1 - we have to update the score and the latest input id processed!
+        updatePlayerState(pongR.game.player1, game.Player1);
+
+        if (pongR.settings.naive_approach) {
+            // Player 2 - we have to update the score and the latest input id processed!
+            updatePlayerState(pongR.game.player2, game.Player2);
+        }
+        else { // other client interpolation
+
+        }
+
         if (goalInfo.goal) {
             pongR.goalTimestamp = new Date().getTime();
-            // Only update score
-            pongR.game.player1.score(game.Player1.Score);
-            pongR.game.player2.score(game.Player2.Score);
             // Then reset positions
             ResetPositionsToInitialState(game);
             performCountdown(3);
         }
         else {
-            // Player 1
-            updatePlayerState(pongR.game.player1, game.Player1);
-            // Player 2
-            updatePlayerState(pongR.game.player2, game.Player2);
             // Ball
             updateBallState(game.Ball);
         }
