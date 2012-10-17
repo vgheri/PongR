@@ -14,8 +14,14 @@ namespace PongR.Models
         // Synchronize clients with the new authoritative game status
         public static void UpdateClients(Game game)
         {
+            var packet = new UpdatePacket()
+            {
+                Game = game,
+                //Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970,1,1,0,0,0,DateTimeKind.Utc)).TotalMilliseconds
+                Timestamp = DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm:ss:fff")
+            };
             var context = GlobalHost.ConnectionManager.GetHubContext<PongRHub>();
-            context.Clients[game.GameId].updateGame(game);
+            context.Clients[game.GameId].updateGame(packet);
         }
     }
 }

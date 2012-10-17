@@ -97,6 +97,7 @@
     <Compile Include="Models\PlayerInput.cs" />
     <Compile Include="Models\PlayRoom.cs" />
     <Compile Include="Models\Point.cs" />
+    <Compile Include="Models\UpdatePacket.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

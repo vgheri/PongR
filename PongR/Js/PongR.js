@@ -83,11 +83,13 @@ var PongR = (function ($, ko) {
 
     function Settings(width, height) {
         this.viewport = new Viewport(width, height); // The viewport size as passed by the client
-        this.naive_approach = true; // default : true. Means we won't use lag compensation
+        this.naive_approach = false; // default : true. Means we won't use lag compensation
         this.client_prediction = true;
+        this.net_offset = 100; // ms we are behind the server in updating the other client position
+        this.updates_buffer_size = 2; // seconds worth of udpates
         this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        
-        this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
-        this.client_smooth = 25;        //amount of smoothing to apply to client update dest
+        //this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
+        //this.client_smooth = 25;        //amount of smoothing to apply to client update dest
         this.gap = 30; // px. Minimum distance between the player and the field delimiters (up and down)
         this.BAR_SCROLL_UNIT = 330; // desired speed: pixels per second
         this.BALL_FIXED_STEP = 400; // desired speed: pixels per second
@@ -143,6 +145,12 @@ var PongR = (function ($, ko) {
 
     function convertToPixels(position) {
         // At the moment we are communicating using directly pixel values, so we just return the value
+        return position;
+    };
+
+    function convertPositionToPixels(position) {
+        // At the moment we are communicating using directly pixel values, so we just return the value
+        // Both X and Y at the same time
         return position;
     };
 
@@ -427,6 +435,95 @@ var PongR = (function ($, ko) {
         return playerInput;
     };
 
+    // as taken from https://github.com/FuzzYspo0N/realtime-multiplayer-in-html5/blob/master/game.core.js 
+    function interpolateClientMovements(player) {
+        //No updates...
+        if (!pongR.serverUpdates.length) {
+            return;
+        }
+
+        //First : Find the position in the updates, on the timeline
+        //We call this current_time, then we find the past_pos and the target_pos using this,
+        //searching throught the server_updates array for current_time in between 2 other times.
+        // Then :  other player position = lerp ( past_pos, target_pos, current_time );
+
+        //Find the position in the timeline of updates we stored.
+        var current_time = pongR.client_time;
+        var count = pongR.serverUpdates.length - 1;
+        var target = null;
+        var previous = null;
+
+        //We look from the 'oldest' updates, since the newest ones
+        //are at the end (list.length-1 for example). This will be expensive
+        //only when our time is not found on the timeline, since it will run all
+        //samples. Usually this iterates very little before breaking out with a target.
+        for (var i = 0; i < count; ++i) {
+
+            var point = pongR.serverUpdates[i];
+            var next_point = pongR.serverUpdates[i + 1];
+
+            //Compare our point in time with the server times we have
+            if (current_time > point.t && current_time < next_point.t) {
+                target = next_point;
+                previous = point;
+                break;
+            }
+        }
+
+        //With no target we store the last known
+        //server position and move to that instead
+        if (!target) {
+            target = pongR.serverUpdates[0];
+            previous = pongR.serverUpdates[0];
+        }
+
+        //Now that we have a target and a previous destination,
+        //We can interpolate between then based on 'how far in between' we are.
+        //This is simple percentage maths, value/target = [0,1] range of numbers.
+        //lerp requires the 0,1 value to lerp to? thats the one.
+
+        if (target && previous) {
+
+            var target_time = target.t;
+
+            var difference = target_time - current_time;
+            var max_difference = Math.round(target.t - previous.t);
+            var time_point = Math.round(difference / max_difference);
+
+            //Because we use the same target and previous in extreme cases
+            //It is possible to get incorrect values due to division by 0 difference
+            //and such. This is a safe guard and should probably not be here. lol.
+            if (isNaN(time_point)) time_point = 0;
+            if (time_point == -Infinity) time_point = 0;
+            if (time_point == Infinity) time_point = 0;
+
+            //The most recent server update
+            var latest_server_data = pongR.serverUpdates[pongR.serverUpdates.length - 1];
+
+            //The other players positions in this timeline, behind us and in front of us
+            var other_target_pos = convertPositionToPixels(target.Game.Player2.TopLeftVertex);
+            var other_past_pos = convertPositionToPixels(previous.Game.Player2.TopLeftVertex);
+
+            player.topLeftVertex = v_lerp(other_past_pos, other_target_pos, time_point);
+            player.barDirection = target.Game.Player2.BarDirection;
+            player.score(target.Game.Player2.Score);
+            player.lastProcessedInputId = target.Game.Player2.LastProcessedInputId
+        }
+    }
+
+    function lerp(p, n, t) {
+        var _t = Number(t);
+        _t = (Math.max(0, Math.min(1, _t)));
+        return Math.round(p + _t * (n - p));
+    };
+
+    function v_lerp(v, tv, t) {
+        return {
+            x: lerp(v.x, tv.x, t),
+            y: lerp(v.y, tv.y, t)
+        };
+    };
+
     // A single step of the client update loop (a frame)
     function updateLoopStep() {
         // Step 1: Clear canvas
@@ -437,6 +534,11 @@ var PongR = (function ($, ko) {
             // Step 3: Send the just processed input batch to the server.
             sendInput(pongR.game.gameId, me.user.connectionId, playerInput);
         }
+
+        if (!pongR.settings.naive_approach) {
+            interpolateClientMovements(pongR.game.player2);
+        }
+
         // Step 3: Draw the new frame in the canvas
         drawScene();
     };
@@ -572,7 +674,8 @@ var PongR = (function ($, ko) {
     };
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
-    function updateGame(game) {
+    function updateGame(updatePacket) {
+        var game = updatePacket.Game;
         var goalInfo = { goal: false, playerWhoScored: -1 };
         if (pongR.game.player1.score() < game.Player1.Score) {
             goalInfo.goal = true;
@@ -585,13 +688,23 @@ var PongR = (function ($, ko) {
 
         // Player 1 - we have to update the score and the latest input id processed!
         updatePlayerState(pongR.game.player1, game.Player1);
+        // TODO: Try and call the update physics loop to immediately reprocess non acknowledged inputs 
+        updatePhysics();
 
         if (pongR.settings.naive_approach) {
             // Player 2 - we have to update the score and the latest input id processed!
             updatePlayerState(pongR.game.player2, game.Player2);
         }
         else { // other client interpolation
+            pongR.serverUpdates.push(updatePacket);
+            pongR.server_time =  new Date(updatePacket.Timestamp).getTime();
+            pongR.client_time = pongR.server_time - (pongR.settings.net_offset / 1000);
 
+            //we limit the buffer in seconds worth of updates
+            //update loop rate * buffer seconds = number of samples
+            if (pongR.serverUpdates.length >= (66 * pongR.settings.updates_buffer_size)) {
+                pongR.serverUpdates.splice(0, 1); // remove the oldest item
+            }
         }
 
         if (goalInfo.goal) {
