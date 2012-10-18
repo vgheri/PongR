@@ -139,3 +139,7 @@ THREEx.KeyboardState.prototype.pressed = function (keyDesc) {
     };
     return timesPressed;
 }
+
+THREEx.KeyboardState.prototype.reset = function () {
+    this.keyCodes = {};
+}

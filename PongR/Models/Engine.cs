@@ -163,24 +163,27 @@ namespace PongR.Models
                 while (player.UnprocessedPlayerInputs.Count > 0)
                 {
                     input = player.UnprocessedPlayerInputs.Dequeue();
-                    lastInputExecuted = input.SequenceNumber;
-                    var step = (int)Math.Round(BAR_SCROLL_UNIT * DELTA_TIME);
-                    foreach (Command command in input.Commands)
+                    if (input != null)
                     {
-                        if (command == Command.Up)
+                        lastInputExecuted = input.SequenceNumber;
+                        var step = (int)Math.Round(BAR_SCROLL_UNIT * DELTA_TIME);
+                        foreach (Command command in input.Commands)
                         {
-                            if (player.TopLeftVertex.Y - step >= FIXED_GAP)
-                            {  // 30 px is the minimum distance from border                        
-                                player.TopLeftVertex.Y -= step;  
-                                player.BarDirection = "up";
-                            }
-                        }
-                        else if (command == Command.Down)
-                        {
-                            if (player.TopLeftVertex.Y + step <= fieldHeight - FIXED_GAP)
+                            if (command == Command.Up)
                             {
-                                player.TopLeftVertex.Y += step;  
-                                player.BarDirection = "down";
+                                if (player.TopLeftVertex.Y - step >= FIXED_GAP)
+                                {  // 30 px is the minimum distance from border                        
+                                    player.TopLeftVertex.Y -= step;
+                                    player.BarDirection = "up";
+                                }
+                            }
+                            else if (command == Command.Down)
+                            {
+                                if (player.TopLeftVertex.Y + step <= fieldHeight - FIXED_GAP)
+                                {
+                                    player.TopLeftVertex.Y += step;
+                                    player.BarDirection = "down";
+                                }
                             }
                         }
                     }
@@ -368,10 +371,6 @@ namespace PongR.Models
             string ballDirection = random.Next() % 2 == 0 ? "left" : "right";
             int ballAngle = ballDirection.Equals("left") ? 180 : 0;
             game.Ball.ResetBallToInitialPosition(ballDirection, ballAngle, FIELD_WIDTH, FIELD_HEIGHT);
-                        
-            // Wait 5 seconds (the client will display a message)
-            //System.Threading.Thread.Sleep(5000);
-            // Restart the simulation
         }
     }
 }

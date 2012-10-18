@@ -420,6 +420,8 @@ var PongR = (function ($, ko) {
             setTimeout(function () { performCountdown(--counter, callback) }, 1000);
         }
         else { // Countdown expired. If we have a callback, invoke it
+            keyboard.reset(); // during the countdown the user may have pressed some keys
+            pongR.me.inputs = [];
             if (callback) {
                 callback();
             }
@@ -633,6 +635,11 @@ var PongR = (function ($, ko) {
         }
     };
 
+    function computeNewClientPosition() {
+        var yIncrement = process_input(pongR.me);
+        return updateSelfPosition(pongR.me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
+    }
+
     function updatePhysics() {
         // 1: updates self position and direction        
         if (!pongR.updateTimestamp) { // The first time this loop runs, pongR.updateTimestamp will be undefined
@@ -644,9 +651,9 @@ var PongR = (function ($, ko) {
             //console.log("Delta time: " + pongR.deltaTime + ". Now: " + now + ", previous update: " + pongR.updateTimestamp);
             pongR.updateTimestamp = now;
         }
-        var yIncrement = process_input(pongR.me);
-        var newPosition = updateSelfPosition(pongR.me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
-        pongR.me.topLeftVertex = newPosition;
+
+        pongR.me.topLeftVertex = computeNewClientPosition();
+
         // 2: update ball position
         var newPosition = updateBallPosition(pongR.game.ball.angle, pongR.game.ball.position);
         pongR.game.ball.position = newPosition;
@@ -737,11 +744,17 @@ var PongR = (function ($, ko) {
             pongR.game.player2.score(updatePacket.Game.Player2.Score);
             // Then reset positions
             ResetPositionsToInitialState(updatePacket.Game);
+            // Reset keyboard buffer
+            keyboard.reset();
             performCountdown(3);
         }
         else {
             // Me
             updatePlayerState(pongR.me, remoteMe);
+            // Let's apply client prediction: let's replay all input commands not yet ack'd by the server and check if we have collisions
+            pongR.me.topLeftVertex = computeNewClientPosition();
+            checkForCollisionsAndUpdateBallState();
+
             if (pongR.settings.naive_approach) {
                 // Other - we have to update the score and the latest input id processed! 			
                 updatePlayerState(pongR.other, remoteOther);

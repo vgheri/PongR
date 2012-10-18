@@ -48,6 +48,7 @@ namespace PongR.Models
             var x = this.PlayerNumber == 1 ? 50 : (fieldWidth - 50 - this.BarWidth); //px
             var y = 252; //px
             this.TopLeftVertex = new Point(x, y);
+            this.UnprocessedPlayerInputs.Clear();
         }
     }
 }

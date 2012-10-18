@@ -22,7 +22,7 @@ Player 1 -> BAR_SCROLL_UNIT = 5px ==> (5/600) * 100 = 1%
 
 --------------------------------------------------
 
-- Add countdown at the beginning of the match
+- Fix bug with player capable of going below the lower field delimiter!
 - Compute latency from client to server and adjust the pause after goal based on the latency (in startUpdateLoop())
 - Write unit tests for the Models
 - Write unit tests for the modified keyboard.js 
