@@ -97,6 +97,11 @@ namespace PongR.Models
                     {
                         // Let's remove the timestamp, so that next round everything will be back to normal
                         _goalTimestamps.Remove(game.GameId);
+
+                        // In the meantime a user could have sent inputs, but these inputs must be discarded
+                        game.Player1.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
+                        game.Player2.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
+
                         ProcessTick(game);
                     }
                 } // Otherwise just process the new state
