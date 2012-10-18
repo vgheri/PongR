@@ -730,7 +730,7 @@ var PongR = (function ($, ko) {
         var remoteOther = pongR.me.playerNumber === 2 ? game.Player1 : game.Player2;
 
         // Update myself - we have to update the score and the latest input id processed!
-        updatePlayerState(pongR.me, remoteMe);        
+        updatePlayerState(pongR.me, remoteMe);
 
         if (pongR.settings.naive_approach) {
             // Player 2 - we have to update the score and the latest input id processed!            
@@ -740,6 +740,7 @@ var PongR = (function ($, ko) {
             // We need to update only the score and the last processed input id
             pongR.other.score(remoteOther.Score);
             pongR.other.lastProcessedInputId = remoteOther.LastProcessedInputId;
+            pongR.other.barDirection = remoteOther.BarDirection;
 
             pongR.serverUpdates.push(updatePacket);
             var tempDate = new Date();
