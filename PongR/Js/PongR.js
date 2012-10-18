@@ -124,7 +124,7 @@ var PongR = (function ($, ko) {
         this.naive_approach = false; // default : true. Means we won't use lag compensation
         this.client_prediction = true;
         this.net_offset = 100; // ms we are behind the server in updating the other client position
-        this.updates_buffer_size = 2; // seconds worth of udpates
+        this.updates_buffer_size = 1; // seconds worth of udpates
         this.input_sequence = 0; //When predicting client inputs, we store the last input as a sequence number        
         //this.client_smoothing = false;  //Whether or not the client side prediction tries to smooth things out
         //this.client_smooth = 25;        //amount of smoothing to apply to client update dest
@@ -175,6 +175,8 @@ var PongR = (function ($, ko) {
     };
 
     function ResetPositionsToInitialState(serverGame) {
+        pongR.game.player1.inputs = [];
+        pongR.game.player2.inputs = [];
         pongR.game.player1.resetPositionAndDirection(pongR.settings.viewport.width);
         pongR.game.player2.resetPositionAndDirection(pongR.settings.viewport.width);
         pongR.game.ball.resetPositionDirectionAndAngle(pongR.settings.viewport.width, pongR.settings.viewport.height,
@@ -715,32 +717,40 @@ var PongR = (function ($, ko) {
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
     function updateGame(updatePacket) {
-        var game = updatePacket.Game;
-        var goalInfo = { goal: false, playerWhoScored: -1 };
-        if (pongR.game.player1.score() < game.Player1.Score) {
-            goalInfo.goal = true;
-            goalInfo.playerWhoScored = 1;
+        var goal = false;
+        if (pongR.game.player1.score() < updatePacket.Game.Player1.Score) {
+            goal = true;
         }
-        else if (pongR.game.player2.score() < game.Player2.Score) {
-            goalInfo.goal = true;
-            goalInfo.playerWhoScored = 2;
+        else if (pongR.game.player2.score() < updatePacket.Game.Player2.Score) {
+            goal = true;
         }
 
-        var remoteMe = pongR.me.playerNumber === 1 ? game.Player1 : game.Player2;
-        var remoteOther = pongR.me.playerNumber === 2 ? game.Player1 : game.Player2;
+        var remoteMe = pongR.me.playerNumber === 1 ? updatePacket.Game.Player1 : updatePacket.Game.Player2;
+        var remoteOther = pongR.me.playerNumber === 2 ? updatePacket.Game.Player1 : updatePacket.Game.Player2;
 
-        // Update myself - we have to update the score and the latest input id processed!
-        updatePlayerState(pongR.me, remoteMe);
-
-        if (pongR.settings.naive_approach) {
-            // Player 2 - we have to update the score and the latest input id processed!            
-            updatePlayerState(pongR.other, remoteOther);
+        if (goal) {
+            pongR.goalTimestamp = new Date().getTime();
+            // Only update my last processed input id
+            pongR.me.lastProcessedInputId = remoteMe.LastProcessedInputId
+            // We also clear history of inputs as we start afresh            
+            pongR.game.player1.score(updatePacket.Game.Player1.Score);
+            pongR.game.player2.score(updatePacket.Game.Player2.Score);
+            // Then reset positions
+            ResetPositionsToInitialState(updatePacket.Game);
+            performCountdown(3);
         }
-        else { // other client position interpolation
-            // We need to update only the score and the last processed input id
-            pongR.other.score(remoteOther.Score);
-            pongR.other.lastProcessedInputId = remoteOther.LastProcessedInputId;
-            pongR.other.barDirection = remoteOther.BarDirection;
+        else {
+            // Me
+            updatePlayerState(pongR.me, remoteMe);
+            if (pongR.settings.naive_approach) {
+                // Other - we have to update the score and the latest input id processed! 			
+                updatePlayerState(pongR.other, remoteOther);
+            }
+            else {
+                pongR.other.score(remoteOther.Score);
+                pongR.other.lastProcessedInputId = remoteOther.LastProcessedInputId;
+                pongR.other.barDirection = remoteOther.BarDirection;
+            }
 
             pongR.serverUpdates.push(updatePacket);
             var tempDate = new Date();
@@ -752,17 +762,9 @@ var PongR = (function ($, ko) {
             if (pongR.serverUpdates.length >= (66 * pongR.settings.updates_buffer_size)) {
                 pongR.serverUpdates.splice(0, 1); // remove the oldest item
             }
-        }
 
-        if (goalInfo.goal) {
-            pongR.goalTimestamp = new Date().getTime();
-            // Then reset positions
-            ResetPositionsToInitialState(game);
-            performCountdown(3);
-        }
-        else {
             // Ball
-            updateBallState(game.Ball);
+            updateBallState(updatePacket.Game.Ball);
         }
     };
 
