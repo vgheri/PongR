@@ -7,12 +7,50 @@
 // Module creation
 var PongR = (function ($, ko) {
 
+    // IE doesn't parse IS8601 formatted dates, so I had to find this function to parse it
+    // (URL http://dansnetwork.com/javascript-iso8601rfc3339-date-parser/ )
+    Date.prototype.setISO8601 = function (dString) {
+
+        var regexp = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)(\.\d+)?(Z|([+-])(\d\d)(:)?(\d\d))/;
+
+        if (dString.toString().match(new RegExp(regexp))) {
+            var d = dString.match(new RegExp(regexp));
+            var offset = 0;
+
+            this.setUTCDate(1);
+            this.setUTCFullYear(parseInt(d[1], 10));
+            this.setUTCMonth(parseInt(d[3], 10) - 1);
+            this.setUTCDate(parseInt(d[5], 10));
+            this.setUTCHours(parseInt(d[7], 10));
+            this.setUTCMinutes(parseInt(d[9], 10));
+            this.setUTCSeconds(parseInt(d[11], 10));
+            if (d[12])
+                this.setUTCMilliseconds(parseFloat(d[12]) * 1000);
+            else
+                this.setUTCMilliseconds(0);
+            if (d[13] != 'Z') {
+                offset = (d[15] * 60) + parseInt(d[17], 10);
+                offset *= ((d[14] == '-') ? -1 : 1);
+                this.setTime(this.getTime() - offset * 60 * 1000);
+            }
+        }
+        else {
+            this.setTime(Date.parse(dString));
+        }
+        return this;
+    };
+
+    Date.prototype.getUTCTime = function (date) {
+        var isoDate = new Date();
+        isoDate.setISO8601(date);
+        return new Date(isoDate.getTime() + (isoDate.getTimezoneOffset() * 60000)).getTime();
+    };
+
     var pongR = {
         PublicPrototype: { UnitTestPrototype: {} }
     };
 
-    // Used in the logic section
-    var me;
+    // Used in the logic section    
     var keyboard;
     var requestAnimationFrameRequestId;
     var physicsLoopId;
@@ -429,7 +467,7 @@ var PongR = (function ($, ko) {
                 commands: input
             };
 
-            me.inputs.push(playerInput);
+            pongR.me.inputs.push(playerInput);
         }
 
         return playerInput;
@@ -453,6 +491,8 @@ var PongR = (function ($, ko) {
         var target = null;
         var previous = null;
 
+        var temp = new Date(); // used to parse the date stored in the updates as a UTC date in milliseconds        
+
         //We look from the 'oldest' updates, since the newest ones
         //are at the end (list.length-1 for example). This will be expensive
         //only when our time is not found on the timeline, since it will run all
@@ -463,7 +503,7 @@ var PongR = (function ($, ko) {
             var next_point = pongR.serverUpdates[i + 1];
 
             //Compare our point in time with the server times we have
-            if (current_time > point.t && current_time < next_point.t) {
+            if (current_time > temp.getUTCTime(point.Timestamp) && current_time < temp.getUTCTime(next_point.Timestamp)) {
                 target = next_point;
                 previous = point;
                 break;
@@ -484,11 +524,11 @@ var PongR = (function ($, ko) {
 
         if (target && previous) {
 
-            var target_time = target.t;
+            var target_time = temp.getUTCTime(target.Timestamp);
 
             var difference = target_time - current_time;
-            var max_difference = Math.round(target.t - previous.t);
-            var time_point = Math.round(difference / max_difference);
+            var max_difference = Math.round(temp.getUTCTime(target.Timestamp) - temp.getUTCTime(previous.Timestamp));
+            var time_point = (difference / max_difference);
 
             //Because we use the same target and previous in extreme cases
             //It is possible to get incorrect values due to division by 0 difference
@@ -501,13 +541,15 @@ var PongR = (function ($, ko) {
             var latest_server_data = pongR.serverUpdates[pongR.serverUpdates.length - 1];
 
             //The other players positions in this timeline, behind us and in front of us
-            var other_target_pos = convertPositionToPixels(target.Game.Player2.TopLeftVertex);
-            var other_past_pos = convertPositionToPixels(previous.Game.Player2.TopLeftVertex);
+            var otherTarget = pongR.other.playerNumber === 1 ? target.Game.Player1 : target.Game.Player2;
+            var other_target_pos = convertPositionToPixels(otherTarget.TopLeftVertex);
+            var otherPast = pongR.other.playerNumber === 1 ? previous.Game.Player1 : previous.Game.Player2;
+            var other_past_pos = convertPositionToPixels(otherPast.TopLeftVertex);
 
             player.topLeftVertex = v_lerp(other_past_pos, other_target_pos, time_point);
-            player.barDirection = target.Game.Player2.BarDirection;
-            player.score(target.Game.Player2.Score);
-            player.lastProcessedInputId = target.Game.Player2.LastProcessedInputId
+            player.barDirection = otherTarget.BarDirection;
+            player.score(otherTarget.Score);
+            player.lastProcessedInputId = otherTarget.LastProcessedInputId
         }
     }
 
@@ -519,8 +561,8 @@ var PongR = (function ($, ko) {
 
     function v_lerp(v, tv, t) {
         return {
-            x: lerp(v.x, tv.x, t),
-            y: lerp(v.y, tv.y, t)
+            x: lerp(v.X, tv.X, t),
+            y: lerp(v.Y, tv.Y, t)
         };
     };
 
@@ -529,14 +571,14 @@ var PongR = (function ($, ko) {
         // Step 1: Clear canvas
         pongR.canvasContext.clearRect(0, 0, pongR.settings.viewport.width, pongR.settings.viewport.height);
         // Step 2: Handle user inputs (update internal model)
-        var playerInput = handleClientInputs(me);
+        var playerInput = handleClientInputs(pongR.me);
         if (playerInput !== null) {
             // Step 3: Send the just processed input batch to the server.
-            sendInput(pongR.game.gameId, me.user.connectionId, playerInput);
+            sendInput(pongR.game.gameId, pongR.me.user.connectionId, playerInput);
         }
 
         if (!pongR.settings.naive_approach) {
-            interpolateClientMovements(pongR.game.player2);
+            interpolateClientMovements(pongR.other);
         }
 
         // Step 3: Draw the new frame in the canvas
@@ -600,9 +642,9 @@ var PongR = (function ($, ko) {
             //console.log("Delta time: " + pongR.deltaTime + ". Now: " + now + ", previous update: " + pongR.updateTimestamp);
             pongR.updateTimestamp = now;
         }
-        var yIncrement = process_input(me);
-        var newPosition = updateSelfPosition(me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
-        me.topLeftVertex = newPosition;
+        var yIncrement = process_input(pongR.me);
+        var newPosition = updateSelfPosition(pongR.me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
+        pongR.me.topLeftVertex = newPosition;
         // 2: update ball position
         var newPosition = updateBallPosition(pongR.game.ball.angle, pongR.game.ball.position);
         pongR.game.ball.position = newPosition;
@@ -625,12 +667,8 @@ var PongR = (function ($, ko) {
         // getContext() returns an object that provides methods and properties for drawing on the canvas.
         pongR.canvasContext = pongR.canvas.getContext("2d");
 
-        if (opts.Player1.Username === pongR.pongRHub.username) {
-            me = pongR.game.player1;
-        }
-        else {
-            me = pongR.game.player2;
-        }
+        pongR.me = pongR.pongRHub.username === pongR.game.player1.user.username() ? pongR.game.player1 : pongR.game.player2;
+        pongR.other = pongR.me.user.username() === pongR.game.player1.user.username() ? pongR.game.player2 : pongR.game.player1;
 
         ko.applyBindings(pongR.game);
 
@@ -673,6 +711,8 @@ var PongR = (function ($, ko) {
         performCountdown(3, startGame);
     };
 
+
+
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
     function updateGame(updatePacket) {
         var game = updatePacket.Game;
@@ -686,19 +726,25 @@ var PongR = (function ($, ko) {
             goalInfo.playerWhoScored = 2;
         }
 
-        // Player 1 - we have to update the score and the latest input id processed!
-        updatePlayerState(pongR.game.player1, game.Player1);
-        // TODO: Try and call the update physics loop to immediately reprocess non acknowledged inputs 
-        updatePhysics();
+        var remoteMe = pongR.me.playerNumber === 1 ? game.Player1 : game.Player2;
+        var remoteOther = pongR.me.playerNumber === 2 ? game.Player1 : game.Player2;
+
+        // Update myself - we have to update the score and the latest input id processed!
+        updatePlayerState(pongR.me, remoteMe);        
 
         if (pongR.settings.naive_approach) {
-            // Player 2 - we have to update the score and the latest input id processed!
-            updatePlayerState(pongR.game.player2, game.Player2);
+            // Player 2 - we have to update the score and the latest input id processed!            
+            updatePlayerState(pongR.other, remoteOther);
         }
-        else { // other client interpolation
+        else { // other client position interpolation
+            // We need to update only the score and the last processed input id
+            pongR.other.score(remoteOther.Score);
+            pongR.other.lastProcessedInputId = remoteOther.LastProcessedInputId;
+
             pongR.serverUpdates.push(updatePacket);
-            pongR.server_time =  new Date(updatePacket.Timestamp).getTime();
-            pongR.client_time = pongR.server_time - (pongR.settings.net_offset / 1000);
+            var tempDate = new Date();
+            pongR.server_time = tempDate.getUTCTime(updatePacket.Timestamp);
+            pongR.client_time = pongR.server_time - pongR.settings.net_offset;
 
             //we limit the buffer in seconds worth of updates
             //update loop rate * buffer seconds = number of samples

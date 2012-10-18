@@ -18,7 +18,7 @@ namespace PongR.Models
             {
                 Game = game,
                 //Timestamp = DateTime.UtcNow.Subtract(new DateTime(1970,1,1,0,0,0,DateTimeKind.Utc)).TotalMilliseconds
-                Timestamp = DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm:ss:fff")
+                Timestamp = DateTime.UtcNow
             };
             var context = GlobalHost.ConnectionManager.GetHubContext<PongRHub>();
             context.Clients[game.GameId].updateGame(packet);
