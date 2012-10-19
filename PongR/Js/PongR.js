@@ -368,16 +368,16 @@ var PongR = (function ($, ko) {
     //updateSelfPosition(topLeftVertex : Point, yIncrement : number, fieldHeight : number, settings.gap : number) : Point 
     // Updates self position. If we are not too close, we move completely, otherwise we are set to the gap
     // Gap is defined as the minimum distance between the player and the field delimiters (up and down) is 30 px
-    function updateSelfPosition(topLeftVertex, yIncrement, fieldHeight, gap) {
+    function updateSelfPosition(topLeftVertex, yIncrement, fieldHeight, gap, barHeight) {
         var newTopLeftVertex = { x: topLeftVertex.x, y: topLeftVertex.y };
-        if ((topLeftVertex.y + yIncrement >= gap) && (topLeftVertex.y + yIncrement <= fieldHeight - gap)) {
+        if ((topLeftVertex.y + yIncrement >= gap) && (topLeftVertex.y + yIncrement + barHeight <= fieldHeight - gap)) {
             newTopLeftVertex.y += yIncrement;
         }
         else if (topLeftVertex.y + yIncrement < gap) {
             newTopLeftVertex.y = gap;
         }
         else {
-            newTopLeftVertex.y = fieldHeight - gap;
+            newTopLeftVertex.y = fieldHeight - (gap + barHeight);
         }
         return newTopLeftVertex;
     };
@@ -637,7 +637,7 @@ var PongR = (function ($, ko) {
 
     function computeNewClientPosition() {
         var yIncrement = process_input(pongR.me);
-        return updateSelfPosition(pongR.me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap);
+        return updateSelfPosition(pongR.me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap, pongR.me.barHeight);
     }
 
     function updatePhysics() {

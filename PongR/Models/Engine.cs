@@ -143,7 +143,7 @@ namespace PongR.Models
                 // 4: TODO Write Unit Test
                 var goal = CheckGoalConditionAndUpdateStatus(game);
                 if (goal)
-                {
+                {                    
                     _goalTimestamps.Add(game.GameId, DateTime.Now);               
                     RestartGameAfterGoal(game);                    
                 }                
@@ -181,13 +181,22 @@ namespace PongR.Models
                                     player.TopLeftVertex.Y -= step;
                                     player.BarDirection = "up";
                                 }
+                                else
+                                {
+                                    player.TopLeftVertex.Y = FIXED_GAP;
+                                    player.BarDirection = "up";
+                                }
                             }
                             else if (command == Command.Down)
                             {
-                                if (player.TopLeftVertex.Y + step <= fieldHeight - FIXED_GAP)
+                                if (player.TopLeftVertex.Y + step <= fieldHeight - FIXED_GAP - player.BarHeight)
                                 {
                                     player.TopLeftVertex.Y += step;
                                     player.BarDirection = "down";
+                                }
+                                else
+                                {
+                                    player.TopLeftVertex.Y = fieldHeight - FIXED_GAP - player.BarHeight;
                                 }
                             }
                         }
