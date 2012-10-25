@@ -139,6 +139,13 @@ var PongR = (function ($, ko) {
         this.player1 = new Player(player1, 1, pongR.settings.viewport.width);
         this.player2 = new Player(player2, 2, pongR.settings.viewport.width);
         this.ball = new Ball(ballDirection, pongR.settings.viewport.width, pongR.settings.viewport.height);
+        this.destroy = function () {
+            var self = this;
+            self.gameId = "";
+            self.player1 = {};
+            self.player2 = {};
+            self.ball = {};
+        };
     };
 
     // Logic
@@ -704,23 +711,25 @@ var PongR = (function ($, ko) {
 
     function opponentLeft() {
         alert("Opponent left. Going back to wait list");
-        //pongR.clearAnimation(requestAnimationFrameRequestId);            
-        // TODO Implement a method that resets the game: names, score, objects position (resetAllPositionsToInitialState())
+        clearAnimation();
+        clearPhysicsLoop();
+        keyboard.destroy();
+        pongR.game.player1.user.username("Player #1");
+        pongR.game.player1.score("0");
+        pongR.game.player2.user.username("Player #2");
+        pongR.game.player2.score("0");
+        pongR.game.destroy();
     };
 
     function wait() {
-        // TODO: Use a lightbox to display a waiting message
-        alert("Wait. Do nothing.");
+        $("#waiter").css("visibility", "visible");
     };
 
     function setupMatch(opts) {
-
+        $("#waiter").remove();
         initMatch(opts);
-
         performCountdown(3, startGame);
     };
-
-
 
     // Receives an updated game state from the server. Being the server authoritative, means that we have to apply this state to our current state
     function updateGame(updatePacket) {

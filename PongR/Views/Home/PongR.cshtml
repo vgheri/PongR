@@ -12,8 +12,8 @@
     <div class="player-info-container">
         <div id="player1-info" class="player-info">
             <ul>
-                <li id="player1-name" data-bind="text: player1.user.username"></li>
-                <li id="player1-score" class="player-score" data-bind="text: player1.score"></li>
+                <li id="player1-name" data-bind="text: player1.user.username">Player #1</li>
+                <li id="player1-score" class="player-score" data-bind="text: player1.score">0</li>
             </ul>            
         </div>
     </div>
@@ -21,14 +21,20 @@
     <div class="player-info-container">
         <div id="player2-info" class="player-info">
             <ul>
-                <li id="player2-name" data-bind="text: player2.user.username"></li>
-                <li id="player2-score" class="player-score" data-bind="text: player2.score"></li>
+                <li id="player2-name" data-bind="text: player2.user.username">Player #2</li>
+                <li id="player2-score" class="player-score" data-bind="text: player2.score">0</li>
             </ul>
         </div>
     </div>
 </div>
 
 <!-- Contains the play field -->
+
+<div id="waiter">
+    Waiting for an opponent...
+    <br />
+    <img src="@Url.Content("~/Content/images/spin.gif")" alt="Wait" />
+</div>
 
 <div id="fieldContainer">
     <canvas id="viewport">

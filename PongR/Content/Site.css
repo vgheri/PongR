@@ -127,7 +127,7 @@ input, button
 {
 	margin-top: 2%;
 	width: 52%;
-	height: 50%;
+	height: 40%;
 	border: 1px solid black;
 }
 
@@ -150,8 +150,25 @@ input, button
 
 .player-score
 {
-	float:right;
-	border-left: 1px solid black;
+	float:right;	
+}
+
+#waiter 
+{
+    visibility: hidden;
+	display: block;
+	height: 100px;
+	width: 200px;
+	margin: 0 auto;
+	margin-top: 15%;
+}
+
+#waiter img 
+{   
+    display: block;
+	height: 32px;
+	width: 32px;
+	margin: 10px auto;	
 }
 
 /* Field  style */
