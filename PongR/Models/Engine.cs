@@ -67,8 +67,7 @@ namespace PongR.Models
         // raised.
         public static void OnPhysicsTimedEvent(object source, ElapsedEventArgs e)
         {
-            Engine.ProcessGamesTick();
-            Console.WriteLine("PL Executed");
+            Engine.ProcessGamesTick();           
         }
 
         // Specify what you want to happen when the Elapsed event is 
@@ -76,7 +75,6 @@ namespace PongR.Models
         public static void OnUpdateClientsTimedEvent(object source, ElapsedEventArgs e)
         {
             Engine.UpdateClients();
-            Console.WriteLine("UL Executed");
         }
 
         /// <summary>
