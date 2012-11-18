@@ -92,23 +92,24 @@ namespace PongR.Models
                 {
                     var now = DateTime.Now;
                     var timelapse = (now - timestamp).TotalSeconds;
-                    // If more than 3 seconds have passed, let's update the state of the game!
-                    if (timelapse > PAUSE_AFTER_GOAL)
+                    // If not enough time has passed yet since the last goal, proceed with the next game
+                    if (timelapse <= PAUSE_AFTER_GOAL)
+                    {
+                        continue;
+                    }
+                    //If more than 3 seconds have passed, let's update the state of the game!
+                    else 
                     {
                         // Let's remove the timestamp, so that next round everything will be back to normal
                         _goalTimestamps.Remove(game.GameId);
 
                         // In the meantime a user could have sent inputs, but these inputs must be discarded
                         game.Player1.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
-                        game.Player2.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);
-
-                        ProcessTick(game);
+                        game.Player2.ResetPlayerToIntialPositionAndState(FIELD_WIDTH);                        
                     }
-                } // Otherwise just process the new state
-                else
-                {
-                    ProcessTick(game);
-                }
+                } 
+                // Process the new state
+                ProcessTick(game);                
             }
         }
 

@@ -3,7 +3,7 @@ For every step I need to increment the X and Y by 1%, and 1% is 5 pixel, then i 
 This way I can have a consistent simulation both on the server and the clients, disregard their screen dimension.
 Clients and server communicate in terms of %, internally they think in terms of pixel!
 
-Reference field dimension on the server = 1000 (width) * 600 (height) px
+Reference field dimension on the server = 1200 (width) * 600 (height) px
 So everything should be expressed in terms of percentage: 
 
 Fixed gap -> 30px ==> (30/600) * 100 = 5%

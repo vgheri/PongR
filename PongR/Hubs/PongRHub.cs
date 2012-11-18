@@ -68,7 +68,8 @@ namespace PongR.Hubs
             // 4: Create room and assign both users
             // 5: Create a group for this room
             // 6: Setup match (playRoom Id, initial ball direction, player on the left and right etc...)
-            // 6: Notify the group the match can start
+            // 7: Notify the group the match can start
+            // 8: Add the game to the list of games that the Engine must simulate
             var user = new User()
             {
                 Id = Context.ConnectionId,
