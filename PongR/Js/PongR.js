@@ -290,9 +290,9 @@ var PongR = (function ($, ko) {
 
     //updateBallPosition(angle, position) : Point 
     //Updates the position of the ball based on its direction and its angle
-    function updateBallPosition(angle, position) {
+    function updateBallPosition(angle, position, deltaTime, ballFixedStep) {
         var newPosition = { x: position.x, y: position.y };
-        var step = Math.round(pongR.settings.BALL_FIXED_STEP * pongR.deltaTime);
+        var step = Math.round(ballFixedStep * deltaTime);
         switch (angle) {
             case 0:
                 newPosition.x = position.x + step;
@@ -327,14 +327,14 @@ var PongR = (function ($, ko) {
 
     //process_input(player : Player) : number 
     //Computes the increment on the Y axis, given a player list of inputs
-    function process_input(player) {
+    function process_input(player, barScrollUnit, deltaTime) {
         //It's possible to have received multiple inputs by now, so we process each one        
         // Each input is an object structured like:
         // commands: list of commands (i.e. a list of "up"/"down")
         // sequenceNumber: the sequence number for this batch of inputs
         var y_dir = 0;
         var ic = player.inputs.length;
-        var step = Math.round(pongR.settings.BAR_SCROLL_UNIT * pongR.deltaTime);
+        var step = Math.round(barScrollUnit * deltaTime); 
         if (ic) {
             for (var j = 0; j < ic; ++j) {
                 //don't process ones we already have simulated locally
@@ -643,7 +643,7 @@ var PongR = (function ($, ko) {
     };
 
     function computeNewClientPosition() {
-        var yIncrement = process_input(pongR.me);
+        var yIncrement = process_input(pongR.me, pongR.settings.BAR_SCROLL_UNIT, pongR.deltaTime);
         return updateSelfPosition(pongR.me.topLeftVertex, yIncrement, pongR.settings.viewport.height, pongR.settings.gap, pongR.me.barHeight);
     }
 
@@ -662,7 +662,7 @@ var PongR = (function ($, ko) {
         pongR.me.topLeftVertex = computeNewClientPosition();
 
         // 2: update ball position
-        var newPosition = updateBallPosition(pongR.game.ball.angle, pongR.game.ball.position);
+        var newPosition = updateBallPosition(pongR.game.ball.angle, pongR.game.ball.position, pongR.deltaTime, pongR.settings.BALL_FIXED_STEP);
         pongR.game.ball.position = newPosition;
         // 2: check collision
         checkForCollisionsAndUpdateBallState();

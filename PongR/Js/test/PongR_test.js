@@ -342,32 +342,32 @@ test("Test updateBallPosition", function () {
     // Test 1
     var angle = 45;
     var position = { x: 50, y: 50 };
-    var newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position);
+    var newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position, 1, 10);
     var expectedNewPosition = { x: 60, y: 40 };
     deepEqual(newPosition, expectedNewPosition);
     // Test 2
     angle = 135;
-    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position);
+    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position, 1, 10);
     expectedNewPosition = { x: 40, y: 40 };
     deepEqual(newPosition, expectedNewPosition);
     // Test 3
     angle = 180;
-    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position);
+    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position, 1, 10);
     expectedNewPosition = { x: 40, y: 50 };
     deepEqual(newPosition, expectedNewPosition);
     // Test 4
     angle = 225;
-    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position);
+    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position, 1, 10);
     expectedNewPosition = { x: 40, y: 60 };
     deepEqual(newPosition, expectedNewPosition);
     // Test 5
     angle = 315;
-    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position);
+    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position, 1, 10);
     expectedNewPosition = { x: 60, y: 60 };
     deepEqual(newPosition, expectedNewPosition);
     // Test 6
     angle = 0;
-    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position);
+    newPosition = PongR.UnitTestPrototype.updateBallPosition(angle, position, 1, 10);
     expectedNewPosition = { x: 60, y: 50 };
     deepEqual(newPosition, expectedNewPosition);
 });
@@ -378,8 +378,8 @@ test("Test process_input", function () {
     var commands1 = ["up", "up"];
     var inputs = [{ commands: commands1, sequenceNumber: 0}];
     var player = { inputs: inputs, lastProcessedInputId: -1 };
-    var expectedIncrement = -10;
-    var observedIncrement = PongR.UnitTestPrototype.process_input(player);
+    var expectedIncrement = -20;
+    var observedIncrement = PongR.UnitTestPrototype.process_input(player, 10, 1);
     deepEqual(observedIncrement, expectedIncrement);
     deepEqual(player.lastProcessedInputId, 0);
     // Test 2    
@@ -387,7 +387,7 @@ test("Test process_input", function () {
     inputs = [{ commands: commands1, sequenceNumber: 1}];
     player = { inputs: inputs, lastProcessedInputId: 0 };
     expectedIncrement = 0;
-    observedIncrement = PongR.UnitTestPrototype.process_input(player);
+    observedIncrement = PongR.UnitTestPrototype.process_input(player, 10, 1);
     deepEqual(observedIncrement, expectedIncrement);
     deepEqual(player.lastProcessedInputId, 1);
 });
@@ -399,8 +399,9 @@ test("Test updateSelfPosition", function () {
     var yIncrement = -5;
     var fieldHeight = 600;
     var gap = 30;
+    var barHeight = 96;
     var expectedPosition = { x: 30, y: 30 };
-    var updatedPosition = PongR.UnitTestPrototype.updateSelfPosition(position, yIncrement, fieldHeight, gap);
+    var updatedPosition = PongR.UnitTestPrototype.updateSelfPosition(position, yIncrement, fieldHeight, gap, barHeight);
     deepEqual(expectedPosition, updatedPosition);
     // Test 2
     var position = { x: 30, y: 54 };
@@ -408,7 +409,7 @@ test("Test updateSelfPosition", function () {
     var fieldHeight = 600;
     var gap = 30;
     var expectedPosition = { x: 30, y: 49 };
-    var updatedPosition = PongR.UnitTestPrototype.updateSelfPosition(position, yIncrement, fieldHeight, gap);
+    var updatedPosition = PongR.UnitTestPrototype.updateSelfPosition(position, yIncrement, fieldHeight, gap, barHeight);
     deepEqual(expectedPosition, updatedPosition);
 });
 
