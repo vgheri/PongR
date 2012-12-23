@@ -670,10 +670,8 @@ var PongR = (function ($, ko) {
 
     // Initial setup of the match state and start of the game interval
     function initMatch(opts) {
-        // Proposal: app is now a global var... make it private
         pongR.game = new Game(opts.PlayRoomId, opts.Player1, opts.Player2, opts.BallDirection);
 
-        // Proposal: I can extract the following blocks of code into a function to retrieve the current canvas context
         // Set the canvas dimensions
         pongR.canvas = document.getElementById("viewport");
         pongR.canvas.width = pongR.settings.viewport.width;
@@ -687,19 +685,12 @@ var PongR = (function ($, ko) {
         pongR.other = pongR.me.user.username() === pongR.game.player1.user.username() ? pongR.game.player2 : pongR.game.player1;
 
         ko.applyBindings(pongR.game);
-
-        // Edited: physics and update loops are started in a separate function, after the countdown
-        // Start the physics loop
-        //startPhysicsLoop();
-
+                
         // Initialise keyboard handler
         keyboard = new THREEx.KeyboardState();
 
         //A list of recent server updates
         pongR.serverUpdates = [];
-
-        // Start the update loop
-        //startUpdateLoop();
 
         // Draw initial scene
         drawScene();
